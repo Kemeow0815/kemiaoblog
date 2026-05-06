@@ -1,0 +1,161 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import FabMenu from '@components/control/FabMenu.astro'
+import Cover from '@components/Cover.astro';
+import MemoTimeline from '@components/memos/MemoTimeline.astro';
+import RemoteMemoTabs from '@components/memos/RemoteMemoTabs.svelte';
+import { siteConfig } from '@/config'
+import { getMemos } from '@utils/content-utils'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client";
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+export async function getStaticPaths() {
+	return i18n?.locales.map(locale => ({ params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) } }));
+}
+
+const memosPost = await getMemos();
+if (!memosPost) {
+    throw new Error('No memos post found');
+}
+
+// 获取所有本地标签
+const allTags = [...new Set(memosPost.flatMap(m => m.data?.tags || []))].sort();
+
+const sortedMemos = memosPost.sort((a, b) => b.id.localeCompare(a.id));
+
+const pageTitle = t("header.memos") + " - " + siteConfig.title;
+
+// Memos API 配置
+const memoApiUrl = 'https://m.314926.xyz';
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+    <div class="mx-auto w-full max-w-[var(--page-width)]">
+        <Cover title={t("cover.title.memos")} subTitle={t("cover.subTitle.memos")} />
+        
+        <div class="mt-8 px-4">
+            <!-- Tab 按钮 -->
+            <div class="flex justify-center mb-8">
+                <div class="inline-flex bg-[var(--card-color)] rounded-lg p-1 shadow-sm" id="memo-tabs">
+                    <button
+                        class="px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 bg-[var(--btn-bg)] text-[var(--btn-text)] shadow-sm"
+                        data-tab="local"
+                    >
+                        {t('memoTabs.local') || '本地'}
+                    </button>
+                    <button
+                        class="px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 text-[var(--text-color-70)] hover:text-[var(--text-color)]"
+                        data-tab="remote"
+                    >
+                        {t('memoTabs.remote') || 'Memos'}
+                    </button>
+                </div>
+            </div>
+
+            <!-- 本地 Memos -->
+            <div id="local-memos" class="memo-panel">
+                <!-- 标签筛选 -->
+                {allTags.length > 0 && (
+                    <div class="mb-6 px-4">
+                        <div class="flex flex-wrap items-center gap-2 justify-center" id="local-tags">
+                            <button
+                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 bg-[var(--link-color)] text-white tag-filter"
+                                data-tag=""
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                </svg>
+                                全部
+                            </button>
+                            {allTags.map(tag => (
+                                <button
+                                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 bg-[var(--card-color)] text-[var(--text-color-70)] hover:bg-[var(--btn-bg)] hover:text-[var(--btn-text)] tag-filter"
+                                    data-tag={tag}
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                    {tag}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                <!-- Memos 列表 -->
+                <div id="local-memos-list">
+                    {sortedMemos.map((memo) => (
+                        <div class="memo-item" data-tags={JSON.stringify(memo.data?.tags || [])}>
+                            <MemoTimeline memo={memo} />
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <!-- 远程 Memos -->
+            <div id="remote-memos" class="memo-panel hidden">
+                <RemoteMemoTabs 
+                    client:load
+                    language={currentLang}
+                    memoApiUrl={memoApiUrl}
+                />
+            </div>
+        </div>
+    </div>
+    <FabMenu showBackBottom={true} />
+</MainPageLayout>
+
+<script>
+    // Tab 切换
+    const tabButtons = document.querySelectorAll('#memo-tabs button');
+    const panels = document.querySelectorAll('.memo-panel');
+
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.tab;
+            
+            // 更新按钮样式
+            tabButtons.forEach(b => {
+                b.classList.remove('bg-[var(--btn-bg)]', 'text-[var(--btn-text)]', 'shadow-sm');
+                b.classList.add('text-[var(--text-color-70)]');
+            });
+            btn.classList.add('bg-[var(--btn-bg)]', 'text-[var(--btn-text)]', 'shadow-sm');
+            btn.classList.remove('text-[var(--text-color-70)]');
+
+            // 切换面板
+            panels.forEach(p => p.classList.add('hidden'));
+            document.getElementById(`${tab}-memos`).classList.remove('hidden');
+        });
+    });
+
+    // 标签筛选
+    const tagButtons = document.querySelectorAll('#local-tags .tag-filter');
+    const memoItems = document.querySelectorAll('#local-memos-list .memo-item');
+
+    tagButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const selectedTag = btn.dataset.tag;
+
+            // 更新按钮样式
+            tagButtons.forEach(b => {
+                b.classList.remove('bg-[var(--link-color)]', 'text-white');
+                b.classList.add('bg-[var(--card-color)]', 'text-[var(--text-color-70)]');
+            });
+            btn.classList.add('bg-[var(--link-color)]', 'text-white');
+            btn.classList.remove('bg-[var(--card-color)]', 'text-[var(--text-color-70)]');
+
+            // 筛选 memos
+            memoItems.forEach(item => {
+                const tags = JSON.parse(item.dataset.tags || '[]');
+                if (!selectedTag || tags.includes(selectedTag)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        });
+    });
+</script>

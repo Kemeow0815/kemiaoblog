@@ -3,10 +3,9 @@ import MainPageLayout from '@layouts/MainPageLayout.astro'
 import Markdown from '@components/misc/Markdown.astro'
 import Cover from '@components/Cover.astro'
 import FabMenu from '@components/control/FabMenu.astro'
-
+import LiveTimeStatus from '@components/LiveTimeStatus.astro'
 import { getSpec } from '@utils/content-utils'
-
-import { siteConfig } from '@/config'
+import { siteConfig, aboutConfig } from '@/config'
 import i18nit from '@i18n/translation'
 import { getEntry, render } from 'astro:content'
 import { i18n } from "astro:config/client";
@@ -14,7 +13,6 @@ import { i18n } from "astro:config/client";
 export async function getStaticPaths() {
 	return i18n?.locales.map(locale => ({ params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) } }));
 }
-
 
 const currentLang = Astro.currentLocale || i18n!.defaultLocale;
 const t = i18nit(currentLang);
@@ -26,13 +24,523 @@ if (!aboutPost) {
 const { Content } = await render(aboutPost);
 
 const pageTitle = t("header.about") + " - " + siteConfig.title;
+
+const cfg = aboutConfig;
 ---
+
 <MainPageLayout title={pageTitle} lang={currentLang}>
     <div class="mx-auto w-full max-w-[var(--page-width)]">
         <Cover title={t("cover.title.about")} subTitle={t("cover.subTitle.about")}/>
-        <Markdown class="mb-6 markdown-content onload-animation">
-            <Content />
-        </Markdown>
+        
+        <!-- 关于页面主体内容 -->
+        <div id="about-container" class="flex flex-col gap-6">
+            <!-- 顶部区域 -->
+            <section class="top-section flex flex-col items-center justify-center pb-5 border-b border-[var(--button-border-color)] mb-6">
+                <div class="top-content flex items-center gap-4 mb-4">
+                    <!-- 左侧浮动文字 -->
+                    <div class="float-texts hidden md:flex flex-col gap-2">
+                        {cfg.top_info.float_text.slice(0, 4).map((text, index) => (
+                            <span 
+                                class="float-text float-text-{index + 1} text-sm font-bold px-4 py-1 rounded-full bg-[var(--card-color)] border border-[var(--button-border-color)]"
+                                style={{
+                                    animationDelay: `${(index % 4) * 0.5}s`,
+                                    marginLeft: [0, 1, 0, 1][index] * 16 + 'px'
+                                }}
+                            >
+                                {text}
+                            </span>
+                        ))}
+                    </div>
+                    
+                    <!-- 头像 -->
+                    <div class="avatar-container bg-[var(--card-color)] w-[180px] h-[180px] rounded-full p-4 border border-[var(--button-border-color)]">
+                        <img 
+                            src={cfg.top_info.avatar} 
+                            alt="avatar" 
+                            class="w-full h-full rounded-full object-cover"
+                            onerror="this.onerror=null;this.src='/assets/Motues.jpg'"
+                        />
+                    </div>
+                    
+                    <!-- 右侧浮动文字 -->
+                    <div class="float-texts hidden md:flex flex-col gap-2">
+                        {cfg.top_info.float_text.slice(4, 8).map((text, index) => (
+                            <span 
+                                class="float-text float-text-{index + 5} text-sm font-bold px-4 py-1 rounded-full bg-[var(--card-color)] border border-[var(--button-border-color)]"
+                                style={{
+                                    animationDelay: `${((index + 4) % 4) * 0.5}s`,
+                                    marginLeft: [0, 1, 0, 1][index] * 16 + 'px'
+                                }}
+                            >
+                                {text}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+                
+                <h1 class="site-name text-xl font-bold mb-2">{cfg.top_info.site_name}</h1>
+                <p class="motto text-sm">{cfg.top_info.motto}</p>
+                
+                <!-- 课程表实时状态卡片 -->
+                <div class="mt-6 w-full max-w-md">
+                    <LiveTimeStatus />
+                </div>
+            </section>
+
+            <!-- 信息区域 -->
+            <section class="info-section flex gap-4">
+                <!-- 左侧个人信息 -->
+                <div class="left-column hidden lg:block w-[30%]">
+                    <div class="card bg-[var(--card-color)] rounded-xl p-4 border border-[var(--button-border-color)]">
+                        <div class="personal-info">
+                            <h2 class="text-lg font-bold text-[var(--text-color)] mb-4 border-b border-[var(--button-border-color)] pb-2">个人信息</h2>
+                            <div class="info-grid">
+                                <p class="mb-2"><strong>姓名:</strong> {cfg.personal_info.name}</p>
+                                <p class="mb-2"><strong>性别:</strong> {cfg.personal_info.gender}</p>
+                                <p class="mb-2"><strong>地址:</strong> {cfg.personal_info.address}</p>
+                                <p class="mb-2"><strong>学校:</strong> {cfg.personal_info.school}</p>
+                                <p class="mb-2"><strong>年级:</strong> {cfg.personal_info.grade}</p>
+                                <p class="mb-2"><strong>专业:</strong> {cfg.personal_info.major}</p>
+                                <p class="mb-2"><strong>邮箱:</strong> <a href={`mailto:${cfg.personal_info.email}`} class="link-line">{cfg.personal_info.email}</a></p>
+                                <p class="mb-2"><strong>QQ:</strong> {cfg.personal_info.QQ}</p>
+                                <p class="mb-2"><strong>生日:</strong> {cfg.personal_info.birthday}</p>
+                            </div>
+                        </div>
+                        <div class="flex-1"></div>
+                        <img 
+                            src={cfg.personal_info.bottom_img} 
+                            alt="bottom" 
+                            class="left-column-bottom w-full mt-4 rounded-lg overflow-hidden transition-transform duration-300 hover:scale-110"
+                            onerror="this.onerror=null;this.style.display='none'"
+                        />
+                    </div>
+                </div>
+                
+                <!-- 右侧内容 -->
+                <div class="right-column flex-1">
+                    <!-- 性格分析 -->
+                    <div class="personality card bg-[var(--card-color)] rounded-xl p-4 border border-[var(--button-border-color)] mb-4">
+                        <div class="flex items-center gap-4">
+                            <div class="personality-info flex-1">
+                                <p class="type text-lg font-bold">{cfg.personality.type}</p>
+                                <p class="type_name text-2xl font-bold mb-2">{cfg.personality.type_name}</p>
+                                <p class="text-sm text-[var(--text-color-70)]">
+                                    点击在 <a href={cfg.personality.url} target="_blank" class="link-line">16Personalities</a> 上了解更多
+                                </p>
+                            </div>
+                            <div class="personality-svg hidden md:block">
+                                <img 
+                                    src={cfg.personality.svg} 
+                                    alt="personality" 
+                                    class="w-[150px] h-[150px] transition-transform duration-300 hover:rotate-12"
+                                    onerror="this.onerror=null;this.style.display='none'"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 描述和社交链接 -->
+                    <div class="description-and-social card bg-[var(--card-color)] rounded-xl p-4 border border-[var(--button-border-color)]">
+                        <p class="description mb-4 text-[var(--text-color-70)]">{cfg.description_and_social_links.description}</p>
+                        <div class="social-links flex gap-4">
+                            {cfg.description_and_social_links.social_links.map((link) => (
+                                <a 
+                                    href={link.url} 
+                                    target="_blank" 
+                                    class="w-[60px] h-[60px] flex items-center justify-center bg-[var(--button-hover-color)] rounded-xl transition-transform duration-300 hover:scale-110"
+                                >
+                                    <img 
+                                        src={link.icon} 
+                                        alt={link.platform} 
+                                        class="w-[45px] h-[45px] rounded-lg object-cover"
+                                        onerror="this.onerror=null;this.style.display='none'"
+                                    />
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 技能和项目 -->
+            <section class="skills-and-projects flex gap-4">
+                <!-- 技能 -->
+                <div class="skills w-[60%]">
+                    <div class="card bg-[var(--card-color)] rounded-xl p-4 border border-[var(--button-border-color)]">
+                        <h2 class="text-lg font-bold text-[var(--text-color)] mb-4 border-b border-[var(--button-border-color)] pb-2">技能</h2>
+                        <div class="skills-grid">
+                            <!-- 技术技能 -->
+                            <div class="skill-carousel">
+                                <div class="carousel-wrapper" id="tech-carousel">
+                                    <div class="carousel-track">
+                                        {cfg.skills.technical.map((skill, index) => (
+                                            <div key={index} class="skill-card w-[70px] h-[70px] p-2 bg-[var(--button-hover-color)] rounded-xl flex-shrink-0">
+                                                <img 
+                                                    src={skill} 
+                                                    alt="tech skill" 
+                                                    class="w-full h-full object-cover rounded-lg"
+                                                    onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%23999&quot; stroke-width=&quot;2&quot;%3E%3Cpath d=&quot;M12 20h9&quot;/%3E%3Cpath d=&quot;M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z&quot;/%3E%3C/svg%3E'"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <button class="carousel-btn prev" data-target="tech-carousel" aria-label="上一页">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                    </svg>
+                                </button>
+                                <button class="carousel-btn next" data-target="tech-carousel" aria-label="下一页">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <!-- 通用技能 -->
+                            <div class="skill-carousel mt-6 pt-4 border-t border-dashed border-[var(--button-border-color)]">
+                                <div class="carousel-wrapper" id="general-carousel">
+                                    <div class="carousel-track">
+                                        {cfg.skills.general.map((skill, index) => (
+                                            <div key={index} class="skill-card w-[70px] h-[70px] p-2 bg-[var(--button-hover-color)] rounded-xl flex-shrink-0">
+                                                <img 
+                                                    src={skill} 
+                                                    alt="general skill" 
+                                                    class="w-full h-full object-cover rounded-lg"
+                                                    onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;%23999&quot; stroke-width=&quot;2&quot;%3E%3Cpath d=&quot;M12 20h9&quot;/%3E%3Cpath d=&quot;M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z&quot;/%3E%3C/svg%3E'"
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <button class="carousel-btn prev" data-target="general-carousel" aria-label="上一页">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                    </svg>
+                                </button>
+                                <button class="carousel-btn next" data-target="general-carousel" aria-label="下一页">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="learning mt-4 text-center text-sm text-[var(--text-color-50)]">{cfg.skills.learning}</p>
+                    </div>
+                </div>
+                
+                <!-- 项目 -->
+                <div class="projects w-[40%] hidden md:block">
+                    <div class="card bg-[var(--card-color)] rounded-xl p-4 border border-[var(--button-border-color)]">
+                        <h2 class="text-lg font-bold text-[var(--text-color)] mb-4 border-b border-[var(--button-border-color)] pb-2">项目</h2>
+                        <div class="projects-grid">
+                            {cfg.projects.map((project, index) => (
+                                <a 
+                                    key={index} 
+                                    href={project.url} 
+                                    target="_blank" 
+                                    class="project block bg-[var(--button-hover-color)] rounded-xl p-3 mb-3 transition-all duration-300 hover:bg-[var(--link-color)] hover:text-white"
+                                >
+                                    <h3 class="font-bold">{project.name}</h3>
+                                    <p class="text-sm opacity-80">{project.description}</p>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 爱好和自我评价 -->
+            <section class="hobbies-and-evaluation flex gap-4">
+                <!-- 爱好 -->
+                <div class="hobbies w-[40%] hidden md:block">
+                    <div class="card bg-[var(--card-color)] rounded-xl p-4 border border-[var(--button-border-color)]">
+                        <h2 class="text-lg font-bold text-[var(--text-color)] mb-4 border-b border-[var(--button-border-color)] pb-2">爱好</h2>
+                        <ul class="hobbies-list">
+                            {cfg.hobbies.map((hobby, index) => (
+                                <li key={index} class="py-2 text-[var(--text-color-70)]">{hobby}</li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- 自我评价 -->
+                <div class="self-evaluation w-[60%]">
+                    <div class="card bg-[var(--card-color)] rounded-xl p-4 border border-[var(--button-border-color)]">
+                        <h2 class="text-lg font-bold text-[var(--text-color)] mb-4 border-b border-[var(--button-border-color)] pb-2">评价</h2>
+                        <div>
+                            <p class="mb-2"><strong>思想:</strong> {cfg.self_evaluation.thoughts}</p>
+                            <p class="mb-2"><strong>工作:</strong> {cfg.self_evaluation.work}</p>
+                            <p class="summary text-lg font-bold"><strong>总结:</strong> {cfg.self_evaluation.summary}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 博客介绍（Markdown内容） -->
+            <section class="blog-intro mt-8">
+                <Markdown class="markdown-content onload-animation">
+                    <Content />
+                </Markdown>
+            </section>
+        </div>
     </div>
     <FabMenu showBackBottom={true} />
 </MainPageLayout>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function initCarousel(carouselId) {
+        const wrapper = document.getElementById(carouselId);
+        if (!wrapper) return;
+        
+        const track = wrapper.querySelector('.carousel-track');
+        const prevBtn = wrapper.parentElement.querySelector('.carousel-btn.prev');
+        const nextBtn = wrapper.parentElement.querySelector('.carousel-btn.next');
+        
+        if (!track || !prevBtn || !nextBtn) return;
+        
+        const scrollAmount = 300;
+        
+        prevBtn.addEventListener('click', () => {
+            wrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        });
+        
+        nextBtn.addEventListener('click', () => {
+            wrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        });
+        
+        wrapper.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaX + (e.shiftKey ? e.deltaY : 0);
+            if (Math.abs(delta) < 80) return;
+            wrapper.scrollBy({ left: delta * 2, behavior: 'smooth' });
+        }, { passive: false });
+        
+        let isDragging = false;
+        let startX;
+        let scrollLeft;
+        
+        wrapper.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.pageX - wrapper.offsetLeft;
+            scrollLeft = wrapper.scrollLeft;
+            wrapper.style.cursor = 'grabbing';
+        });
+        
+        wrapper.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const x = e.pageX - wrapper.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            wrapper.scrollLeft = scrollLeft - walk;
+        });
+        
+        wrapper.addEventListener('mouseup', () => {
+            isDragging = false;
+            wrapper.style.cursor = 'grab';
+        });
+        
+        wrapper.addEventListener('mouseleave', () => {
+            isDragging = false;
+            wrapper.style.cursor = 'grab';
+        });
+        
+        let touchStartX = 0;
+        let touchStartScrollLeft = 0;
+        
+        wrapper.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].pageX;
+            touchStartScrollLeft = wrapper.scrollLeft;
+        }, { passive: true });
+        
+        wrapper.addEventListener('touchmove', (e) => {
+            const touchX = e.touches[0].pageX;
+            const diff = touchX - touchStartX;
+            wrapper.scrollLeft = touchStartScrollLeft - diff;
+        }, { passive: true });
+    }
+    
+    initCarousel('tech-carousel');
+    initCarousel('general-carousel');
+});
+</script>
+
+<style is:global>
+    #about-container {
+        --card-bg: var(--bg-color);
+        --card-border: var(--button-border-color);
+    }
+
+    .float-text {
+        animation: floatUpDown 4s ease-in-out infinite;
+    }
+
+    @keyframes floatUpDown {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    .writing-mode-vertical {
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+    }
+
+    .section-title {
+        font-family: 'SimSun', 'Microsoft YaHei', sans-serif;
+        font-weight: 900;
+        color: transparent;
+        -webkit-text-stroke: 1px var(--text-color-70);
+        text-stroke: 1px var(--text-color-70);
+        position: absolute;
+        font-size: clamp(1.5rem, 3vw, 2rem);
+        z-index: 10;
+    }
+
+    .section-title-personal {
+        top: 50%;
+        right: -30px;
+        transform: translateY(-50%);
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+    }
+
+    .section-title-skills {
+        top: -20px;
+        left: 10px;
+    }
+
+    .section-title-projects {
+        top: -20px;
+        left: 10px;
+    }
+
+    .section-title-hobbies {
+        right: -30px;
+        bottom: 50%;
+        transform: translateY(50%);
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+    }
+
+    .skill-carousel {
+        position: relative;
+    }
+
+    .carousel-wrapper {
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        scrollbar-width: thin;
+        scrollbar-color: var(--button-border-color) transparent;
+        cursor: grab;
+        padding-bottom: 8px;
+        mask-image: linear-gradient(to right, transparent, #FFF 1rem, #FFF calc(100% - 1rem), transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, #FFF 1rem, #FFF calc(100% - 1rem), transparent);
+    }
+
+    .carousel-wrapper:active {
+        cursor: grabbing;
+    }
+
+    .carousel-wrapper::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .carousel-wrapper::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .carousel-wrapper::-webkit-scrollbar-thumb {
+        background: var(--button-border-color);
+        border-radius: 2px;
+    }
+
+    .carousel-track {
+        display: flex;
+        gap: 0.75rem;
+        padding: 0;
+    }
+
+    .carousel-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 2rem;
+        height: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--card-color);
+        border: 1px solid var(--button-border-color);
+        border-radius: 50%;
+        color: var(--text-color);
+        opacity: 0;
+        transition: opacity 0.2s, background 0.2s;
+        z-index: 10;
+    }
+
+    .skill-carousel:hover .carousel-btn,
+    .skill-carousel:focus-within .carousel-btn {
+        opacity: 1;
+    }
+
+    .carousel-btn:hover {
+        background: var(--button-hover-color);
+    }
+
+    .carousel-btn.prev {
+        left: -0.5rem;
+    }
+
+    .carousel-btn.next {
+        right: -0.5rem;
+    }
+
+    .section-title-evaluation {
+        right: -30px;
+        bottom: 50%;
+        transform: translateY(50%);
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+    }
+
+    @media (max-width: 768px) {
+        .float-texts {
+            display: none !important;
+        }
+        
+        .avatar-container {
+            width: 120px !important;
+            height: 120px !important;
+        }
+        
+        .left-column {
+            display: none;
+        }
+        
+        .skills {
+            width: 100% !important;
+        }
+        
+        .projects {
+            display: none;
+        }
+        
+        .hobbies {
+            display: none;
+        }
+        
+        .self-evaluation {
+            width: 100% !important;
+        }
+
+        .section-title {
+            font-size: 1.25rem !important;
+        }
+    }
+</script>

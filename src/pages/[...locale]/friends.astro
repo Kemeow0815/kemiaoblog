@@ -1,8 +1,10 @@
 ---
 import MainPageLayout from '@layouts/MainPageLayout.astro'
-import { siteConfig, friendLinkConfig } from '@/config'
+import { siteConfig } from '@/config'
 import Cover from '@components/Cover.astro';
 import Markdown from '@components/misc/Markdown.astro';
+import FabMenu from '@components/control/FabMenu.astro';
+
 
 import { getSpec } from '@utils/content-utils'
 
@@ -24,6 +26,38 @@ if (!friendsPost) {
 const { Content } = await render(friendsPost);
 
 const pageTitle = t("header.friends") + " - " + siteConfig.title;
+
+const [remoteData, latencyData, lostData] = await Promise.all([
+    fetch('https://jsd.268682.xyz/gh/Kemeow0815/friends@output/v2/data.json')
+        .then(res => res.json())
+        .catch(() => ({ content: [] })),
+    fetch('https://clink.268682.xyz/result.json')
+        .then(res => res.json())
+        .catch(() => ({ link_status: [] })),
+    fetch('https://jsd.268682.xyz/gh/Kemeow0815/friends@output/v2/lose.json')
+        .then(res => res.json())
+        .catch(() => ({ lost: [] }))
+]);
+
+const friendList = remoteData.content || [];
+const latencyMap = new Map();
+(latencyData.link_status || []).forEach(item => {
+    latencyMap.set(item.link, item);
+});
+
+const lostFriends = lostData.lost && lostData.lost.length > 0 
+    ? lostData.lost 
+    : [{ title: '友链失联', icon: 'https://jsd.268682.xyz/gh/Kemeow0815/img@main/img/404.webp' }];
+
+function getLatency(url) {
+    const status = latencyMap.get(url);
+    return status && status.latency >= 0 ? Math.round(status.latency * 1000) : '???';
+}
+
+function getSSLStatus(url) {
+    const status = latencyMap.get(url);
+    return status && status.ssl_status;
+}
 ---
 
 <MainPageLayout title={pageTitle} lang={currentLang}>
@@ -32,29 +66,363 @@ const pageTitle = t("header.friends") + " - " + siteConfig.title;
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-[var(--text-color)] mb-12">
             {
-                friendLinkConfig.map((friend) => (
-                    <a 
-                        href={friend.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        class="flex items-center p-4 border border-[var(--button-border-color)] rounded-lg shadow-sm active:bg-[var(--button-hover-color)] hover:bg-[var(--button-hover-color)] transition-all duration-300 hover:scale-105"
-                    >
-                        <img 
-                            src={friend.avatar} 
-                            alt={friend.name} 
-                            class="w-16 h-16 rounded-full object-cover mr-4"
-                            onerror="this.src='https://www.gravatar.com/avatar/?d=mp'"
-                        />
-                        <div class="flex-1 min-w-0">
-                            <h2 class="font-bold text-lg truncate">{friend.name}</h2>
-                            <p class="text-[var(--text-color-70)] text-sm">{friend.description}</p>
-                        </div>
-                    </a>
-                ))
+                friendList.map((friend) => {
+                    const latency = getLatency(friend.url);
+                    const sslStatus = getSSLStatus(friend.url);
+                    const isOnline = typeof latency === 'number';
+                    
+                    return (
+                        <a 
+                            href={friend.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            class="friend-card group overflow-hidden rounded-2xl border border-[var(--button-border-color)] shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                        >
+                            <div class="relative h-36 overflow-hidden">
+                                <img 
+                                    src={friend.snapshot || 'https://p.liiiu.cn/i/2024/04/14/661ab09243659.png'} 
+                                    alt="background" 
+                                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                />
+                                
+                                <div class={`absolute top-2 left-3 flex items-center gap-1.5 px-3 py-1 rounded-full text-xs text-white font-bold ${
+                                    isOnline ? 'bg-[#00D64A]' : 'bg-gray-500'
+                                }`}>
+                                    <svg class="w-5 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M3 21h3v-3H3m5 3h3v-7H8m5 7h3V9h-3m5 12h3V3h-3z"/>
+                                    </svg>
+                                    <span>{latency} MS</span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4" style="background: var(--card-bg);">
+                                <div class="flex items-start gap-3">
+                                    <img 
+                                        src={friend.icon} 
+                                        alt={friend.title} 
+                                        class="w-10 h-10 rounded-full flex-shrink-0 object-cover"
+                                    />
+                                    <div class="flex-1">
+                                        <h2 class="font-bold text-lg mb-1" style="color: var(--text-color);">{friend.title}</h2>
+                                        <p class="text-sm leading-relaxed" style="color: var(--text-color-70);">{friend.description}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    );
+                })
             }
         </div>
+
+        <!-- 友链墓碑 -->
+        <div class="mb-12">
+            <div class="rounded-2xl overflow-hidden" style="background: var(--card-bg); border: 1px solid var(--button-border-color);">
+                <!-- 标题栏 -->
+                <div class="flex items-center gap-3 px-6 py-4" style="background: var(--card-second-bg);">
+                    <span class="text-2xl">🪦</span>
+                    <h2 class="text-xl font-bold" style="color: var(--text-color);">友链墓碑 · 相逢何必曾相识</h2>
+                </div>
+                
+                <!-- 说明文字 -->
+                <div class="px-6 py-4">
+                    <div class="rounded-xl p-4 text-sm" style="background: var(--card-second-bg); color: var(--text-color-70);">
+                        <div class="flex items-start gap-2 mb-2">
+                            <span class="text-yellow-400">💡</span>
+                            <span>说明：此处记录的友链因长期无法访问、站点关闭、或友链链接错误等原因，由站长手动下线。</span>
+                        </div>
+                        <p class="ml-6 mb-2">若因技术问题导致下线，欢迎站长修复后随时联系恢复。若站点已停止维护，则可能不再接受恢复请求。如有特殊情况，可联系站长详询。</p>
+                        <p class="ml-6">若因技术问题导致下线，欢迎站长修复后随时联系恢复。若站点已停止维护，则可能不再接受恢复请求。如有特殊情况，可联系站长详询。</p>
+                    </div>
+                </div>
+                
+                <!-- 失联友链列表 -->
+                <div class="px-6 pb-6">
+                    <div class="flex flex-wrap gap-3">
+                        {
+                            lostFriends.map((lost, index) => (
+                                <div 
+                                    key={index}
+                                    class="flex items-center gap-2 px-3 py-2 rounded-full transition-colors cursor-not-allowed"
+                                    style="background: var(--card-second-bg);"
+                                >
+                                    <img 
+                                        src={lost.icon} 
+                                        alt={lost.title} 
+                                        class="w-6 h-6 rounded-full object-cover grayscale"
+                                        onerror="this.src='https://www.gravatar.com/avatar/?d=mp'"
+                                    />
+                                    <div class="flex flex-col items-center">
+                                        <span class="text-sm" style="color: var(--text-color-70);">{lost.title}</span>
+                                        <div class="w-full h-px border-b border-dashed mt-0.5" style="border-color: var(--text-color-50);"></div>
+                                    </div>
+                                </div>
+                            ))
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <Markdown class="mb-6 markdown-content onload-animation">
             <Content />
         </Markdown>
+        
+        <!-- 本站信息 Tab -->
+        <div class="mb-6">
+            <h3 class="text-lg font-bold mb-4" style="color: var(--text-color);">本站信息：</h3>
+            <div class="site-info-tabs">
+                <div class="tab-header">
+                    <button id="tab-formatted" class="active" onClick="showTab('formatted')">格式化信息</button>
+                    <button id="tab-text" onClick="showTab('text')">文本信息</button>
+                </div>
+                <div class="tab-content">
+                    <div id="content-formatted" class="tab-pane active">
+                        <div class="code-block">
+                            <div class="code-header">
+                                <div class="dots">
+                                    <span class="dot red"></span>
+                                    <span class="dot yellow"></span>
+                                    <span class="dot green"></span>
+                                </div>
+                                <span class="lang">YAML</span>
+                                <button class="copy-btn" onClick="copyYaml()">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                    </svg>
+                                    复制
+                                </button>
+                            </div>
+                            <pre><code>- name: 喵洛阁
+  link: https://www.kemiaosw.top
+  avatar: https://www.kemiaosw.top/avatar.jpg
+  descr: 克喵爱吃卤面的小站
+  siteshot: https://www.kemiaosw.top/screenshot.jpg
+  # 下面是选填项
+  atom: https://www.kemiaosw.top/atom.xml</code></pre>
+                        </div>
+                    </div>
+                    <div id="content-text" class="tab-pane">
+                        <ul class="info-list">
+                            <li><span class="label">网站名称:</span><span>喵洛阁</span></li>
+                            <li><span class="label">网站别称:</span><span>克喵爱吃卤面</span></li>
+                            <li><span class="label">网址:</span><a href="https://www.kemiaosw.top" target="_blank">https://www.kemiaosw.top</a></li>
+                            <li><span class="label">网站图标:</span><a href="https://www.kemiaosw.top/avatar.jpg" target="_blank">https://www.kemiaosw.top/avatar.jpg</a></li>
+                            <li><span class="label">网站描述:</span><span>克喵爱吃卤面的小站</span></li>
+                            <li><span class="label">网站截图:</span><a href="https://www.kemiaosw.top/screenshot.jpg" target="_blank">https://www.kemiaosw.top/screenshot.jpg</a></li>
+                            <li><span class="label">atom(可选):</span><a href="https://www.kemiaosw.top/atom.xml" target="_blank">https://www.kemiaosw.top/atom.xml</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <script is:inline>
+                function showTab(tabName) {
+                    document.querySelectorAll('.tab-header button').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                    document.getElementById('tab-' + tabName).classList.add('active');
+                    document.getElementById('content-' + tabName).classList.add('active');
+                }
+                async function copyYaml() {
+                    const yamlContent = `- name: 喵洛阁
+  link: https://www.kemiaosw.top
+  avatar: https://www.kemiaosw.top/avatar.jpg
+  descr: 克喵爱吃卤面的小站
+  siteshot: https://www.kemiaosw.top/screenshot.jpg
+  # 下面是选填项
+  atom: https://www.kemiaosw.top/atom.xml`;
+                    try {
+                        await navigator.clipboard.writeText(yamlContent);
+                    } catch (err) {
+                        console.error('Failed to copy:', err);
+                    }
+                }
+            </script>
+        </div>
     </div>
+    <FabMenu showBackBottom={true} />
 </MainPageLayout>
+
+<style is:global>
+    .friend-card {
+        background: var(--card-bg);
+    }
+    
+    .friend-card:hover {
+        border-color: var(--link-color);
+    }
+    
+    .lost-friend-tag {
+        position: relative;
+    }
+    
+    .lost-friend-tag::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 10%;
+        right: 10%;
+        height: 1px;
+        border-bottom: 1px dashed var(--text-color-50);
+    }
+    
+    .site-info-tabs {
+        border: 1px solid var(--button-border-color);
+        border-radius: 0.75rem;
+        overflow: hidden;
+        background: var(--card-bg);
+    }
+    
+    .tab-header {
+        display: flex;
+        border-bottom: 1px solid var(--button-border-color);
+    }
+    
+    .tab-header button {
+        flex: 1;
+        padding: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        background: var(--card-second-bg);
+        color: var(--text-color-70);
+        border: none;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    
+    .tab-header button:hover {
+        color: var(--text-color);
+    }
+    
+    .tab-header button.active {
+        background: var(--card-bg);
+        color: var(--link-color);
+    }
+    
+    .tab-content {
+        padding: 1rem;
+    }
+    
+    .tab-pane {
+        display: none;
+    }
+    
+    .tab-pane.active {
+        display: block;
+    }
+    
+    .code-block {
+        background: var(--code-bg, #f6f8fa);
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    
+    [data-theme="dark"] .code-block {
+        background: #1e1e1e;
+    }
+    
+    .code-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+        background: var(--code-header-bg, #e6e6e6);
+    }
+    
+    [data-theme="dark"] .code-header {
+        background: #2d2d2d;
+    }
+    
+    .dots {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .dot {
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 50%;
+    }
+    
+    .dot.red { background: #ff5f56; }
+    .dot.yellow { background: #ffbd2e; }
+    .dot.green { background: #27ca40; }
+    
+    .lang {
+        font-size: 0.75rem;
+        color: var(--text-color-70);
+        margin-left: 0.5rem;
+    }
+    
+    .copy-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        color: var(--text-color-70);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+    }
+    
+    .copy-btn:hover {
+        color: var(--text-color);
+        background: var(--button-hover-color);
+    }
+    
+    [data-theme="dark"] .copy-btn:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.1);
+    }
+    
+    .copy-btn svg {
+        width: 0.875rem;
+        height: 0.875rem;
+    }
+    
+    .code-block pre {
+        margin: 0;
+        padding: 1rem;
+        overflow-x: auto;
+        font-size: 0.875rem;
+        color: var(--text-color);
+        font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+    }
+    
+    [data-theme="dark"] .code-block pre {
+        color: #4ec9b0;
+    }
+    
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-color-70);
+    }
+    
+    .info-list li {
+        display: flex;
+        gap: 0.5rem;
+        line-height: 1.5;
+    }
+    
+    .info-list .label {
+        font-weight: 500;
+        color: var(--text-color);
+        flex-shrink: 0;
+    }
+    
+    .info-list a {
+        color: var(--link-color);
+        text-decoration: none;
+    }
+    
+    .info-list a:hover {
+        text-decoration: underline;
+    }
+</style>

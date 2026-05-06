@@ -10,70 +10,70 @@ import { i18n } from "astro:config/client";
  */
 // 1. 定义一个扩展类型，包含 fallback 状态
 export type BlogEntryWithLocaleStatus = CollectionEntry<'blog'> & {
-  isFallback?: boolean;
+    isFallback?: boolean;
 };
 
 export async function getBlogEntrySort(
-  lang: string,
-  filter?: (entry: CollectionEntry<'blog'>) => boolean | undefined,
-  sort?: (a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => number
+    lang: string,
+    filter?: (entry: CollectionEntry<'blog'>) => boolean | undefined,
+    sort?: (a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => number
 ): Promise<BlogEntryWithLocaleStatus[]> { // 修改返回类型
-  
-  const defaultFilter = ({ data }: CollectionEntry<'blog'>) => {
-    return import.meta.env.PROD ? data.draft !== true : true;
-  };
 
-  const defaultSort = (a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => {
-    return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
-  };
+    const defaultFilter = ({ data }: CollectionEntry<'blog'>) => {
+        return import.meta.env.PROD ? data.draft !== true : true;
+    };
 
-  const blogEntries = await getCollection('blog', filter || defaultFilter);
+    const defaultSort = (a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => {
+        return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+    };
 
-  const grouped = new Map<string, Record<string, CollectionEntry<'blog'>>>();
-  const defaultLanguage = i18n.defaultLocale;
+    const blogEntries = await getCollection('blog', filter || defaultFilter);
 
-  for (const post of blogEntries) {
-    const parts = post.id.split('/');
-    const fileName = parts[parts.length - 1];
-    const id = parts.slice(0, -1).join('/');
-    const language: string = fileName.replace('.md', '');
+    const grouped = new Map<string, Record<string, CollectionEntry<'blog'>>>();
+    const defaultLanguage = i18n.defaultLocale;
 
-    if (!grouped.has(id)) {
-      grouped.set(id, {});
+    for (const post of blogEntries) {
+        const parts = post.id.split('/');
+        const fileName = parts[parts.length - 1];
+        const id = parts.slice(0, -1).join('/');
+        const language: string = fileName.replace('.md', '');
+
+        if (!grouped.has(id)) {
+            grouped.set(id, {});
+        }
+        grouped.get(id)![language] = post;
     }
-    grouped.get(id)![language] = post;
-  }
 
-  const selectedEntries: BlogEntryWithLocaleStatus[] = [];
-  
-  for (const [id, translations] of grouped.entries()) {
-    let selectedPost: CollectionEntry<'blog'> | undefined;
-    let isFallback = false; // 默认为 false
-    
-    if (lang && lang !== defaultLanguage) {
-      if (translations[lang]) {
-        selectedPost = translations[lang];
-      } else if (translations[defaultLanguage]) {
-        // --- 关键修改点：触发回退逻辑 ---
-        selectedPost = translations[defaultLanguage];
-        isFallback = true; 
-      }
-    } else {
-      if (translations[defaultLanguage]) {
-        selectedPost = translations[defaultLanguage];
-      }
-    }
-    
-    if (selectedPost) {
-      selectedEntries.push({
-        ...selectedPost,
-        id: id,
-        isFallback: isFallback // 将状态注入对象
-      });
-    }
-  }
+    const selectedEntries: BlogEntryWithLocaleStatus[] = [];
 
-  return selectedEntries.sort(sort || defaultSort);
+    for (const [id, translations] of grouped.entries()) {
+        let selectedPost: CollectionEntry<'blog'> | undefined;
+        let isFallback = false; // 默认为 false
+
+        if (lang && lang !== defaultLanguage) {
+            if (translations[lang]) {
+                selectedPost = translations[lang];
+            } else if (translations[defaultLanguage]) {
+                // --- 关键修改点：触发回退逻辑 ---
+                selectedPost = translations[defaultLanguage];
+                isFallback = true;
+            }
+        } else {
+            if (translations[defaultLanguage]) {
+                selectedPost = translations[defaultLanguage];
+            }
+        }
+
+        if (selectedPost) {
+            selectedEntries.push({
+                ...selectedPost,
+                id: id,
+                isFallback: isFallback // 将状态注入对象
+            });
+        }
+    }
+
+    return selectedEntries.sort(sort || defaultSort);
 }
 
 export async function getSpec(
@@ -82,6 +82,11 @@ export async function getSpec(
 ) {
     const defaultLanguage = i18n.defaultLocale;
     let collection = await getEntry('spec', `${spec}/${lang}`)
-    if(!collection) collection = await getEntry('spec', `${spec}/${defaultLanguage}`);
+    if (!collection) collection = await getEntry('spec', `${spec}/${defaultLanguage}`);
+    return collection;
+}
+
+export async function getMemos() {
+    const collection = await getCollection('memos');
     return collection;
 }

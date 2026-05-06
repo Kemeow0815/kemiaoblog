@@ -18,7 +18,16 @@ const blogCollection = defineCollection({
 const specCollection = defineCollection({
     loader: glob({ pattern: '**/[^_]*.md', base: "./src/content/spec" }),
 })
+const memosCollection = defineCollection({
+    loader: glob({ pattern: '**/[^_]*.md', base: "./src/content/memos" }),
+    schema: z.object({
+        tags: z.array(z.string()).optional().default([]),
+        words: z.number().optional().default(0),
+        minutes: z.number().optional().default(0),
+    }),
+})
 export const collections = {
     blog: blogCollection,
     spec: specCollection,
+    memos: memosCollection,
 }
