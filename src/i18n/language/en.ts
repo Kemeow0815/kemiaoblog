@@ -116,6 +116,21 @@ const translation: Translation = {
         light: "Switch to Light Mode",
         dark: "Switch to Dark Mode",
         system: "Switch to System Mode"
+    },
+    memoCard: {
+        words: "words",
+        minutes: "min read",
+        expanded: "Read more",
+        collapsed: "Collapse"
+    },
+    memoTabs: {
+        local: "Local",
+        remote: "Memos",
+        noData: "No data"
+    },
+    pagination: {
+        prev: "Previous",
+        next: "Next"
     }
 }
 

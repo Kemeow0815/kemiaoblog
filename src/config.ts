@@ -7,8 +7,8 @@ import type {
 import type { FriendLink } from "./types/friend"
 
 export const siteConfig: SiteConfig = {
-    title: "Momo",
-    subTitle: "Blog",
+    title: "喵洛阁",
+    subTitle: "KeMiao - Blog",
 
     favicon: "/favicon/favicon.ico", // Path of the favicon, relative to the /public directory
 
@@ -23,7 +23,7 @@ export const siteConfig: SiteConfig = {
     comments: {
         enable: true, // Whether to enable comments
         platform: "default", // Comment platform, set "default" to use Momo-backend, also supports "twikoo"
-        backendUrl: "https://api-momo.motues.top" // Backend URL for comments
+        backendUrl: "https://momo-blog-comment.268682.xyz" // Backend URL for comments
     },
     theme: {
         AOS: true, // Whether to enable AOS (Animate On Scroll) for animations
@@ -31,17 +31,17 @@ export const siteConfig: SiteConfig = {
 }
 
 export const profileConfig: ProfileConfig = {
-    avatar: "assets/Motues.jpg", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
-    name: "Motues",
-    description: "Life is colorful!",
-    indexPage: "https://www.motues.top",
+    avatar: "assets/kemiaosw.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+    name: "克喵爱吃卤面",
+    description: "每一段旅行，都有终点",
+    indexPage: "https://www.kemiaosw.top",
     startYear: 2024,
 }
 
 export const licenseConfig: LicenseConfig = {
-	enable: true,
-	name: "CC BY-NC-SA 4.0",
-	url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+    enable: true,
+    name: "CC BY-NC-SA 4.0",
+    url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
 };
 
 export const friendLinkConfig: FriendLink[] = [
@@ -59,3 +59,100 @@ export const friendLinkConfig: FriendLink[] = [
     }
     // Add more friend links here
 ]
+
+export const aboutConfig = {
+    top_info: {
+        avatar: 'https://wsrv.nl/?url=github.com/kemeow0815.png',
+        site_name: '克喵爱吃卤面',
+        motto: '每一段旅行，都有终点',
+        float_text: [
+            '🐝 勤劳小蜜蜂',
+            '🧱 踏实实在人',
+            '👷‍♀️ 努力小天使',
+            '🐔 乐观大白鹅',
+            '阳光小少年 👱‍♀️',
+            '温暖小太阳 ☀️',
+            '可爱小白兔 🐰',
+            '懒惰小胖猪 🐗'
+        ]
+    },
+    personal_info: {
+        name: '克喵爱吃卤面',
+        gender: '男',
+        address: '陕西西安',
+        school: '武汉理工大学',
+        grade: '二〇二一级',
+        major: '人工智能',
+        email: 'kemiaosw@gmail.com',
+        QQ: '3162475700',
+        birthday: '2003/01/01',
+        bottom_img: 'https://p.liiiu.cn/i/2024/04/14/661ab09243659.png'
+    },
+    personality: {
+        type: 'INFJ-T',
+        type_name: '主人公',
+        svg: 'https://jsd.268682.xyz/gh/zsxcoder/github-img@main/img/infj.avif',
+        url: 'https://www.16personalities.com/ch/enfj-%E4%BA%BA%E6%A0%BC'
+    },
+    description_and_social_links: {
+        description: '大家好！这里是喵洛阁。为什么叫喵洛阁呢？因为喵是我的昵称，而洛阁代表着温暖的小窝，这与我的性格不谋而合。我是一个充满热情、富有同情心的人，喜欢与人交流，乐于分享我的想法和见解。在这里，我会分享我的生活点滴、兴趣爱好以及对世界的观察和思考。希望我的小站能给大家带来一些启发和乐趣。',
+        social_links: [
+            {
+                platform: 'GitHub',
+                url: 'https://github.com/kemiaosw',
+                icon: 'https://p.liiiu.cn/i/2024/07/27/66a461a3098aa.webp'
+            },
+            {
+                platform: 'Gitee',
+                url: 'https://gitee.com/kemiaosw',
+                icon: 'https://p.liiiu.cn/i/2024/07/27/66a461c3dea80.webp'
+            },
+            {
+                platform: 'QQ',
+                url: 'https://qm.qq.com/cgi-bin/qm_share/open_source_page?uin=3162475700&jump_from=webapi',
+                icon: 'https://p.liiiu.cn/i/2024/07/27/66a461b627dc2.webp'
+            }
+        ]
+    },
+    skills: {
+        technical: [
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633005bf0fd1e.jpg',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647df7fa.png',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647e1f10.png',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/26/6330ff27e5c9b.png',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647dea51.png',
+            'https://img02.anheyu.com/adminuploads/1/2023/05/09/645a45854e093.png',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633001374747b.png'
+        ],
+        general: [
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633006cc55e07.png',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633006eee047b.png',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633006f9ab27d.png',
+            'https://img02.anheyu.com/adminuploads/1/2023/04/11/6434a635e9726.webp',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633007087a4dc.webp',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633005bf0fd1e.jpg',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647df7fa.png',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647e1f10.png',
+            'https://img02.anheyu.com/adminuploads/1/2022/09/26/6330ff27e5c9b.png'
+        ],
+        learning: '正在持续学习中'
+    },
+    projects: [
+        {
+            name: 'Friend-Circle-lite',
+            description: '轻量化友链朋友圈',
+            url: 'https://github.com/kemiaosw/Friend-Circle-Lite'
+        },
+        {
+            name: 'Momo Blog',
+            description: '基于 Astro 的极简博客主题',
+            url: 'https://github.com/kemiaosw/Momo'
+        }
+    ],
+    hobbies: ['阅读', '写作', '编程', '摄影'],
+    self_evaluation: {
+        thoughts: '思想上乐观开朗，乐于助人，具有团队协作精神及创新意识。',
+        work: '工作上极富责任心与信念感，对待工作认真负责，有较强的组织管理及动手能力。',
+        summary: '人嘎嘎好！'
+    }
+};

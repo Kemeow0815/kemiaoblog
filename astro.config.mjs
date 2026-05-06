@@ -1,50 +1,55 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
-import icon from 'astro-icon';
-import remarkMath from 'remark-math';
-import rehypeKatex from 'rehype-katex';
-import remarkDirective from 'remark-directive';
+import icon from "astro-icon";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import remarkDirective from "remark-directive";
 import rehypeComponents from "rehype-components";
 
 import { admonition } from "./src/plugins/rehype-component-admonition.mjs";
 import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { MusicCardComponent } from "./src/plugins/rehype-component-music-card.mjs";
-import { GithubCardComponent } from './src/plugins/rehype-component-github-card.mjs';
-import { QuoteComponent } from "./src/plugins/rehype-component-quote.mjs"
+import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
+import { QuoteComponent } from "./src/plugins/rehype-component-quote.mjs";
 import { customFigurePlugin } from "./src/plugins/rehype-figure-plugin.mjs";
-import { remarkCombined } from './src/plugins/remark-combined.mjs';
-import { remarkTypst } from './src/plugins/remark-typst.mjs';
-import { remarkReadingTime } from './src/plugins/remark-reading-time.mjs';
+import { remarkCombined } from "./src/plugins/remark-combined.mjs";
+import { remarkTypst } from "./src/plugins/remark-typst.mjs";
+import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 
 import svelte from "@astrojs/svelte";
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://momo.motues.top', // Root URL of site
+  site: "https://momo.motues.top", // Root URL of site
   i18n: {
-    locales: ['zh-cn', 'en'],
-    defaultLocale: 'zh-cn',
+    locales: ["zh-cn"],
+    defaultLocale: "zh-cn",
     routing: {
       prefixDefaultLocale: false,
-      redirectToDefaultLocale: false
-    }
+      redirectToDefaultLocale: false,
+    },
   },
-  integrations: [icon({
-    include: {
-      "fa6-brands": ["*"],
-      "fa6-solid": ["*"],
-      "simple-icons": ["*"],
-      "vscode-icons": ["*"],
-      "material-symbols": ["*"],
-      "flue": ["*"],
-    }
-  }), svelte()],
+  integrations: [
+    icon({
+      include: {
+        "fa6-brands": ["*"],
+        "fa6-solid": ["*"],
+        "simple-icons": ["*"],
+        "vscode-icons": ["*"],
+        "material-symbols": ["*"],
+        solar: ["*"],
+        uim: ["*"],
+        flue: ["*"],
+      },
+    }),
+    svelte(),
+  ],
   markdown: {
     shikiConfig: {
-      theme: 'one-dark-pro', // code theme
-      // theme: 'github-dark',
-      wrap: false
+      theme: "github-light", // light code theme
+      darkTheme: "one-dark-pro", // dark code theme
+      wrap: false,
     },
     remarkPlugins: [
       remarkMath,
@@ -52,7 +57,7 @@ export default defineConfig({
       remarkDirective,
       remarkTypst,
       parseDirectiveNode,
-      remarkCombined
+      remarkCombined,
     ],
     rehypePlugins: [
       rehypeKatex,
@@ -72,9 +77,9 @@ export default defineConfig({
           },
         },
       ],
-    ]
+    ],
   },
   vite: {
-    plugins: [tailwindcss()]
-  }
+    plugins: [tailwindcss()],
+  },
 });

@@ -6,19 +6,23 @@ const translation: Translation = {
         archive: "归档",
         about: "关于",
         friends: "友链",
+        memos: "碎碎念",
+        timetable: "课程表"
     },
     cover: {
         title: {
-            home: "欢迎来到Momo的博客",
+            home: "欢迎来到克喵的博客",
             archive: "文章归档",
             about: "关于",
             friends: "友链",
+            memos: "碎碎念"
         },
         subTitle: {
-            home: "生活多彩！",
+            home: "记录一些生活日常、踩坑教程和资源分享",
             archive: "共 {count} 篇文章",
-            about: "一个极简的Blog模板",
+            about: "我的资料卡~",
             friends: "有趣的灵魂",
+            memos: "记录生活的点点滴滴"
         }
     },
     toc: "目录",
@@ -116,6 +120,21 @@ const translation: Translation = {
         light: "切换到 浅色 模式",
         dark: "切换到 深色 模式",
         system: "切换到 跟随系统 模式"
+    },
+    memoCard: {
+        words: "字",
+        minutes: "分钟",
+        expanded: "展开阅读全文",
+        collapsed: "收起内容"
+    },
+    memoTabs: {
+        local: "本地",
+        remote: "Memos",
+        noData: "暂无数据"
+    },
+    pagination: {
+        prev: "上一页",
+        next: "下一页"
     }
 }
 

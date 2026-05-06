@@ -12,30 +12,29 @@ import { getRelativeLocaleUrl } from '@utils/url-utils';
 const currentLang = Astro.currentLocale || i18n!.defaultLocale;
 const t = i18nit(currentLang);
 
-
-// 获取当前页面在不同语言下的路径
-const getLocalePath = (path: string, targetLocale: string) => {
-  const currentPath = Astro.url.pathname;
-  const defaultLocale = i18n?.defaultLocale || "zh-cn";
+// i18n 暂时禁用 - 仅保留中文
+// const getLocalePath = (path: string, targetLocale: string) => {
+//   const currentPath = Astro.url.pathname;
+//   const defaultLocale = i18n?.defaultLocale || "zh-cn";
   
-  // 移除当前语言前缀
-  let basePath = currentPath;
-  if (currentLang && currentLang !== defaultLocale) {
-    basePath = currentPath.replace(`/${currentLang}`, "") || "/";
-  }
+//   let basePath = currentPath;
+//   if (currentLang && currentLang !== defaultLocale) {
+//     basePath = currentPath.replace(`/${currentLang}`, "") || "/";
+//   }
   
-  // 添加目标语言前缀（默认语言不需要前缀）
-  if (targetLocale && targetLocale !== defaultLocale) {
-    return `/${targetLocale}${basePath}`;
-  }
+//   if (targetLocale && targetLocale !== defaultLocale) {
+//     return `/${targetLocale}${basePath}`;
+//   }
   
-  return basePath;
-};
+//   return basePath;
+// };
 
 const indexPage = getRelativeLocaleUrl(currentLang, "/");
 const archivesPage = getRelativeLocaleUrl(currentLang, "/archives/");
 const friendsPage = getRelativeLocaleUrl(currentLang, "/friends/");
 const aboutPage = getRelativeLocaleUrl(currentLang, "/about/");
+const memosPage = getRelativeLocaleUrl(currentLang, "/memos/");
+const timetablePage = getRelativeLocaleUrl(currentLang, "/timetable/");
 
 let introPage : string;
 
@@ -68,30 +67,10 @@ if (profileConfig.indexPage) {
         <!-- <a href="/rss.xml" target="_blank" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300">
             <Icon name="simple-icons:rss" class="w-4 h-4" />
         </a> -->
-        <!-- Language Switcher -->
-        <div class="relative">
-            <button id="language-button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label="Language Switcher">
-                <Icon name="fa6-solid:globe" class="w-4 h-4" />
-            </button>
-            
-          <!-- Language Dropdown Menu -->
-          <div id="language-menu" class="hidden absolute right-0 mt-2 w-30 bg-[var(--bg-color)] border border-[var(--button-border-color)] rounded-lg shadow-lg z-50">
-              <div class="py-1 text-right">
-                  <!-- 中文链接 -->
-                  <a href={getLocalePath("/", "zh-cn")} class=`block mx-2 my-1 p-2 text-sm rounded ${
-                    currentLang === "zh-cn" ? "bg-[var(--button-hover-color)]" : "hover:bg-[var(--button-hover-color)]"}`>
-                    {currentLang === "zh-cn" ? <Icon name="fa6-solid:circle" class="w-2 h-2 inline mr-2" /> : ""}
-                    简体中文
-                  </a>
-                  <!-- 英文链接 -->
-                  <a href={getLocalePath("/", "en")} class=`block mx-2 my-1 p-2 text-sm rounded ${
-                    currentLang === "en" ? "bg-[var(--button-hover-color)]" : "hover:bg-[var(--button-hover-color)]"}`>
-                    {currentLang === "en" ? <Icon name="fa6-solid:circle" class="w-2 h-2 inline mr-2" /> : ""}
-                    English
-                  </a>
-              </div>
-          </div>
-        </div>
+
+        <!-- i18n 暂时禁用 - 仅保留中文 -->
+        <!-- Language Switcher disabled: see astro.config.mjs for locale configuration -->
+
         <div class="relative md:hidden">
           <!-- Mobile Menu -->
           <button id="mobile-menu-button" class="flex items-center justify-center w-10 h-10 hover:bg-[var(--button-hover-color)] active:scale-90 rounded-lg hover:text-current border border-[var(--button-border-color)] transition-all duration-300" aria-label="Mobile Menu">
@@ -138,6 +117,22 @@ if (profileConfig.indexPage) {
               }`}>
               {t("header.friends")}
           </a>
+          <!-- 即刻短文 -->
+          <a href={ memosPage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
+              Astro.url.pathname === memosPage 
+                  ? 'bg-[var(--button-hover-color)]' 
+                  : 'hover:bg-[var(--button-hover-color)]'
+              }`}>
+              {t("header.memos")}
+          </a>
+          <!-- 课程表 -->
+          <a href={ timetablePage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
+              Astro.url.pathname === timetablePage 
+                  ? 'bg-[var(--button-hover-color)]' 
+                  : 'hover:bg-[var(--button-hover-color)]'
+              }`}>
+              {t("header.timetable")}
+          </a>
         </div>
     </div>
 <!-- Mobile Menu -->
@@ -169,6 +164,14 @@ if (profileConfig.indexPage) {
             <a href={ friendsPage } class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--button-hover-color)] hover:text-[var(--link-color)] transition-colors active:bg-[var(--button-hover-color)] active:text-[var(--link-color)]">
                 <Icon name="fa6-solid:link" class="w-4 h-4 opacity-70" />
                 <span>{t("header.friends")}</span>
+            </a>
+            <a href={ memosPage } class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--button-hover-color)] hover:text-[var(--link-color)] transition-colors active:bg-[var(--button-hover-color)] active:text-[var(--link-color)]">
+                <Icon name="solar:notes-minimalistic-bold-duotone" class="w-4 h-4 opacity-70" />
+                <span>{t("header.memos")}</span>
+            </a>
+            <a href={ timetablePage } class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--button-hover-color)] hover:text-[var(--link-color)] transition-colors active:bg-[var(--button-hover-color)] active:text-[var(--link-color)]">
+                <Icon name="uim:schedule" class="w-4 h-4 opacity-70" />
+                <span>{t("header.timetable")}</span>
             </a>
         </nav>
 
@@ -269,11 +272,14 @@ function initMobileNav() {
 document.addEventListener('DOMContentLoaded', initMobileNav);
 document.addEventListener('astro:page-load', initMobileNav);
 </script>
+
+<!-- i18n 暂时禁用 - 仅保留中文 -->
+<!-- 
 <script>
 function initLanguageMenu() {
   const languageButton = document.getElementById('language-button');
   const languageMenu = document.getElementById('language-menu');
-  const mobileMenu = document.getElementById('mobile-menu'); // 添加移动端菜单引用
+  const mobileMenu = document.getElementById('mobile-menu');
 
   if (!languageButton || languageButton.dataset.bound === 'true') return;
   languageButton.dataset.bound = 'true';
@@ -298,6 +304,7 @@ function initLanguageMenu() {
 document.addEventListener('astro:page-load', initLanguageMenu);
 document.addEventListener('astro:after-swap', initLanguageMenu);
 </script>
+-->
 
 <script>
   function initHeaderScroll() {
