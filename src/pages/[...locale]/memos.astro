@@ -22,9 +22,9 @@ if (!memosPost) {
 }
 
 // 获取所有本地标签
-const allTags = [...new Set(memosPost.flatMap(m => m.data?.tags || []))].sort();
+const allTags = [...new Set(memosPost.flatMap((m: any) => m.data?.tags || []))].sort();
 
-const sortedMemos = memosPost.sort((a, b) => b.id.localeCompare(a.id));
+const sortedMemos = memosPost.sort((a: any, b: any) => b.id.localeCompare(a.id));
 
 const pageTitle = t("header.memos") + " - " + siteConfig.title;
 
@@ -87,7 +87,7 @@ const memoApiUrl = 'https://m.314926.xyz';
 
                 <!-- Memos 列表 -->
                 <div id="local-memos-list">
-                    {sortedMemos.map((memo) => (
+                    {sortedMemos.map((memo: any) => (
                         <div class="memo-item" data-tags={JSON.stringify(memo.data?.tags || [])}>
                             <MemoTimeline memo={memo} />
                         </div>
@@ -113,12 +113,12 @@ const memoApiUrl = 'https://m.314926.xyz';
     const tabButtons = document.querySelectorAll('#memo-tabs button');
     const panels = document.querySelectorAll('.memo-panel');
 
-    tabButtons.forEach(btn => {
+    tabButtons.forEach((btn: Element) => {
         btn.addEventListener('click', () => {
-            const tab = btn.dataset.tab;
+            const tab = (btn as HTMLElement).dataset.tab;
             
             // 更新按钮样式
-            tabButtons.forEach(b => {
+            tabButtons.forEach((b: Element) => {
                 b.classList.remove('bg-[var(--btn-bg)]', 'text-[var(--btn-text)]', 'shadow-sm');
                 b.classList.add('text-[var(--text-color-70)]');
             });
@@ -126,8 +126,9 @@ const memoApiUrl = 'https://m.314926.xyz';
             btn.classList.remove('text-[var(--text-color-70)]');
 
             // 切换面板
-            panels.forEach(p => p.classList.add('hidden'));
-            document.getElementById(`${tab}-memos`).classList.remove('hidden');
+            panels.forEach((p: Element) => p.classList.add('hidden'));
+            const panelEl = document.getElementById(`${tab}-memos`);
+            if (panelEl) panelEl.classList.remove('hidden');
         });
     });
 
@@ -135,12 +136,12 @@ const memoApiUrl = 'https://m.314926.xyz';
     const tagButtons = document.querySelectorAll('#local-tags .tag-filter');
     const memoItems = document.querySelectorAll('#local-memos-list .memo-item');
 
-    tagButtons.forEach(btn => {
+    tagButtons.forEach((btn: Element) => {
         btn.addEventListener('click', () => {
-            const selectedTag = btn.dataset.tag;
+            const selectedTag = (btn as HTMLElement).dataset.tag;
 
             // 更新按钮样式
-            tagButtons.forEach(b => {
+            tagButtons.forEach((b: Element) => {
                 b.classList.remove('bg-[var(--link-color)]', 'text-white');
                 b.classList.add('bg-[var(--card-color)]', 'text-[var(--text-color-70)]');
             });
@@ -148,8 +149,8 @@ const memoApiUrl = 'https://m.314926.xyz';
             btn.classList.remove('bg-[var(--card-color)]', 'text-[var(--text-color-70)]');
 
             // 筛选 memos
-            memoItems.forEach(item => {
-                const tags = JSON.parse(item.dataset.tags || '[]');
+            memoItems.forEach((item: Element) => {
+                const tags = JSON.parse((item as HTMLElement).dataset.tags || '[]');
                 if (!selectedTag || tags.includes(selectedTag)) {
                     item.classList.remove('hidden');
                 } else {

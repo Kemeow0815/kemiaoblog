@@ -17,6 +17,12 @@
 </a>
 
 <script>
+interface TimetableCourseDefinition {
+	id: number;
+	courseName: string;
+	color?: string;
+}
+
 interface TimetableCourseView {
 	courseId: number;
 	courseName: string;
@@ -394,7 +400,7 @@ function buildTimetableData(data: any): Record<number, TimetableCourseView[]> {
 		if (currentWeek < arrangement.startWeek || currentWeek > arrangement.endWeek) continue;
 		if (!(arrangement.day in coursesByDay)) continue;
 		
-		const courseDef = courseMap.get(arrangement.id);
+		const courseDef = courseMap.get(arrangement.id) as TimetableCourseDefinition | undefined;
 		if (!courseDef) continue;
 		
 		const startNode = arrangement.startNode;

@@ -6,6 +6,7 @@ export interface Translation {
         friends: string;
         memos: string;
         timetable: string;
+        guide: string;
     };
     cover: {
         title: {

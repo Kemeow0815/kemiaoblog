@@ -40,6 +40,7 @@ export default defineConfig({
         "material-symbols": ["*"],
         solar: ["*"],
         uim: ["*"],
+        "streamline-freehand": ["*"],
         flue: ["*"],
       },
     }),

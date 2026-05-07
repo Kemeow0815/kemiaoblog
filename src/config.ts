@@ -4,7 +4,7 @@ import type {
     LicenseConfig
 } from "./types/config"
 
-import type { FriendLink } from "./types/friend"
+// import type { FriendLink } from "./types/friend"
 
 export const siteConfig: SiteConfig = {
     title: "喵洛阁",
@@ -44,21 +44,69 @@ export const licenseConfig: LicenseConfig = {
     url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
 };
 
-export const friendLinkConfig: FriendLink[] = [
-    {
-        name: 'Motues',
-        avatar: 'https://www.motues.top/avatar.jpg',
-        url: 'https://www.motues.top',
-        description: 'Like River!'
+// 友链配置 - 如使用外链数据源可注释掉此配置
+// export const friendLinkConfig: FriendLink[] = [
+//     {
+//         name: 'Motues',
+//         avatar: 'https://www.motues.top/avatar.jpg',
+//         url: 'https://www.motues.top',
+//         description: 'Like River!'
+//     },
+//     {
+//         name: 'Astro',
+//         avatar: 'https://avatars.githubusercontent.com/u/44914786',
+//         url: 'https://astro.build',
+//         description: 'Build fast websites, faster.'
+//     }
+//     // 在这里添加更多友链
+// ]
+
+// 导航指南配置
+export interface GuideItem {
+	title: string;
+	description: string;
+	href: string;
+	icon: string;
+	order?: number;
+}
+
+export const guideConfig: GuideItem[] = [
+	{
+		title: "课程表",
+		description: "查看我的课程安排",
+		href: "/timetable/",
+		icon: "material-symbols:calendar-month-outline",
+		order: 1
+	},
+	{
+		title: "赞助支持",
+		description: "感谢每一份支持",
+		href: "/reward/",
+		icon: "material-symbols:favorite-outline",
+		order: 2
     },
     {
-        name: 'Astro',
-        avatar: 'https://avatars.githubusercontent.com/u/44914786',
-        url: 'https://astro.build',
-        description: 'Build fast websites, faster.'
-    }
-    // 在这里添加更多友链
-]
+        title: "即刻短文",
+        description: "查看我的所有即刻短文",
+        href: "/memos/",
+        icon: "solar:notes-bold-duotone",
+        order: 3
+    },
+	{
+		title: "关于我",
+		description: "了解更多关于我的信息",
+		href: "/about/",
+		icon: "material-symbols:person-outline",
+		order: 4
+	},
+	{
+		title: "友链",
+		description: "我的朋友们",
+		href: "/friends/",
+		icon: "material-symbols:link",
+		order: 5
+	}
+];
 
 export const aboutConfig = {
     top_info: {

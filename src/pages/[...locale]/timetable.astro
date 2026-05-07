@@ -439,10 +439,11 @@ function renderDesktopView() {
 	`;
 	
 	// 渲染表体
+	if (!viewModel) return;
 	const oddRows = viewModel.nodeRows.filter(row => row.node % 2 === 1);
 	tbody.innerHTML = oddRows.map(row => {
-		const endNode = Math.min(row.node + 1, viewModel.nodeRows.length);
-		const endNodeRow = viewModel.nodeRows.find(item => item.node === endNode);
+		const endNode = Math.min(row.node + 1, viewModel!.nodeRows.length);
+		const endNodeRow = viewModel!.nodeRows.find(item => item.node === endNode);
 		
 		return `
 			<tr class="border-b border-[var(--button-border-color)] last:border-b-0">
@@ -452,8 +453,8 @@ function renderDesktopView() {
 						${row.startTime} - ${endNodeRow?.endTime ?? row.endTime}
 					</p>
 				</td>
-				${viewModel.dayColumns.map(day => {
-					const courses = (viewModel.coursesByDay[day.day] ?? []).filter(c => c.startNode === row.node);
+				${viewModel!.dayColumns.map(day => {
+				const courses = (viewModel!.coursesByDay[day.day] ?? []).filter(c => c.startNode === row.node);
 					if (courses.length === 0) {
 						return `<td class="px-4 py-3 align-top"><div class="text-center text-xs text-[var(--text-color-50)]">—</div></td>`;
 					}
@@ -489,8 +490,8 @@ function renderMobileView() {
 	const container = document.getElementById('mobile-view');
 	if (!container) return;
 	
-	container.innerHTML = viewModel.dayColumns.map(day => {
-		const courses = viewModel.coursesByDay[day.day] ?? [];
+	container.innerHTML = viewModel!.dayColumns.map(day => {
+		const courses = viewModel!.coursesByDay[day.day] ?? [];
 		return `
 			<div class="bg-[var(--card-color)] border border-[var(--button-border-color)] rounded-xl overflow-hidden">
 				<div class="px-4 py-3 border-b border-[var(--button-border-color)] bg-[var(--button-hover-color)]">
@@ -606,6 +607,7 @@ async function init() {
 		timetableData = await response.json();
 		
 		// 计算当前周
+		if (!timetableData) return;
 		currentWeek = resolveCurrentWeek(timetableData.settings.startDate, timetableData.settings.maxWeek);
 		
 		// 从 URL 获取选中的周
@@ -618,7 +620,7 @@ async function init() {
 		}
 		
 		// 构建视图模型
-		viewModel = buildTimetableViewModel(timetableData, selectedWeek);
+		viewModel = buildTimetableViewModel(timetableData!, selectedWeek);
 		
 		// 绑定事件
 		const prevBtn = document.getElementById('prev-week-btn');

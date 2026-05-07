@@ -1,0 +1,148 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import Cover from '@components/Cover.astro'
+import FabMenu from '@components/control/FabMenu.astro'
+import { siteConfig } from '@/config'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client";
+
+export async function getStaticPaths() {
+	return i18n?.locales.map(locale => ({ params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) } }));
+}
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+// 获取赞助数据
+const sponsorsData = await fetch('https://jsd.268682.xyz/gh/Kemeow0815/sponsors@main/data/sponsors/sponsors.json').then(res => res.json()).catch(() => ({ sponsors: [] }));
+
+const pageTitle = `感谢赞助 - ${siteConfig.title}`;
+
+// 计算总赞助金额
+function parseAmount(amountStr: string): number {
+	const match = amountStr.match(/(\d+(?:\.\d+)?)/);
+	return match ? parseFloat(match[1]) : 0;
+}
+
+const totalAmount = sponsorsData.sponsors?.reduce((sum: number, s: any) => sum + parseAmount(s.amount), 0) || 0;
+const sponsorCount = sponsorsData.sponsors?.length || 0;
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+	<div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+		<Cover title="感谢赞助" subTitle="每一份支持都是我前进的动力"/>
+		
+		<div class="mt-8 max-w-4xl mx-auto">
+			<!-- 赞助统计卡片 -->
+			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+				<div class="bg-[var(--card-color)] border border-[var(--button-border-color)] rounded-xl p-6 text-center">
+					<div class="text-3xl font-bold text-[var(--link-color)] mb-2">{sponsorCount}</div>
+					<div class="text-sm text-[var(--text-color-70)]">赞助人数</div>
+				</div>
+				<div class="bg-[var(--card-color)] border border-[var(--button-border-color)] rounded-xl p-6 text-center">
+					<div class="text-3xl font-bold text-[var(--link-color)] mb-2">¥{totalAmount.toFixed(2)}</div>
+					<div class="text-sm text-[var(--text-color-70)]">累计赞助</div>
+				</div>
+			</div>
+
+			<!-- 感谢语 -->
+			<div class="bg-[var(--card-color)] border border-[var(--button-border-color)] rounded-xl p-6 mb-8">
+				<div class="text-center">
+					<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--link-color)]/10 flex items-center justify-center">
+						<svg class="w-8 h-8 text-[var(--link-color)]" fill="currentColor" viewBox="0 0 24 24">
+							<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+						</svg>
+					</div>
+					<h2 class="text-xl font-bold text-[var(--text-color)] mb-3">感谢您的支持</h2>
+					<p class="text-[var(--text-color-70)] leading-relaxed">
+						您的每一份赞助都是对我莫大的鼓励，让我能够持续创作更多优质内容。<br>
+						无论金额大小，都代表着您对我的认可与支持，这份心意我将铭记于心。
+					</p>
+				</div>
+			</div>
+
+			<!-- 赞助方式 -->
+			<div class="bg-[var(--card-color)] border border-[var(--button-border-color)] rounded-xl p-6 mb-8">
+				<h3 class="text-lg font-bold text-[var(--text-color)] mb-4 flex items-center">
+					<svg class="w-5 h-5 mr-2 text-[var(--link-color)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+					</svg>
+					赞助方式
+				</h3>
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<!-- 微信支付 -->
+					<div class="border border-[var(--button-border-color)] rounded-lg p-4 text-center hover:border-[var(--link-color)] transition-colors group">
+						<div class="w-32 h-32 mx-auto mb-3 rounded-lg overflow-hidden border-2 border-[var(--button-border-color)] group-hover:border-[var(--link-color)] transition-colors">
+							<img src="/donate/weixin.avif" alt="微信支付二维码" class="w-full h-full object-cover"/>
+						</div>
+						<div class="font-medium text-[var(--text-color)]">微信支付</div>
+						<div class="text-xs text-[var(--text-color-50)] mt-1">扫码赞助</div>
+					</div>
+					<!-- 支付宝 -->
+					<div class="border border-[var(--button-border-color)] rounded-lg p-4 text-center hover:border-[var(--link-color)] transition-colors group">
+						<div class="w-32 h-32 mx-auto mb-3 rounded-lg overflow-hidden border-2 border-[var(--button-border-color)] group-hover:border-[var(--link-color)] transition-colors">
+							<img src="/donate/alipay.avif" alt="支付宝二维码" class="w-full h-full object-cover"/>
+						</div>
+						<div class="font-medium text-[var(--text-color)]">支付宝</div>
+						<div class="text-xs text-[var(--text-color-50)] mt-1">扫码赞助</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 赞助列表 -->
+			<div class="bg-[var(--card-color)] border border-[var(--button-border-color)] rounded-xl p-6">
+				<h3 class="text-lg font-bold text-[var(--text-color)] mb-4 flex items-center">
+					<svg class="w-5 h-5 mr-2 text-[var(--link-color)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+					</svg>
+					赞助名单
+				</h3>
+				
+				{sponsorsData.sponsors && sponsorsData.sponsors.length > 0 ? (
+					<div class="space-y-3">
+						{sponsorsData.sponsors.map((sponsor: any) => (
+							<div class="flex items-center gap-4 p-3 bg-[var(--button-hover-color)]/50 rounded-lg hover:bg-[var(--button-hover-color)] transition-colors">
+								<a href={sponsor.url || '#'} target="_blank" rel="noopener noreferrer" class="flex-shrink-0">
+									<img 
+										src={sponsor.avatar || 'https://wsrv.nl/?url=github.com/Kemeow0815.png'} 
+										alt={sponsor.name}
+										class="w-12 h-12 rounded-full object-cover border-2 border-[var(--button-border-color)] hover:border-[var(--link-color)] transition-colors"
+									/>
+								</a>
+								<div class="flex-1 min-w-0">
+									<div class="flex items-center gap-2">
+										<a 
+											href={sponsor.url || '#'} 
+											target="_blank" 
+											rel="noopener noreferrer"
+											class="font-medium text-[var(--text-color)] hover:text-[var(--link-color)] transition-colors truncate"
+										>
+											{sponsor.name}
+										</a>
+										<span class="flex-shrink-0 px-2 py-0.5 text-xs font-medium bg-[var(--link-color)]/10 text-[var(--link-color)] rounded-full">
+											{sponsor.amount}
+										</span>
+									</div>
+									<div class="text-xs text-[var(--text-color-50)] mt-1">
+										{sponsor.date}
+									</div>
+								</div>
+							</div>
+						))}
+					</div>
+				) : (
+					<div class="text-center py-8">
+						<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--button-hover-color)] flex items-center justify-center">
+							<svg class="w-8 h-8 text-[var(--text-color-50)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+							</svg>
+						</div>
+						<p class="text-[var(--text-color-50)]">暂无赞助记录</p>
+						<p class="text-sm text-[var(--text-color-30)] mt-1">成为第一位赞助者吧！</p>
+					</div>
+				)}
+			</div>
+		</div>
+	</div>
+	<FabMenu showBackBottom={true} />
+</MainPageLayout>
