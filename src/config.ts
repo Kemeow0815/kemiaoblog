@@ -10,20 +10,20 @@ export const siteConfig: SiteConfig = {
     title: "喵洛阁",
     subTitle: "KeMiao - Blog",
 
-    favicon: "/favicon/favicon.ico", // Path of the favicon, relative to the /public directory
+    favicon: "/favicon/favicon.ico", // 网站图标路径，相对于 /public 目录
 
-    pageSize: 6, // Number of posts per page
+    pageSize: 6, // 每页显示的文章数量
     toc: {
         enable: true,
-        depth: 3 // Max depth of the table of contents, between 1 and 4
+        depth: 3 // 目录最大深度，范围在 1 到 4 之间
     },
     blogNavi: {
-        enable: true // Whether to enable blog navigation in the blog footer
+        enable: true // 是否在博客页脚启用博客导航
     },
     comments: {
-        enable: true, // Whether to enable comments
-        platform: "default", // Comment platform, set "default" to use Momo-backend, also supports "twikoo"
-        backendUrl: "https://momo-blog-comment.268682.xyz" // Backend URL for comments
+        enable: true, // 是否启用评论
+        platform: "default", // 评论平台，设置为 "default" 使用 Momo 后端，也支持 "twikoo"
+        backendUrl: "https://momo-blog-comment.268682.xyz" // 评论后端 URL
     },
     theme: {
         AOS: true, // Whether to enable AOS (Animate On Scroll) for animations
@@ -33,7 +33,7 @@ export const siteConfig: SiteConfig = {
 }
 
 export const profileConfig: ProfileConfig = {
-    avatar: "assets/kemiaosw.png", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+    avatar: "assets/kemiaosw.png", // 相对于 /src 目录。如果以 '/' 开头则相对于 /public 目录
     name: "克喵爱吃卤面",
     description: "每一段旅行，都有终点",
     indexPage: "https://www.kemiaosw.top",
@@ -59,12 +59,12 @@ export const friendLinkConfig: FriendLink[] = [
         url: 'https://astro.build',
         description: 'Build fast websites, faster.'
     }
-    // Add more friend links here
+    // 在这里添加更多友链
 ]
 
 export const aboutConfig = {
     top_info: {
-        avatar: 'https://wsrv.nl/?url=github.com/kemeow0815.png',
+        avatar: 'https://wsrv.nl/?url=github.com/kemiaow0815.png',
         site_name: '克喵爱吃卤面',
         motto: '每一段旅行，都有终点',
         float_text: [

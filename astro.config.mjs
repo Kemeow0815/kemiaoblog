@@ -63,6 +63,7 @@ export default defineConfig({
       remarkTypst,
       parseDirectiveNode,
       remarkCombined,
+      [remarkLqip, { enable: siteConfig.theme.LQIP }],
     ],
     rehypePlugins: [
       rehypeKatex,
