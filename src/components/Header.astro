@@ -35,6 +35,7 @@ const friendsPage = getRelativeLocaleUrl(currentLang, "/friends/");
 const aboutPage = getRelativeLocaleUrl(currentLang, "/about/");
 const memosPage = getRelativeLocaleUrl(currentLang, "/memos/");
 const timetablePage = getRelativeLocaleUrl(currentLang, "/timetable/");
+const guidePage = getRelativeLocaleUrl(currentLang, "/guide/");
 
 let introPage : string;
 
@@ -102,37 +103,45 @@ if (profileConfig.indexPage) {
               {t("header.archive")}
           </a>
           <!-- 关于链接 -->
-          <a href={ aboutPage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
+          <!-- <a href={ aboutPage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
               Astro.url.pathname === aboutPage 
                   ? 'bg-[var(--button-hover-color)]' 
                   : 'hover:bg-[var(--button-hover-color)]'
               }`}>
               {t("header.about")}
-          </a>
+          </a> -->
           <!-- 友链链接 -->
-          <a href={ friendsPage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
+          <!-- <a href={ friendsPage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
               Astro.url.pathname === friendsPage 
                   ? 'bg-[var(--button-hover-color)]' 
                   : 'hover:bg-[var(--button-hover-color)]'
               }`}>
               {t("header.friends")}
-          </a>
+          </a> -->
           <!-- 即刻短文 -->
-          <a href={ memosPage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
+          <!-- <a href={ memosPage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
               Astro.url.pathname === memosPage 
                   ? 'bg-[var(--button-hover-color)]' 
                   : 'hover:bg-[var(--button-hover-color)]'
               }`}>
               {t("header.memos")}
-          </a>
+          </a> -->
           <!-- 课程表 -->
-          <a href={ timetablePage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
+          <!-- <a href={ timetablePage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
               Astro.url.pathname === timetablePage 
                   ? 'bg-[var(--button-hover-color)]' 
                   : 'hover:bg-[var(--button-hover-color)]'
               }`}>
               {t("header.timetable")}
-          </a>
+          </a> -->
+          <!-- 更多页面 -->
+          <a href={ guidePage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
+              Astro.url.pathname === guidePage 
+                  ? 'bg-[var(--button-hover-color)]' 
+                  : 'hover:bg-[var(--button-hover-color)]'
+              }`}>
+              {t("header.guide")}
+          </a>          
         </div>
     </div>
 <!-- Mobile Menu -->
@@ -157,7 +166,7 @@ if (profileConfig.indexPage) {
                 <Icon name="fa6-solid:book-bookmark" class="w-4 h-4 opacity-70" />
                 <span>{t("header.archive")}</span>
             </a>
-            <a href={ aboutPage } class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--button-hover-color)] hover:text-[var(--link-color)] transition-colors active:bg-[var(--button-hover-color)] active:text-[var(--link-color)]">
+            <!-- <a href={ aboutPage } class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--button-hover-color)] hover:text-[var(--link-color)] transition-colors active:bg-[var(--button-hover-color)] active:text-[var(--link-color)]">
                 <Icon name="fa6-solid:user" class="w-4 h-4 opacity-70" />
                 <span>{t("header.about")}</span>
             </a>
@@ -172,6 +181,10 @@ if (profileConfig.indexPage) {
             <a href={ timetablePage } class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--button-hover-color)] hover:text-[var(--link-color)] transition-colors active:bg-[var(--button-hover-color)] active:text-[var(--link-color)]">
                 <Icon name="uim:schedule" class="w-4 h-4 opacity-70" />
                 <span>{t("header.timetable")}</span>
+            </a> -->
+            <a href={ guidePage } class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[var(--button-hover-color)] hover:text-[var(--link-color)] transition-colors active:bg-[var(--button-hover-color)] active:text-[var(--link-color)]">
+                <Icon name="streamline-freehand:website-development-build" class="w-4 h-4 opacity-70" />
+                <span>{t("header.guide")}</span>
             </a>
         </nav>
 
@@ -218,6 +231,7 @@ function initMobileNav() {
   if (!menuButton || !container) return;
 
   function openMenu() {
+    if (!container) return;
     container.classList.remove('hidden');
     // 强制重绘以触发动画
     requestAnimationFrame(() => {
@@ -233,7 +247,7 @@ function initMobileNav() {
     
     // 等待动画结束后隐藏容器
     setTimeout(() => {
-      container.classList.add('hidden');
+      if (container) container.classList.add('hidden');
       document.body.style.overflow = '';
     }, 300);
   }
@@ -315,6 +329,7 @@ document.addEventListener('astro:after-swap', initLanguageMenu);
     let ticking = false;
 
     function updateHeader() {
+      if (!header) return;
       const currentScrollY = window.scrollY;
       const scrollDelta = currentScrollY - lastScrollY;
 

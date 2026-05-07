@@ -7,7 +7,8 @@ const translation: Translation = {
         about: "关于",
         friends: "友链",
         memos: "碎碎念",
-        timetable: "课程表"
+        timetable: "课程表",
+        guide: "导航"
     },
     cover: {
         title: {

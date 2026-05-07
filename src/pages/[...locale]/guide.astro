@@ -1,0 +1,73 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import Cover from '@components/Cover.astro'
+import FabMenu from '@components/control/FabMenu.astro'
+import { siteConfig, guideConfig } from '@/config'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client";
+import { Icon } from 'astro-icon/components'
+
+export async function getStaticPaths() {
+	return i18n?.locales.map(locale => ({ params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) } }));
+}
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+// 按 order 排序
+const sortedGuides = [...guideConfig].sort((a, b) => (a.order || 999) - (b.order || 999));
+
+const pageTitle = `导航指南 - ${siteConfig.title}`;
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+	<div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+		<Cover title="导航指南" subTitle="快速访问本站各项功能"/>
+		
+		<div class="mt-8 max-w-3xl mx-auto">
+			<div class="bg-[var(--card-color)] border border-[var(--button-border-color)] rounded-xl overflow-hidden">
+				<div class="p-6 border-b border-[var(--button-border-color)]">
+					<div class="flex items-center gap-3 mb-2">
+						<Icon name="material-symbols:explore-rounded" class="w-6 h-6 text-[var(--link-color)]" />
+						<h1 class="text-xl font-bold text-[var(--text-color)]">站点导航</h1>
+					</div>
+					<p class="text-sm text-[var(--text-color-70)]">
+						点击以下链接快速跳转到对应页面
+					</p>
+				</div>
+
+				<div class="divide-y divide-[var(--button-border-color)]">
+					{sortedGuides.map((guide) => (
+						<a
+							href={guide.href}
+							class="group flex items-center gap-4 p-5 hover:bg-[var(--button-hover-color)] transition-colors"
+						>
+							<div class="flex-shrink-0 w-12 h-12 rounded-xl bg-[var(--link-color)]/10 flex items-center justify-center group-hover:bg-[var(--link-color)]/20 transition-colors">
+								<Icon name={guide.icon} class="w-6 h-6 text-[var(--link-color)]" />
+							</div>
+							<div class="flex-1 min-w-0">
+								<div class="font-medium text-[var(--text-color)] group-hover:text-[var(--link-color)] transition-colors">
+									{guide.title}
+								</div>
+								<div class="text-sm text-[var(--text-color-50)] mt-0.5">
+									{guide.description}
+								</div>
+							</div>
+							<div class="flex-shrink-0">
+								<Icon name="material-symbols:chevron-right" class="w-5 h-5 text-[var(--text-color-30)] group-hover:text-[var(--link-color)] transition-colors" />
+							</div>
+						</a>
+					))}
+				</div>
+			</div>
+
+			<!-- 提示信息 -->
+			<div class="mt-6 text-center">
+				<p class="text-sm text-[var(--text-color-50)]">
+					更多功能正在开发中，敬请期待...
+				</p>
+			</div>
+		</div>
+	</div>
+	<FabMenu showBackBottom={true} />
+</MainPageLayout>

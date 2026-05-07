@@ -173,8 +173,8 @@ const cfg = aboutConfig;
                             <div class="skill-carousel">
                                 <div class="carousel-wrapper" id="tech-carousel">
                                     <div class="carousel-track">
-                                        {cfg.skills.technical.map((skill, index) => (
-                                            <div key={index} class="skill-card w-[70px] h-[70px] p-2 bg-[var(--button-hover-color)] rounded-xl flex-shrink-0">
+                                        {cfg.skills.technical.map((skill) => (
+                                            <div class="skill-card w-[70px] h-[70px] p-2 bg-[var(--button-hover-color)] rounded-xl flex-shrink-0">
                                                 <img 
                                                     src={skill} 
                                                     alt="tech skill" 
@@ -201,8 +201,8 @@ const cfg = aboutConfig;
                             <div class="skill-carousel mt-6 pt-4 border-t border-dashed border-[var(--button-border-color)]">
                                 <div class="carousel-wrapper" id="general-carousel">
                                     <div class="carousel-track">
-                                        {cfg.skills.general.map((skill, index) => (
-                                            <div key={index} class="skill-card w-[70px] h-[70px] p-2 bg-[var(--button-hover-color)] rounded-xl flex-shrink-0">
+                                        {cfg.skills.general.map((skill) => (
+                                            <div class="skill-card w-[70px] h-[70px] p-2 bg-[var(--button-hover-color)] rounded-xl flex-shrink-0">
                                                 <img 
                                                     src={skill} 
                                                     alt="general skill" 
@@ -234,9 +234,8 @@ const cfg = aboutConfig;
                     <div class="card bg-[var(--card-color)] rounded-xl p-4 border border-[var(--button-border-color)]">
                         <h2 class="text-lg font-bold text-[var(--text-color)] mb-4 border-b border-[var(--button-border-color)] pb-2">项目</h2>
                         <div class="projects-grid">
-                            {cfg.projects.map((project, index) => (
+                            {cfg.projects.map((project) => (
                                 <a 
-                                    key={index} 
                                     href={project.url} 
                                     target="_blank" 
                                     class="project block bg-[var(--button-hover-color)] rounded-xl p-3 mb-3 transition-all duration-300 hover:bg-[var(--link-color)] hover:text-white"
@@ -257,8 +256,8 @@ const cfg = aboutConfig;
                     <div class="card bg-[var(--card-color)] rounded-xl p-4 border border-[var(--button-border-color)]">
                         <h2 class="text-lg font-bold text-[var(--text-color)] mb-4 border-b border-[var(--button-border-color)] pb-2">爱好</h2>
                         <ul class="hobbies-list">
-                            {cfg.hobbies.map((hobby, index) => (
-                                <li key={index} class="py-2 text-[var(--text-color-70)]">{hobby}</li>
+                            {cfg.hobbies.map((hobby) => (
+                                <li class="py-2 text-[var(--text-color-70)]">{hobby}</li>
                             ))}
                         </ul>
                     </div>
@@ -290,13 +289,16 @@ const cfg = aboutConfig;
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    function initCarousel(carouselId) {
-        const wrapper = document.getElementById(carouselId);
+    function initCarousel(carouselId: string) {
+        const wrapper = document.getElementById(carouselId) as HTMLElement | null;
         if (!wrapper) return;
         
         const track = wrapper.querySelector('.carousel-track');
-        const prevBtn = wrapper.parentElement.querySelector('.carousel-btn.prev');
-        const nextBtn = wrapper.parentElement.querySelector('.carousel-btn.next');
+        const parentEl = wrapper.parentElement;
+        if (!parentEl) return;
+        
+        const prevBtn = parentEl.querySelector('.carousel-btn.prev') as HTMLElement | null;
+        const nextBtn = parentEl.querySelector('.carousel-btn.next') as HTMLElement | null;
         
         if (!track || !prevBtn || !nextBtn) return;
         
@@ -310,7 +312,7 @@ document.addEventListener('DOMContentLoaded', function() {
             wrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' });
         });
         
-        wrapper.addEventListener('wheel', (e) => {
+        wrapper.addEventListener('wheel', (e: WheelEvent) => {
             e.preventDefault();
             const delta = e.deltaX + (e.shiftKey ? e.deltaY : 0);
             if (Math.abs(delta) < 80) return;
@@ -318,17 +320,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { passive: false });
         
         let isDragging = false;
-        let startX;
-        let scrollLeft;
+        let startX: number = 0;
+        let scrollLeft: number = 0;
         
-        wrapper.addEventListener('mousedown', (e) => {
+        wrapper.addEventListener('mousedown', (e: MouseEvent) => {
             isDragging = true;
             startX = e.pageX - wrapper.offsetLeft;
             scrollLeft = wrapper.scrollLeft;
             wrapper.style.cursor = 'grabbing';
         });
         
-        wrapper.addEventListener('mousemove', (e) => {
+        wrapper.addEventListener('mousemove', (e: MouseEvent) => {
             if (!isDragging) return;
             e.preventDefault();
             const x = e.pageX - wrapper.offsetLeft;
