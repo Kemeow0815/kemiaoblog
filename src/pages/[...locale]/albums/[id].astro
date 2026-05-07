@@ -1,0 +1,203 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import Cover from '@components/Cover.astro'
+import FabMenu from '@components/control/FabMenu.astro'
+import PhotoCard from '@components/albums/PhotoCard.astro'
+import { siteConfig } from '@/config'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client";
+import { scanAlbums } from '@utils/album-scanner'
+import type { AlbumGroup, Photo } from '@/types/album'
+
+export async function getStaticPaths() {
+	const albumsData = await scanAlbums();
+	const locales = i18n?.locales || ['zh'];
+	
+	const paths: { params: { locale?: string; id: string }; props: { album: AlbumGroup } }[] = [];
+	
+	for (const album of albumsData) {
+		for (const locale of locales) {
+			const localeCode = typeof locale === 'string' ? locale : locale.path;
+			paths.push({
+				params: { 
+					locale: localeCode === i18n?.defaultLocale ? undefined : localeCode,
+					id: album.id 
+				},
+				props: { album }
+			});
+		}
+	}
+	
+	return paths;
+}
+
+interface Props {
+	album: AlbumGroup;
+}
+
+const { album } = Astro.props;
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+if (!album) {
+	return Astro.redirect('/404/');
+}
+
+const pageTitle = `${album.title} - 相册 - ${siteConfig.title}`;
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+	<div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+		<Cover title={album.title} subTitle={album.description || "记录美好瞬间"}/>
+		
+		<div class="mt-8 max-w-6xl mx-auto">
+			<!-- 返回按钮和相册信息 -->
+			<div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+				<a 
+					href="/albums/" 
+					class="inline-flex items-center gap-2 text-sm text-[var(--text-color-70)] hover:text-[var(--link-color)] transition-colors"
+				>
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+					</svg>
+					返回相册列表
+				</a>
+				
+				<div class="flex items-center gap-4 text-sm text-[var(--text-color-70)]">
+					<span class="inline-flex items-center gap-1">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+						</svg>
+						{new Date(album.date).toLocaleDateString("zh-CN")}
+					</span>
+					{album.location && (
+						<span class="inline-flex items-center gap-1">
+							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+							</svg>
+							{album.location}
+						</span>
+					)}
+					<span class="inline-flex items-center gap-1">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+						</svg>
+						{album.photos.length} 张
+					</span>
+				</div>
+			</div>
+
+			<!-- 标签 -->
+			{album.tags && album.tags.length > 0 && (
+				<div class="mb-6 flex flex-wrap gap-2">
+					{album.tags.map((tag: string) => (
+						<span class="px-3 py-1 text-sm rounded-full bg-[var(--button-hover-color)] text-[var(--text-color-70)]">
+							{tag}
+						</span>
+					))}
+				</div>
+			)}
+
+			<!-- 照片瀑布流 -->
+			<div class="bg-[var(--card-color)] border border-[var(--button-border-color)] rounded-xl p-6">
+				{album.photos.length > 0 ? (
+					<div class="masonry-grid" id="gallery-container">
+						{album.photos.map((photo: Photo) => (
+							<PhotoCard 
+								src={photo.src} 
+								alt={photo.alt || photo.title || ""} 
+								albumId={album.id}
+								width={photo.width}
+								height={photo.height}
+							/>
+						))}
+					</div>
+				) : (
+					<div class="text-center py-16">
+						<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--button-hover-color)] flex items-center justify-center">
+							<svg class="w-8 h-8 text-[var(--text-color-50)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+							</svg>
+						</div>
+						<h3 class="text-lg font-medium text-[var(--text-color)] mb-2">暂无照片</h3>
+						<p class="text-[var(--text-color-50)]">该相册还没有照片</p>
+					</div>
+				)}
+			</div>
+		</div>
+	</div>
+	<FabMenu showBackBottom={true} />
+</MainPageLayout>
+
+<style>
+	.masonry-grid {
+		column-count: 1;
+		column-gap: 1rem;
+	}
+
+	@media (min-width: 640px) {
+		.masonry-grid {
+			column-count: 2;
+		}
+	}
+
+	@media (min-width: 1024px) {
+		.masonry-grid {
+			column-count: 3;
+		}
+	}
+
+	.masonry-grid > * {
+		break-inside: avoid;
+		margin-bottom: 1rem;
+	}
+</style>
+
+<script>
+	import PhotoSwipeLightbox from 'photoswipe/lightbox';
+	import 'photoswipe/style.css';
+
+	function initGalleryPhotoSwipe() {
+		const galleryContainer = document.getElementById('gallery-container');
+		if (!galleryContainer) return;
+
+		// 获取所有图片链接
+		const links = galleryContainer.querySelectorAll('.photoswipe-link');
+		
+		// 为每个图片预加载尺寸
+		links.forEach((link) => {
+			const img = link.querySelector('img');
+			if (!img) return;
+
+			// 如果图片已加载，更新尺寸
+			if (img.complete && img.naturalWidth) {
+				link.setAttribute('data-pswp-width', img.naturalWidth.toString());
+				link.setAttribute('data-pswp-height', img.naturalHeight.toString());
+			} else {
+				// 图片未加载完成，监听 load 事件
+				img.addEventListener('load', () => {
+					if (img.naturalWidth) {
+						link.setAttribute('data-pswp-width', img.naturalWidth.toString());
+						link.setAttribute('data-pswp-height', img.naturalHeight.toString());
+					}
+				}, { once: true });
+			}
+		});
+
+		// 初始化 PhotoSwipe
+		const lightbox = new PhotoSwipeLightbox({
+			gallery: '#gallery-container',
+			children: '.photoswipe-link',
+			pswpModule: () => import('photoswipe'),
+		});
+
+		lightbox.init();
+	}
+
+	document.addEventListener('astro:page-load', initGalleryPhotoSwipe);
+	// 初始加载时也执行
+	if (document.readyState === 'complete' || document.readyState === 'interactive') {
+		initGalleryPhotoSwipe();
+	}
+</script>

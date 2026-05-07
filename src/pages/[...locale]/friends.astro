@@ -27,7 +27,34 @@ const { Content } = await render(friendsPost);
 
 const pageTitle = t("header.friends") + " - " + siteConfig.title;
 
-const [remoteData, latencyData, lostData] = await Promise.all([
+interface LatencyItem {
+    link: string;
+    latency: number;
+    ssl_status: boolean;
+}
+
+interface LatencyData {
+    link_status?: LatencyItem[];
+}
+
+interface Friend {
+    url: string;
+    snapshot?: string;
+    icon: string;
+    title: string;
+    description: string;
+}
+
+interface LostFriend {
+    title: string;
+    icon: string;
+}
+
+const [remoteData, latencyData, lostData]: [
+    { content?: Friend[] },
+    LatencyData,
+    { lost?: LostFriend[] }
+] = await Promise.all([
     fetch('https://jsd.268682.xyz/gh/Kemeow0815/friends@output/v2/data.json')
         .then(res => res.json())
         .catch(() => ({ content: [] })),
@@ -40,8 +67,8 @@ const [remoteData, latencyData, lostData] = await Promise.all([
 ]);
 
 const friendList = remoteData.content || [];
-const latencyMap = new Map();
-(latencyData.link_status || []).forEach(item => {
+const latencyMap = new Map<string, LatencyItem>();
+(latencyData.link_status || []).forEach((item: LatencyItem) => {
     latencyMap.set(item.link, item);
 });
 
@@ -49,12 +76,12 @@ const lostFriends = lostData.lost && lostData.lost.length > 0
     ? lostData.lost 
     : [{ title: '友链失联', icon: 'https://jsd.268682.xyz/gh/Kemeow0815/img@main/img/404.webp' }];
 
-function getLatency(url) {
+function getLatency(url: string): number | '???' {
     const status = latencyMap.get(url);
     return status && status.latency >= 0 ? Math.round(status.latency * 1000) : '???';
 }
 
-function getSSLStatus(url) {
+function getSSLStatus(url: string): boolean | undefined {
     const status = latencyMap.get(url);
     return status && status.ssl_status;
 }
@@ -66,7 +93,7 @@ function getSSLStatus(url) {
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-[var(--text-color)] mb-12">
             {
-                friendList.map((friend) => {
+                friendList.map((friend: Friend) => {
                     const latency = getLatency(friend.url);
                     const sslStatus = getSSLStatus(friend.url);
                     const isOnline = typeof latency === 'number';
@@ -139,9 +166,9 @@ function getSSLStatus(url) {
                 <div class="px-6 pb-6">
                     <div class="flex flex-wrap gap-3">
                         {
-                            lostFriends.map((lost, index) => (
+                            lostFriends.map((lost: LostFriend, index: number) => (
                                 <div 
-                                    key={index}
+                                    data-index={index}
                                     class="flex items-center gap-2 px-3 py-2 rounded-full transition-colors cursor-not-allowed"
                                     style="background: var(--card-second-bg);"
                                 >
@@ -172,8 +199,8 @@ function getSSLStatus(url) {
             <h3 class="text-lg font-bold mb-4" style="color: var(--text-color);">本站信息：</h3>
             <div class="site-info-tabs">
                 <div class="tab-header">
-                    <button id="tab-formatted" class="active" onClick="showTab('formatted')">格式化信息</button>
-                    <button id="tab-text" onClick="showTab('text')">文本信息</button>
+                    <button id="tab-formatted" class="active" onclick="showTab('formatted')">格式化信息</button>
+                    <button id="tab-text" onclick="showTab('text')">文本信息</button>
                 </div>
                 <div class="tab-content">
                     <div id="content-formatted" class="tab-pane active">
@@ -185,7 +212,7 @@ function getSSLStatus(url) {
                                     <span class="dot green"></span>
                                 </div>
                                 <span class="lang">YAML</span>
-                                <button class="copy-btn" onClick="copyYaml()">
+                                <button class="copy-btn" onclick="copyYaml()">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>

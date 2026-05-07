@@ -6,6 +6,9 @@ const translation: Translation = {
         archive: "Archive",
         about: "About",
         friends: "Friends",
+        memos: "",
+        timetable: "",
+        guide: ""
     },
     cover: {
         title: {
@@ -13,12 +16,14 @@ const translation: Translation = {
             archive: "Archive",
             about: "About",
             friends: "Friends",
+            memos: ""
         },
         subTitle: {
             home: "Life is colorful!",
             archive: "Total of {count} articles",
             about: "A minimalist blog template",
             friends: "Interesting Souls",
+            memos: ""
         }
     },
     toc: "Contents",

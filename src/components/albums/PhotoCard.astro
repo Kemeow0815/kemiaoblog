@@ -1,0 +1,30 @@
+---
+interface Props {
+	src: string;
+	alt?: string;
+	albumId: string;
+	width?: number;
+	height?: number;
+}
+
+const { src, alt = "", albumId, width, height } = Astro.props;
+---
+
+<div class="gallery-photo-card break-inside-avoid mb-3">
+	<a
+		data-pswp-src={src}
+		data-pswp-width={width || "1200"}
+		data-pswp-height={height || "800"}
+		data-pswp-caption={alt}
+		target="_blank"
+		class="block rounded-xl overflow-hidden group cursor-pointer photoswipe-link"
+	>
+		<img
+			src={src}
+			alt={alt}
+			loading="lazy"
+			decoding="async"
+			class="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+		/>
+	</a>
+</div>
