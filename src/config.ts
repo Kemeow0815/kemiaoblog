@@ -121,6 +121,13 @@ export const guideConfig: GuideItem[] = [
         href: "/albums/",
         icon: "material-symbols:image",
         order: 7
+    },
+    {
+        title: "装备",
+        description: "查看我的设备清单",
+        href: "/devices/",
+        icon: "material-symbols:devices",
+        order: 8
     }
 ];
 

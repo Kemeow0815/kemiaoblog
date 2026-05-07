@@ -1,0 +1,502 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import Cover from '@components/Cover.astro'
+import FabMenu from '@components/control/FabMenu.astro'
+import { siteConfig } from '@/config'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client";
+import type { EquipmentData, EquipmentCategory, EquipmentItem } from '@/types/equipment'
+
+export async function getStaticPaths() {
+	return i18n?.locales.map(locale => ({ 
+		params: { locale: locale === i18n?.defaultLocale ? undefined : (locale as string) } 
+	}));
+}
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+const pageTitle = "我的装备 - " + siteConfig.title;
+
+// 读取装备数据
+let equipmentData: EquipmentData = { categories: [], items: [] };
+try {
+	const fs = await import('fs');
+	const path = await import('path');
+	const dataPath = path.join(process.cwd(), 'public', 'devices', 'equipment.json');
+	if (fs.existsSync(dataPath)) {
+		const rawData = fs.readFileSync(dataPath, 'utf-8');
+		equipmentData = JSON.parse(rawData) as EquipmentData;
+	}
+} catch (error) {
+	console.error('Failed to load equipment data:', error);
+}
+
+const categories = equipmentData.categories || [];
+const items = equipmentData.items || [];
+
+// 获取默认激活的分类
+const defaultCategory = categories.length > 0 ? categories[0].key : '';
+
+// 按分类分组设备
+const itemsByCategory = new Map<string, EquipmentItem[]>();
+categories.forEach((cat: EquipmentCategory) => {
+	itemsByCategory.set(cat.key, items.filter((item: EquipmentItem) => item.category === cat.key));
+});
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+	<div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+		<Cover title="我的装备" subTitle="生产力与娱乐设备清单"/>
+		
+		<div class="mt-8 max-w-6xl mx-auto">
+			<!-- 分类标签页 -->
+			{categories.length > 0 && (
+				<div class="flex flex-wrap justify-center gap-3 mb-8">
+					{categories.map((category: EquipmentCategory) => {
+						const count = itemsByCategory.get(category.key)?.length || 0;
+						return (
+							<button
+								class="category-tab"
+								data-category={category.key}
+								style={`--category-color: ${category.color}`}
+							>
+								<span class="tab-icon">{category.icon}</span>
+								<span class="tab-label">{category.label}</span>
+								<span class="tab-count">{count}</span>
+							</button>
+						);
+					})}
+				</div>
+			)}
+
+			<!-- 设备列表 -->
+			<div class="equipment-grid" id="equipment-container">
+				{items.map((item: EquipmentItem) => {
+					const category = categories.find((c: EquipmentCategory) => c.key === item.category);
+					const categoryColor = category?.color || 'var(--link-color)';
+					
+					return (
+						<div 
+							class="equipment-card" 
+							data-category={item.category}
+							style={`--category-color: ${categoryColor}`}
+						>
+							<!-- 设备图片 -->
+							<div class="equipment-image">
+								<img 
+									src={item.image} 
+									alt={item.name}
+									loading="lazy"
+									onerror="this.src='https://via.placeholder.com/400x300?text=No+Image'"
+								/>
+							</div>
+							
+							<!-- 设备内容 -->
+							<div class="equipment-content">
+								<!-- 标题和分类 -->
+								<div class="equipment-header">
+									<h3 class="equipment-name">{item.name}</h3>
+									{item.category && (
+										<span class="equipment-category-badge">
+											{item.category}
+										</span>
+									)}
+								</div>
+								
+								<!-- 描述 -->
+								{item.desc && (
+									<p class="equipment-desc">{item.desc}</p>
+								)}
+								
+								<!-- 规格信息 -->
+								{item.info && Object.keys(item.info).length > 0 && (
+									<div class="equipment-specs">
+										{Object.entries(item.info).slice(0, 4).map(([key, value]) => (
+											<div class="spec-item">
+												<span class="spec-label">{key}</span>
+												<span class="spec-value">{value}</span>
+											</div>
+										))}
+									</div>
+								)}
+								
+								<!-- 标签 -->
+								{item.tags && item.tags.length > 0 && (
+									<div class="equipment-tags">
+										{item.tags.map((tag: string) => (
+											<span class="tag">{tag}</span>
+										))}
+									</div>
+								)}
+								
+								<!-- 底部信息 -->
+								<div class="equipment-footer">
+									<div class="footer-info">
+										{item.date && (
+											<span class="date">
+												<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+													<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+												</svg>
+												{item.date}
+											</span>
+										)}
+										{item.money !== undefined && item.money > 0 && (
+											<span class="price">￥{item.money.toLocaleString()}</span>
+										)}
+									</div>
+									
+									{item.src && (
+										<a 
+											href={item.src} 
+											target="_blank" 
+											rel="noopener noreferrer"
+											class="detail-link"
+										>
+											详情
+										</a>
+									)}
+								</div>
+							</div>
+						</div>
+					);
+				})}
+			</div>
+			
+			{items.length === 0 && (
+				<div class="empty-state">
+					<div class="empty-icon">📦</div>
+					<h3 class="empty-title">暂无设备数据</h3>
+					<p class="empty-desc">请检查 equipment.json 文件是否存在且格式正确</p>
+				</div>
+			)}
+		</div>
+	</div>
+	<FabMenu showBackBottom={true} />
+</MainPageLayout>
+
+<style>
+	/* 分类标签样式 */
+	.category-tab {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.6rem 1.2rem;
+		border: 2px solid var(--button-border-color);
+		border-radius: 0.6rem;
+		background: var(--card-color);
+		color: var(--text-color-70);
+		font-size: 0.95rem;
+		cursor: pointer;
+		transition: all 0.3s ease;
+	}
+
+	.category-tab:hover {
+		border-color: var(--category-color);
+		color: var(--category-color);
+	}
+
+	.category-tab.active {
+		background: color-mix(in srgb, var(--category-color) 10%, transparent);
+		border-color: var(--category-color);
+		color: var(--category-color);
+		font-weight: 600;
+	}
+
+	.tab-icon {
+		font-size: 1.1rem;
+	}
+
+	.tab-count {
+		padding: 0.15rem 0.5rem;
+		background: var(--button-hover-color);
+		border-radius: 1rem;
+		font-size: 0.75rem;
+		min-width: 1.5rem;
+		text-align: center;
+	}
+
+	/* 设备网格布局 */
+	.equipment-grid {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 1.5rem;
+	}
+
+	/* 设备卡片样式 */
+	.equipment-card {
+		background: var(--card-color);
+		border: 1px solid var(--button-border-color);
+		border-radius: 1rem;
+		overflow: hidden;
+		transition: transform 0.3s ease, box-shadow 0.3s ease;
+	}
+
+	.equipment-card:hover {
+		transform: translateY(-4px);
+		box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+	}
+
+	.equipment-card.hidden {
+		display: none;
+	}
+
+	/* 设备图片 */
+	.equipment-image {
+		position: relative;
+		width: 100%;
+		height: 200px;
+		background: var(--button-hover-color);
+		overflow: hidden;
+	}
+
+	.equipment-image img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		padding: 1rem;
+		transition: transform 0.3s ease;
+	}
+
+	.equipment-card:hover .equipment-image img {
+		transform: scale(1.05);
+	}
+
+	/* 设备内容 */
+	.equipment-content {
+		padding: 1.25rem;
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+	}
+
+	/* 标题和分类 */
+	.equipment-header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 0.75rem;
+	}
+
+	.equipment-name {
+		font-size: 1.125rem;
+		font-weight: 700;
+		color: var(--text-color);
+		margin: 0;
+		line-height: 1.3;
+		flex: 1;
+	}
+
+	.equipment-category-badge {
+		padding: 0.25rem 0.75rem;
+		border-radius: 0.375rem;
+		font-size: 0.75rem;
+		font-weight: 600;
+		white-space: nowrap;
+		flex-shrink: 0;
+		background: var(--button-hover-color);
+		color: var(--text-color-70);
+	}
+
+	/* 描述 */
+	.equipment-desc {
+		font-size: 0.875rem;
+		color: var(--text-color-70);
+		line-height: 1.5;
+		margin: 0;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+
+	/* 规格信息 */
+	.equipment-specs {
+		display: grid;
+		grid-template-columns: repeat(2, 1fr);
+		gap: 0.5rem;
+		padding: 0.75rem;
+		background: var(--button-hover-color);
+		border-radius: 0.5rem;
+	}
+
+	.spec-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.125rem;
+	}
+
+	.spec-label {
+		font-size: 0.7rem;
+		color: var(--text-color-50);
+		font-weight: 500;
+	}
+
+	.spec-value {
+		font-size: 0.8rem;
+		color: var(--text-color);
+		word-break: break-word;
+	}
+
+	/* 标签 */
+	.equipment-tags {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.375rem;
+	}
+
+	.tag {
+		padding: 0.25rem 0.625rem;
+		background: var(--button-hover-color);
+		border-radius: 0.25rem;
+		font-size: 0.75rem;
+		color: var(--text-color-70);
+	}
+
+	/* 底部信息 */
+	.equipment-footer {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding-top: 0.75rem;
+		border-top: 1px solid var(--button-border-color);
+		margin-top: auto;
+	}
+
+	.footer-info {
+		display: flex;
+		align-items: center;
+		gap: 1rem;
+		font-size: 0.875rem;
+		color: var(--text-color-50);
+	}
+
+	.date {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.375rem;
+	}
+
+	.price {
+		font-weight: 700;
+		color: var(--text-color);
+	}
+
+	.detail-link {
+		padding: 0.5rem 1rem;
+		background: var(--button-hover-color);
+		border-radius: 0.375rem;
+		font-size: 0.875rem;
+		color: var(--text-color);
+		text-decoration: none;
+		transition: all 0.2s ease;
+	}
+
+	.detail-link:hover {
+		background: var(--link-color);
+		color: white;
+	}
+
+	/* 空状态 */
+	.empty-state {
+		text-align: center;
+		padding: 4rem 2rem;
+		color: var(--text-color-50);
+	}
+
+	.empty-icon {
+		font-size: 4rem;
+		margin-bottom: 1rem;
+	}
+
+	.empty-title {
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: var(--text-color);
+		margin-bottom: 0.5rem;
+	}
+
+	.empty-desc {
+		font-size: 0.875rem;
+	}
+
+	/* 响应式设计 */
+	@media (max-width: 1024px) {
+		.equipment-grid {
+			grid-template-columns: repeat(2, 1fr);
+			gap: 1rem;
+		}
+	}
+
+	@media (max-width: 768px) {
+		.equipment-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.equipment-image {
+			height: 180px;
+		}
+
+		.category-tab {
+			padding: 0.5rem 1rem;
+			font-size: 0.875rem;
+		}
+	}
+
+	@media (max-width: 480px) {
+		.equipment-image {
+			height: 160px;
+		}
+
+		.equipment-content {
+			padding: 1rem;
+		}
+
+		.equipment-name {
+			font-size: 1rem;
+		}
+
+		.equipment-specs {
+			grid-template-columns: 1fr;
+		}
+	}
+</style>
+
+<script>
+	// 分类筛选功能
+	document.addEventListener('astro:page-load', () => {
+		const tabs = document.querySelectorAll('.category-tab');
+		const cards = document.querySelectorAll('.equipment-card');
+		
+		// 默认激活第一个标签
+		if (tabs.length > 0) {
+			tabs[0].classList.add('active');
+			const firstCategory = tabs[0].getAttribute('data-category');
+			filterCards(firstCategory);
+		}
+
+		tabs.forEach((tab) => {
+			tab.addEventListener('click', () => {
+				// 移除所有激活状态
+				tabs.forEach((t) => t.classList.remove('active'));
+				// 添加当前激活状态
+				tab.classList.add('active');
+				
+				// 筛选卡片
+				const category = tab.getAttribute('data-category');
+				filterCards(category);
+			});
+		});
+
+		function filterCards(category: string | null) {
+			cards.forEach((card) => {
+				const cardCategory = card.getAttribute('data-category');
+				if (cardCategory === category) {
+					card.classList.remove('hidden');
+				} else {
+					card.classList.add('hidden');
+				}
+			});
+		}
+	});
+</script>
