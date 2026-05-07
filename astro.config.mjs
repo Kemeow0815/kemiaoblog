@@ -50,8 +50,10 @@ export default defineConfig({
   ],
   markdown: {
     shikiConfig: {
-      theme: "github-light", // light code theme
-      darkTheme: "one-dark-pro", // dark code theme
+      themes: {
+        light: "github-light",
+        dark: "one-dark-pro",
+      },
       wrap: false,
     },
     remarkPlugins: [
