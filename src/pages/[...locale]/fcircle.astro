@@ -1,0 +1,144 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import Cover from '@components/Cover.astro'
+import FabMenu from '@components/control/FabMenu.astro'
+import { siteConfig } from '@/config'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client";
+
+export async function getStaticPaths() {
+	return i18n?.locales.map(locale => ({ params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) } }));
+}
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+const pageTitle = `友链朋友圈 - ${siteConfig.title}`;
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+	<div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+		<Cover title="友链朋友圈" subTitle="关注朋友们的最新动态"/>
+		
+		<div class="mt-8 max-w-5xl mx-auto">
+			<!-- Friend Circle Lite 容器 -->
+			<div id="friend-circle-lite-root" class="min-h-[400px]"></div>
+			
+			<!-- 加载状态 -->
+			<div id="fcircle-loading" class="flex flex-col items-center justify-center py-12">
+				<div class="w-12 h-12 border-4 border-[var(--button-border-color)] border-t-[var(--link-color)] rounded-full animate-spin"></div>
+				<p class="mt-4 text-sm text-[var(--text-color-50)]">正在加载友链朋友圈...</p>
+			</div>
+			
+			<!-- 错误状态 -->
+			<div id="fcircle-error" class="hidden text-center py-12">
+				<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--button-hover-color)] flex items-center justify-center">
+					<svg class="w-8 h-8 text-[var(--text-color-50)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+					</svg>
+				</div>
+				<p class="text-[var(--text-color-70)]">加载失败，请稍后重试</p>
+				<button 
+					onclick="window.location.reload()" 
+					class="mt-4 px-4 py-2 bg-[var(--link-color)] text-white rounded-lg hover:opacity-90 transition-opacity"
+				>
+					重新加载
+				</button>
+			</div>
+		</div>
+	</div>
+	<FabMenu showBackBottom={true} />
+</MainPageLayout>
+
+<script>
+	// 配置 Friend Circle Lite
+	if (typeof (window as any).UserConfig === 'undefined') {
+		(window as any).UserConfig = {
+			// 填写你的fc Lite地址
+			private_api_url: 'https://fc-lite.268682.xyz/',
+			// 点击加载更多时，一次最多加载几篇文章，默认20
+			page_turning_number: 24,
+			// 头像加载失败时，默认头像地址
+			error_img: 'https://pic.imgdb.cn/item/6695daa4d9c307b7e953ee3d.jpg',
+		};
+	}
+
+	// 加载 Friend Circle Lite CSS
+	function loadStylesheet(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const link = document.createElement('link');
+			link.rel = 'stylesheet';
+			link.href = 'https://fastly.jsdelivr.net/gh/willow-god/Friend-Circle-Lite/main/fclite.min.css';
+			link.onload = () => resolve();
+			link.onerror = () => reject(new Error('Failed to load Friend Circle Lite CSS'));
+			document.head.appendChild(link);
+		});
+	}
+
+	// 加载 Friend Circle Lite JS
+	function loadScript(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			const script = document.createElement('script');
+			script.src = 'https://fastly.jsdelivr.net/gh/willow-god/Friend-Circle-Lite/main/fclite.min.js';
+			script.onload = () => resolve();
+			script.onerror = () => reject(new Error('Failed to load Friend Circle Lite JS'));
+			document.body.appendChild(script);
+		});
+	}
+
+	// 初始化
+	async function init() {
+		const loadingEl = document.getElementById('fcircle-loading');
+		const errorEl = document.getElementById('fcircle-error');
+		
+		if (!loadingEl || !errorEl) return;
+		
+		try {
+			// 先加载 CSS
+			await loadStylesheet();
+			// 再加载 JS
+			await loadScript();
+			
+			// 隐藏加载状态
+			loadingEl.classList.add('hidden');
+		} catch (error) {
+			console.error('Friend Circle Lite 加载失败:', error);
+			// 显示错误状态
+			loadingEl.classList.add('hidden');
+			errorEl.classList.remove('hidden');
+		}
+	}
+
+	// 页面加载完成后初始化
+	document.addEventListener('DOMContentLoaded', init);
+	
+	// Astro 页面导航后重新初始化
+	document.addEventListener('astro:page-load', init);
+</script>
+
+<style is:global>
+	/* Friend Circle Lite 明暗模式适配 */
+	#friend-circle-lite-root {
+		--fcl-bg-color: var(--card-color);
+		--fcl-text-color: var(--text-color);
+		--fcl-border-color: var(--button-border-color);
+		--fcl-link-color: var(--link-color);
+		--fcl-hover-bg: var(--button-hover-color);
+	}
+	
+	/* 确保容器在暗色模式下正确显示 */
+	html[data-theme="dark"] #friend-circle-lite-root {
+		color-scheme: dark;
+	}
+	
+	/* 加载动画 */
+	@keyframes spin {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+	
+	.animate-spin {
+		animation: spin 1s linear infinite;
+	}
+</style>

@@ -63,27 +63,27 @@ export const licenseConfig: LicenseConfig = {
 
 // 导航指南配置
 export interface GuideItem {
-	title: string;
-	description: string;
-	href: string;
-	icon: string;
-	order?: number;
+    title: string;
+    description: string;
+    href: string;
+    icon: string;
+    order?: number;
 }
 
 export const guideConfig: GuideItem[] = [
-	{
-		title: "课程表",
-		description: "查看我的课程安排",
-		href: "/timetable/",
-		icon: "material-symbols:calendar-month-outline",
-		order: 1
-	},
-	{
-		title: "赞助支持",
-		description: "感谢每一份支持",
-		href: "/reward/",
-		icon: "material-symbols:favorite-outline",
-		order: 2
+    {
+        title: "课程表",
+        description: "查看我的课程安排",
+        href: "/timetable/",
+        icon: "material-symbols:calendar-month-outline",
+        order: 1
+    },
+    {
+        title: "赞助支持",
+        description: "感谢每一份支持",
+        href: "/reward/",
+        icon: "material-symbols:favorite-outline",
+        order: 2
     },
     {
         title: "即刻短文",
@@ -92,20 +92,34 @@ export const guideConfig: GuideItem[] = [
         icon: "solar:notes-bold-duotone",
         order: 3
     },
-	{
-		title: "关于我",
-		description: "了解更多关于我的信息",
-		href: "/about/",
-		icon: "material-symbols:person-outline",
-		order: 4
-	},
-	{
-		title: "友链",
-		description: "我的朋友们",
-		href: "/friends/",
-		icon: "material-symbols:link",
-		order: 5
-	}
+    {
+        title: "关于我",
+        description: "了解更多关于我的信息",
+        href: "/about/",
+        icon: "material-symbols:person-outline",
+        order: 4
+    },
+    {
+        title: "友链",
+        description: "我的朋友们",
+        href: "/friends/",
+        icon: "material-symbols:link",
+        order: 5
+    },
+    {
+        title: "朋友圈",
+        description: "查看我的朋友圈",
+        href: "/fcircle/",
+        icon: "grommet-icons:group",
+        order: 6
+    },
+    {
+        title: "画廊",
+        description: "查看我的画廊图片",
+        href: "/albums/",
+        icon: "material-symbols:image",
+        order: 7
+    }
 ];
 
 export const aboutConfig = {

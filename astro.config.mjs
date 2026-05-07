@@ -41,6 +41,7 @@ export default defineConfig({
         solar: ["*"],
         uim: ["*"],
         "streamline-freehand": ["*"],
+        "grommet-icons": ["*"],
         flue: ["*"],
       },
     }),
