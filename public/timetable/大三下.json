@@ -33,7 +33,7 @@
     "showSun": false,
     "weekendDisplay": {
       "enabled": true,
-      "weeks": [10],
+      "weeks": [10, 13, 14],
       "days": ["sat"]
     },
     "showTime": false,
@@ -412,6 +412,38 @@
       "startTime": "",
       "startWeek": 10,
       "step": 2,
+      "tableId": 3,
+      "teacher": "",
+      "type": 0
+    },
+    {
+      "day": 6,
+      "endTime": "",
+      "endWeek": 13,
+      "id": 1,
+      "level": 0,
+      "ownTime": false,
+      "room": "G1躬行楼303",
+      "startNode": 5,
+      "startTime": "",
+      "startWeek": 13,
+      "step": 4,
+      "tableId": 3,
+      "teacher": "",
+      "type": 0
+    },
+    {
+      "day": 6,
+      "endTime": "",
+      "endWeek": 14,
+      "id": 1,
+      "level": 0,
+      "ownTime": false,
+      "room": "G1躬行楼303",
+      "startNode": 1,
+      "startTime": "",
+      "startWeek": 14,
+      "step": 4,
       "tableId": 3,
       "teacher": "",
       "type": 0
