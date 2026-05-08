@@ -8,8 +8,8 @@ const { class: className = '', username = 'Kemeow0815' } = Astro.props;
 
 // Platane/snk 生成的 SVG 地址
 // 需要在你的 GitHub 仓库配置 GitHub Actions 后才会生成
-const snakeSvgUrl = `https://raw.githubusercontent.com/${username}/${username}/output/github-snake.svg`;
-const snakeDarkSvgUrl = `https://raw.githubusercontent.com/${username}/${username}/output/github-snake-dark.svg`;
+const snakeSvgUrl = `https://jsd.268682.xyz/gh/${username}/kemiaoblog@output/github-snake.svg`;
+const snakeDarkSvgUrl = `https://jsd.268682.xyz/gh/${username}/kemiaoblog@output/github-snake-dark.svg`;
 ---
 
 <section class={`github-stats-card ${className}`}>
@@ -26,25 +26,18 @@ const snakeDarkSvgUrl = `https://raw.githubusercontent.com/${username}/${usernam
   <div class="github-stats-content">
     <!-- 贪吃蛇动画 - 支持明暗模式 -->
     <div class="github-snake-container">
-      <picture class="github-snake-picture">
-        <source 
-          media="(prefers-color-scheme: dark)" 
-          srcset={snakeDarkSvgUrl}
-        />
-        <source 
-          media="(prefers-color-scheme: light)" 
-          srcset={snakeSvgUrl}
-        />
-        <img 
-          src={snakeSvgUrl}
-          alt="GitHub Contribution Snake" 
-          class="github-snake-img"
-          width="800" 
-          height="200" 
-          loading="lazy" 
-          decoding="async"
-        />
-      </picture>
+      <img 
+        id="github-snake-img"
+        data-snake-svg-url={snakeSvgUrl}
+        data-snake-dark-svg-url={snakeDarkSvgUrl}
+        src={snakeSvgUrl}
+        alt="GitHub Contribution Snake" 
+        class="github-snake-img"
+        width="800" 
+        height="200" 
+        loading="lazy" 
+        decoding="async"
+      />
     </div>
     
     <!-- 备用显示：当 SVG 加载失败时显示静态统计 -->
@@ -77,16 +70,61 @@ const snakeDarkSvgUrl = `https://raw.githubusercontent.com/${username}/${usernam
 
 <script>
   // 检测图片加载失败，显示备用内容
+  // 检测博客主题模式变化，切换明暗图片
   document.addEventListener('DOMContentLoaded', () => {
-    const snakeImg = document.querySelector('.github-snake-img') as HTMLImageElement;
+    const snakeImg = document.getElementById('github-snake-img');
     const fallback = document.getElementById('github-fallback');
     
-    if (snakeImg && fallback) {
+    if (!snakeImg) return;
+    
+    // 从 data 属性获取图片 URL
+    const snakeSvgUrl = snakeImg.dataset.snakeSvgUrl;
+    const snakeDarkSvgUrl = snakeImg.dataset.snakeDarkSvgUrl;
+    
+    if (fallback) {
       snakeImg.addEventListener('error', () => {
         snakeImg.closest('.github-snake-container')?.classList.add('hidden');
         fallback.style.display = 'block';
       });
     }
+
+    // 监听主题变化并更新图片
+    function updateSnakeImage() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      
+      // 检查当前图片是否已经是正确的主题
+      const currentSrc = (snakeImg as HTMLImageElement).src.split('?')[0];
+      const targetSrc = isDark ? snakeDarkSvgUrl : snakeSvgUrl;
+      
+      // 只有在主题确实改变时才更新图片
+      if (currentSrc !== targetSrc) {
+        (snakeImg as HTMLImageElement).src = targetSrc || '';
+      }
+    }
+
+    // 初始化图片
+    updateSnakeImage();
+
+    // 监听主题变化
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.attributeName === 'data-theme') {
+          updateSnakeImage();
+          break;
+        }
+      }
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+
+    // 监听 astro:after-swap 事件（SPA 导航后）
+    document.addEventListener('astro:after-swap', () => {
+      updateSnakeImage();
+    });
   });
 </script>
 
