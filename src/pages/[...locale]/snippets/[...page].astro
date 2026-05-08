@@ -1,0 +1,325 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import Cover from '@components/Cover.astro'
+import FabMenu from '@components/control/FabMenu.astro'
+import { siteConfig } from '@/config'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client";
+import { getCollection, render } from 'astro:content'
+import type { CollectionEntry } from 'astro:content'
+import type { GetStaticPaths } from 'astro';
+import Markdown from '@components/misc/Markdown.astro'
+import { getRelativeLocaleUrl } from '@utils/url-utils';
+
+// 所有分页数据都在 "page" 参数中传递
+const { page } = Astro.props;
+const { locale = i18n!.defaultLocale } = Astro.params;
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+const pageTitle = "代码片段 - " + siteConfig.title;
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const PAGE_SIZE = 6;
+  const paths = [];
+  
+  for (const locale of i18n!.locales) {
+    const localeCode = typeof locale === 'string' ? locale : locale.path;
+    const localeParam = localeCode === i18n!.defaultLocale ? undefined : localeCode;
+    
+    // 获取所有代码片段
+    let snippets: CollectionEntry<'snippets'>[] = [];
+    try {
+      snippets = await getCollection('snippets');
+      // 按 order 排序
+      snippets.sort((a, b) => (a.data.order || 0) - (b.data.order || 0));
+    } catch (error) {
+      console.error('Failed to load snippets:', error);
+    }
+    
+    const paginatedPaths = paginate(snippets, { 
+      pageSize: PAGE_SIZE,
+      params: { locale: localeParam }
+    });
+    
+    paths.push(...paginatedPaths);
+  }
+  
+  return paths;
+}) satisfies GetStaticPaths;
+
+// 渲染当前页的片段
+const renderedSnippets = await Promise.all(
+  page.data.map(async (snippet) => {
+    const { Content } = await render(snippet);
+    return {
+      ...snippet,
+      Content
+    };
+  })
+);
+
+// 分页导航数据
+const currentPage = page.currentPage;
+const totalPages = page.lastPage;
+const showPrevious = currentPage > 1;
+const showNext = currentPage < totalPages;
+
+// 逻辑：生成带省略号的页码数组
+function getVisiblePages(current: number, total: number) {
+  const delta = 1; 
+  const range = [];
+  const rangeWithDots = [];
+  let l;
+
+  for (let i = 1; i <= total; i++) {
+    if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
+      range.push(i);
+    }
+  }
+
+  for (let i of range) {
+    if (l) {
+      if (i - l === 2) {
+        rangeWithDots.push(l + 1);
+      } else if (i - l !== 1) {
+        rangeWithDots.push('...');
+      }
+    }
+    rangeWithDots.push(i);
+    l = i;
+  }
+  return rangeWithDots;
+}
+
+const visiblePages = getVisiblePages(currentPage, totalPages);
+
+const getPageUrl = (p: number) => {
+  return p === 1 ? '/snippets/' : `/snippets/${p}/`;
+};
+
+// 样式类
+const btnBaseClass = "p-2 md:px-4 md:py-2 flex items-center border rounded-lg transition-all duration-200";
+const btnActiveProps = "text-[var(--text-color)] hover:bg-[var(--button-hover-color)] border-[var(--button-border-color)] active:scale-90";
+const btnDisabledProps = "text-[var(--text-color-30)] border-[var(--button-border-color)] opacity-40 cursor-not-allowed pointer-events-none";
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+	<div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+		<Cover title="代码片段" subTitle="日常开发中常用的代码片段，可以直接复制使用"/>
+		
+		<div class="mt-8 max-w-4xl mx-auto">
+			{renderedSnippets.length > 0 ? (
+				<div class="snippets-list">
+					{renderedSnippets.map((snippet, index) => (
+						<div class="snippet-card" data-index={index}>
+							<!-- 标题 -->
+							<h2 class="snippet-title">{snippet.data.title}</h2>
+							
+							<!-- 代码内容 - 使用 Markdown 组件包裹，代码块头部由插件自动处理 -->
+							<div class="snippet-content-wrapper">
+								<Markdown>
+									<snippet.Content />
+								</Markdown>
+							</div>
+							
+							<!-- 描述 -->
+							{snippet.data.description && (
+								<div class="snippet-description">
+									<Markdown><p>{snippet.data.description}</p></Markdown>
+								</div>
+							)}
+						</div>
+					))}
+				</div>
+			) : (
+				<div class="empty-state">
+					<div class="empty-icon">📝</div>
+					<h3 class="empty-title">暂无代码片段</h3>
+					<p class="empty-desc">请在 src/content/snippets/ 目录下添加 Markdown 文件</p>
+				</div>
+			)}
+			
+			<!-- 分页导航 -->
+			{totalPages > 1 && (
+				<nav class="flex flex-row justify-between items-center gap-1 my-8 text-sm">
+					<a 
+						href={showPrevious ? getRelativeLocaleUrl(currentLang, getPageUrl(currentPage - 1)) : "#"} 
+						class={`${btnBaseClass} ${showPrevious ? btnActiveProps : btnDisabledProps}`}
+						aria-label="Previous Page"
+					>
+						<svg class="w-5 h-5 md:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+						</svg>
+						<span class="hidden md:inline">{t("pageNavigation.previous")}</span>
+					</a>
+
+					<div class="flex items-center gap-1 md:gap-2 flex-nowrap overflow-x-auto no-scrollbar">
+						{visiblePages.map((p) => {
+							if (p === '...') {
+								return (
+									<span class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center text-[var(--text-color-70)]">
+										<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+											<circle cx="5" cy="12" r="1.5"/>
+											<circle cx="12" cy="12" r="1.5"/>
+											<circle cx="19" cy="12" r="1.5"/>
+										</svg>
+									</span>
+								);
+							}
+							
+							const isCurrent = p === currentPage;
+							return (
+								<a
+									href={getRelativeLocaleUrl(currentLang, getPageUrl(p as number))}
+									class={`w-8 h-8 md:w-10 md:h-10 flex items-center justify-center rounded-lg border transition-all duration-200 
+										${isCurrent 
+											? 'border-[var(--button-border-color)] font-bold text-[var(--text-color)] pointer-events-none' 
+											: 'border-transparent text-[var(--text-color-70)] hover:border-[var(--button-border-color)] hover:text-[var(--text-color)] active:bg-[var(--button-hover-color)] active:scale-90'
+										}`}
+								>
+									{p}
+								</a>
+							);
+						})}
+					</div>
+
+					<a 
+						href={showNext ? getRelativeLocaleUrl(currentLang, getPageUrl(currentPage + 1)) : "#"} 
+						class={`${btnBaseClass} ${showNext ? btnActiveProps : btnDisabledProps}`}
+						aria-label="Next Page"
+					>
+						<span class="hidden md:inline">{t("pageNavigation.next")}</span>
+						<svg class="w-5 h-5 md:ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+						</svg>
+					</a>
+				</nav>
+			)}
+		</div>
+	</div>
+	<FabMenu showBackBottom={true} />
+</MainPageLayout>
+
+<style>
+	.snippets-list {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	.snippet-card {
+		background: var(--card-color);
+		border: 1px solid var(--button-border-color);
+		border-radius: 1rem;
+		overflow: hidden;
+		transition: box-shadow 0.3s ease;
+	}
+
+	.snippet-card:hover {
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+
+	.snippet-title {
+		font-size: 1.5rem;
+		font-weight: 700;
+		color: var(--text-color);
+		margin: 0;
+		padding: 1.25rem 1.25rem 0.75rem;
+	}
+
+	.snippet-content-wrapper {
+		padding: 0;
+	}
+
+	/* 确保代码块样式与博客文章一致 */
+	.snippet-content-wrapper :global(.markdown-content) {
+		padding: 0;
+	}
+
+	.snippet-content-wrapper :global(.markdown-content pre) {
+		margin: 0;
+		border-radius: 0;
+	}
+
+	/* 为每个代码块添加头部样式 */
+	.snippet-content-wrapper :global(.markdown-content pre) {
+		position: relative;
+	}
+
+	/* 代码块头部样式 */
+	.snippet-content-wrapper :global(.code-block-header) {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.75rem 1.25rem;
+		background: var(--button-hover-color);
+		border-bottom: 1px solid var(--button-border-color);
+	}
+
+	.snippet-description {
+		padding: 1rem 1.25rem;
+		border-top: 1px solid var(--button-border-color);
+		background: var(--card-color);
+	}
+
+	.snippet-description :global(p) {
+		margin: 0;
+		font-size: 0.9375rem;
+		line-height: 1.6;
+		color: var(--text-color-70);
+	}
+
+	.snippet-description :global(code) {
+		padding: 0.125rem 0.375rem;
+		background: var(--button-hover-color);
+		border-radius: 0.25rem;
+		font-size: 0.8125rem;
+		font-family: 'Fira Code', 'Monaco', 'Consolas', monospace;
+		color: var(--text-color);
+	}
+
+	.empty-state {
+		text-align: center;
+		padding: 4rem 2rem;
+		color: var(--text-color-50);
+	}
+
+	.empty-icon {
+		font-size: 4rem;
+		margin-bottom: 1rem;
+	}
+
+	.empty-title {
+		font-size: 1.5rem;
+		font-weight: 600;
+		color: var(--text-color);
+		margin-bottom: 0.5rem;
+	}
+
+	.empty-desc {
+		font-size: 0.875rem;
+	}
+
+	/* 响应式设计 */
+	@media (max-width: 768px) {
+		.snippet-title {
+			font-size: 1.25rem;
+			padding: 1rem 1rem 0.5rem;
+		}
+
+		.snippet-description {
+			padding: 0.875rem 1rem;
+		}
+	}
+
+	/* 隐藏分页滚动条 */
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+	.no-scrollbar {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+</style>

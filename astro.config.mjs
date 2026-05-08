@@ -13,14 +13,15 @@ import { MusicCardComponent } from "./src/plugins/rehype-component-music-card.mj
 import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
 import { QuoteComponent } from "./src/plugins/rehype-component-quote.mjs";
 import { customFigurePlugin } from "./src/plugins/rehype-figure-plugin.mjs";
+import { codeBlockHeaderPlugin } from "./src/plugins/rehype-code-block-header.mjs";
 import { remarkCombined } from "./src/plugins/remark-combined.mjs";
 import { remarkTypst } from "./src/plugins/remark-typst.mjs";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
-import { remarkLqip } from './src/plugins/remark-lqip.js';
+import { remarkLqip } from "./src/plugins/remark-lqip.js";
 
 import svelte from "@astrojs/svelte";
 
-import { siteConfig } from './src/config';
+import { siteConfig } from "./src/config";
 
 // https://astro.build/config
 export default defineConfig({
@@ -70,6 +71,7 @@ export default defineConfig({
     rehypePlugins: [
       rehypeKatex,
       customFigurePlugin,
+      codeBlockHeaderPlugin,
       [
         rehypeComponents,
         {

@@ -26,8 +26,20 @@ const memosCollection = defineCollection({
         minutes: z.number().optional().default(0),
     }),
 })
+
+const snippetsCollection = defineCollection({
+    loader: glob({ pattern: '**/[^_]*.md', base: "./src/content/snippets" }),
+    schema: z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        filenames: z.string().optional(), // 多个文件名，用空格分隔
+        order: z.number().optional().default(0),
+    }),
+})
+
 export const collections = {
     blog: blogCollection,
     spec: specCollection,
     memos: memosCollection,
+    snippets: snippetsCollection,
 }

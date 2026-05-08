@@ -18,7 +18,7 @@ const className = Astro.props.class
     const spoilers = document.querySelectorAll('.spoiler');
     
     spoilers.forEach(el => {
-      let timeoutId = null;
+      let timeoutId: ReturnType<typeof setTimeout> | null = null;
       let clickTime = 0;
 
       el.addEventListener('click', () => {
@@ -72,18 +72,23 @@ const className = Astro.props.class
     right: 12px;
     z-index: 20;
     padding: 6px;
-    background: rgba(40, 44, 52, 0.8); 
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: var(--button-hover-color);
+    border: 1px solid var(--button-border-color);
     border-radius: 6px;
     cursor: pointer;
-    color: #ccc;
-    
+    color: var(--text-color);
+
     opacity: 0;
     transition: all 0.2s ease-in-out;
-    
+
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  /* 有文件名头部时的复制按钮位置 */
+  .code-block-wrapper:has(.code-block-header) .copy-btn {
+    top: 56px;
   }
 
   .code-block-wrapper:hover .copy-btn {
@@ -110,8 +115,9 @@ const className = Astro.props.class
   }
 
   .copy-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    color: #fff;
+    background: var(--button-bg-color);
+    border-color: var(--link-color);
+    color: var(--link-color);
   }
 </style>
 
@@ -123,13 +129,24 @@ const className = Astro.props.class
     const blocks = document.querySelectorAll("pre");
 
     blocks.forEach((block) => {
-      if (block.parentElement.classList.contains("code-block-wrapper")) return;
+      // 检查是否已经有复制按钮
+      const existingWrapper = block.closest(".code-block-wrapper");
+      if (existingWrapper && existingWrapper.querySelector(".copy-btn")) return;
 
-      const wrapper = document.createElement("div");
-      wrapper.className = "code-block-wrapper";
-
-      block.parentNode.insertBefore(wrapper, block);
-      wrapper.appendChild(block);
+      let wrapper;
+      
+      if (existingWrapper) {
+        // 如果已经有 wrapper（来自 rehype 插件），直接使用
+        wrapper = existingWrapper;
+      } else {
+        // 否则创建新的 wrapper
+        wrapper = document.createElement("div");
+        wrapper.className = "code-block-wrapper";
+        if (block.parentNode) {
+          block.parentNode.insertBefore(wrapper, block);
+          wrapper.appendChild(block);
+        }
+      }
 
       const button = document.createElement("button");
       button.className = "copy-btn";
@@ -156,7 +173,7 @@ const className = Astro.props.class
 { siteConfig.theme.LQIP &&
 <script>
   function handleLqipImages() {
-    const lqipImages = document.querySelectorAll('.lqip-markdown-img');
+    const lqipImages = document.querySelectorAll<HTMLImageElement>('.lqip-markdown-img');
     lqipImages.forEach(img => {
       if (img.complete) {
         img.classList.add('lqip-loaded');

@@ -457,7 +457,11 @@ function renderStatus(statusLines: StatusLine[][]) {
 				}
 				const boldClass = segment.bold ? 'font-bold' : '';
 				const strikeClass = segment.strikethrough ? 'line-through opacity-60' : '';
-				return `<span class="transition-colors ${boldClass} ${strikeClass}" style="color: ${segment.color || 'inherit'}">${segment.text}</span>`;
+				// 深色模式下使用白色文字，否则使用课程颜色
+				const textColor = window.matchMedia('(prefers-color-scheme: dark)').matches || document.documentElement.getAttribute('data-theme') === 'dark' 
+					? 'var(--text-color)' 
+					: (segment.color || 'inherit');
+				return `<span class="transition-colors ${boldClass} ${strikeClass}" style="color: ${textColor}">${segment.text}</span>`;
 			}).join('')}
 		</p>
 	`).join('');

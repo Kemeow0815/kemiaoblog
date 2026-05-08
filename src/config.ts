@@ -128,12 +128,19 @@ export const guideConfig: GuideItem[] = [
         href: "/devices/",
         icon: "material-symbols:devices",
         order: 8
+    },
+    {
+        title: "代码片段",
+        description: "查看常用代码片段",
+        href: "/snippets/",
+        icon: "material-symbols:code",
+        order: 9
     }
 ];
 
 export const aboutConfig = {
     top_info: {
-        avatar: 'https://wsrv.nl/?url=github.com/kemiaow0815.png',
+        avatar: 'https://wsrv.nl/?url=github.com/kemeow0815.png',
         site_name: '克喵爱吃卤面',
         motto: '每一段旅行，都有终点',
         float_text: [
