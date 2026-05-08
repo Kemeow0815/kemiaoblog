@@ -1,0 +1,214 @@
+---
+interface Props {
+  class?: string;
+  username?: string;
+}
+
+const { class: className = '', username = 'Kemeow0815' } = Astro.props;
+
+// Platane/snk 生成的 SVG 地址
+// 需要在你的 GitHub 仓库配置 GitHub Actions 后才会生成
+const snakeSvgUrl = `https://raw.githubusercontent.com/${username}/${username}/output/github-snake.svg`;
+const snakeDarkSvgUrl = `https://raw.githubusercontent.com/${username}/${username}/output/github-snake-dark.svg`;
+---
+
+<section class={`github-stats-card ${className}`}>
+  <div class="github-stats-header">
+    <h2 class="github-stats-title">
+      <svg class="github-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M12 0C5.37 0 0 5.5 0 12.3c0 5.44 3.44 10.04 8.21 11.67.6.11.82-.27.82-.59 0-.29-.01-1.06-.02-2.08-3.34.74-4.04-1.65-4.04-1.65-.55-1.42-1.33-1.8-1.33-1.8-1.09-.76.08-.75.08-.75 1.2.09 1.84 1.27 1.84 1.27 1.07 1.88 2.81 1.34 3.49 1.02.11-.79.42-1.34.76-1.65-2.67-.31-5.47-1.37-5.47-6.09 0-1.35.47-2.45 1.24-3.31-.12-.31-.54-1.56.12-3.26 0 0 1.01-.33 3.3 1.26.96-.27 1.98-.4 3-.41 1.02.01 2.05.14 3 .41 2.29-1.59 3.3-1.26 3.3-1.26.66 1.7.24 2.95.12 3.26.77.86 1.24 1.96 1.24 3.31 0 4.73-2.81 5.77-5.49 6.08.43.38.82 1.13.82 2.29 0 1.65-.02 2.98-.02 3.39 0 .33.22.71.83.59A12.23 12.23 0 0 0 24 12.3C24 5.5 18.63 0 12 0Z"></path>
+      </svg>
+      GitHub 记录
+    </h2>
+    <span class="github-stats-badge">Platane/snk</span>
+  </div>
+  
+  <div class="github-stats-content">
+    <!-- 贪吃蛇动画 - 支持明暗模式 -->
+    <div class="github-snake-container">
+      <picture class="github-snake-picture">
+        <source 
+          media="(prefers-color-scheme: dark)" 
+          srcset={snakeDarkSvgUrl}
+        />
+        <source 
+          media="(prefers-color-scheme: light)" 
+          srcset={snakeSvgUrl}
+        />
+        <img 
+          src={snakeSvgUrl}
+          alt="GitHub Contribution Snake" 
+          class="github-snake-img"
+          width="800" 
+          height="200" 
+          loading="lazy" 
+          decoding="async"
+        />
+      </picture>
+    </div>
+    
+    <!-- 备用显示：当 SVG 加载失败时显示静态统计 -->
+    <div class="github-fallback" id="github-fallback" style="display: none;">
+      <div class="github-stats-grid">
+        <img 
+          src={`https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true&hide_border=true&bg_color=00000000&title_color=58a6ff&text_color=adbac7&icon_color=58a6ff&ring_color=58a6ff`}
+          alt="GitHub Stats"
+          class="github-stats-img"
+          loading="lazy"
+          decoding="async"
+        />
+        <img 
+          src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${username}&layout=compact&hide_border=true&bg_color=00000000&title_color=58a6ff&text_color=adbac7`}
+          alt="Top Languages"
+          class="github-stats-img"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    </div>
+  </div>
+  
+  <p class="github-stats-footer">
+    <a href={`https://github.com/${username}`} target="_blank" rel="noopener noreferrer" class="github-link">
+      访问 GitHub 主页 →
+    </a>
+  </p>
+</section>
+
+<script>
+  // 检测图片加载失败，显示备用内容
+  document.addEventListener('DOMContentLoaded', () => {
+    const snakeImg = document.querySelector('.github-snake-img') as HTMLImageElement;
+    const fallback = document.getElementById('github-fallback');
+    
+    if (snakeImg && fallback) {
+      snakeImg.addEventListener('error', () => {
+        snakeImg.closest('.github-snake-container')?.classList.add('hidden');
+        fallback.style.display = 'block';
+      });
+    }
+  });
+</script>
+
+<style>
+  .github-stats-card {
+    background: var(--card-color);
+    border: 1px solid var(--button-border-color);
+    border-radius: 1rem;
+    padding: 1.25rem;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .github-stats-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .github-stats-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .github-stats-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+  }
+
+  .github-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--text-color);
+  }
+
+  .github-stats-badge {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.75rem;
+    color: var(--text-color-50);
+  }
+
+  .github-stats-content {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 0.5rem;
+  }
+
+  .github-snake-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .github-snake-container.hidden {
+    display: none;
+  }
+
+  .github-snake-picture {
+    display: block;
+    width: 100%;
+  }
+
+  .github-snake-img {
+    width: 100%;
+    height: auto;
+    min-width: 600px;
+    border: 0;
+    box-shadow: none;
+    display: block;
+    border-radius: 0.5rem;
+  }
+
+  .github-fallback {
+    width: 100%;
+  }
+
+  .github-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .github-stats-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .github-stats-img {
+    width: 100%;
+    height: auto;
+    border: 0;
+    box-shadow: none;
+    display: block;
+    border-radius: 0.5rem;
+  }
+
+  .github-stats-footer {
+    margin: 0.75rem 0 0 0;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--text-color-50);
+  }
+
+  .github-link {
+    color: var(--link-color);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .github-link:hover {
+    opacity: 0.8;
+  }
+
+  /* 响应式 */
+  @media (min-width: 640px) {
+    .github-stats-card {
+      padding: 1.5rem;
+    }
+  }
+</style>

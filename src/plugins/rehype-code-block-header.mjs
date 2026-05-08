@@ -1,4 +1,4 @@
-import { visit } from 'unist-util-visit';
+import { visit } from "unist-util-visit";
 
 /**
  * 为代码块添加文件名头部
@@ -8,16 +8,20 @@ export function codeBlockHeaderPlugin() {
   return (tree, file) => {
     // 从 frontmatter 获取 filenames
     const filenames = file.data?.astro?.frontmatter?.filenames;
-    const filenameList = filenames ? filenames.split(/\s+/).filter(Boolean) : [];
+    const filenameList = filenames
+      ? filenames.split(/\s+/).filter(Boolean)
+      : [];
     let filenameIndex = 0;
 
-    visit(tree, { type: 'element', tagName: 'pre' }, (node, index, parent) => {
+    visit(tree, { type: "element", tagName: "pre" }, (node, index, parent) => {
       // 获取代码元素
-      const codeNode = node.children?.find(child => child.type === 'element' && child.tagName === 'code');
+      const codeNode = node.children?.find(
+        (child) => child.type === "element" && child.tagName === "code",
+      );
       if (!codeNode) return;
 
       // 获取文件名
-      let filename = '';
+      let filename = "";
       if (filenameIndex < filenameList.length) {
         filename = filenameList[filenameIndex];
         filenameIndex++;
@@ -28,43 +32,43 @@ export function codeBlockHeaderPlugin() {
 
       // 创建文件名头部
       const header = {
-        type: 'element',
-        tagName: 'div',
-        properties: { className: ['code-block-header'] },
+        type: "element",
+        tagName: "div",
+        properties: { className: ["code-block-header"] },
         children: [
           {
-            type: 'element',
-            tagName: 'div',
-            properties: { className: ['code-block-filename'] },
+            type: "element",
+            tagName: "div",
+            properties: { className: ["code-block-filename"] },
             children: [
               {
-                type: 'element',
-                tagName: 'svg',
+                type: "element",
+                tagName: "svg",
                 properties: {
-                  className: ['file-icon'],
-                  viewBox: '0 0 24 24',
-                  fill: 'none',
-                  stroke: 'currentColor',
-                  strokeWidth: '2',
+                  className: ["file-icon"],
+                  viewBox: "0 0 24 24",
+                  fill: "none",
+                  stroke: "currentColor",
+                  strokeWidth: "2",
                 },
                 children: [
                   {
-                    type: 'element',
-                    tagName: 'path',
+                    type: "element",
+                    tagName: "path",
                     properties: {
-                      d: 'M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z',
+                      d: "M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z",
                     },
                   },
                   {
-                    type: 'element',
-                    tagName: 'polyline',
+                    type: "element",
+                    tagName: "polyline",
                     properties: {
-                      points: '13 2 13 9 20 9',
+                      points: "13 2 13 9 20 9",
                     },
                   },
                 ],
               },
-              { type: 'text', value: filename },
+              { type: "text", value: filename },
             ],
           },
         ],
@@ -72,9 +76,9 @@ export function codeBlockHeaderPlugin() {
 
       // 创建包装容器
       const wrapper = {
-        type: 'element',
-        tagName: 'div',
-        properties: { className: ['code-block-wrapper'] },
+        type: "element",
+        tagName: "div",
+        properties: { className: ["code-block-wrapper"] },
         children: [header, node],
       };
 

@@ -1,0 +1,39 @@
+name: Generate GitHub Contribution Snake
+
+on:
+  # 每天自动运行
+  schedule:
+    - cron: "0 0 * * *"
+  # 允许手动触发
+  workflow_dispatch:
+  # 每次推送到 main 分支时运行
+  push:
+    branches:
+      - main
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Generate GitHub Contribution Snake
+        uses: Platane/snk@v3
+        with:
+          # GitHub 用户名
+          github_user_name: ${{ github.repository_owner }}
+          # 生成的文件
+          outputs: |
+            dist/github-snake.svg
+            dist/github-snake-dark.svg?palette=github-dark
+
+      - name: Deploy to output branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: output
+          keep_files: true
