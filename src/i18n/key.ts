@@ -15,6 +15,9 @@ export interface Translation {
             about: string;
             friends: string;
             memos: string;
+            monitor: string;
+            note: string;
+            wiki: string;
         };
         subTitle: {
             home: string;
@@ -22,6 +25,9 @@ export interface Translation {
             about: string;
             friends: string;
             memos: string;
+            monitor: string;
+            note: string;
+            wiki: string;
         };
     };
     toc: string;
@@ -130,6 +136,9 @@ export interface Translation {
         local: string;
         remote: string;
         noData: string;
+    },
+    monitor: {
+        loading: string;
     },
     pagination: {
         prev: string;

@@ -11,6 +11,7 @@ interface Props {
   showBackTop?: boolean;
   showBackBottom?: boolean;
   showComment?: boolean;
+  showWikiSidebar?: boolean;
   scrollToTopDistance?: number; // 滚动多少高度后显示菜单
   headings?: MarkdownHeading[]; // 接收 Astro 解析出来的目录数组
 }
@@ -19,6 +20,7 @@ const {
   showBackTop = true, 
   showBackBottom = false, 
   showComment = false,
+  showWikiSidebar = false,
   scrollToTopDistance = 100,
   headings = [] 
 } = Astro.props;
@@ -33,7 +35,19 @@ const tocHeadings = headings.filter(h => h.depth > 1 && h.depth < 5);
   data-scroll-distance={scrollToTopDistance}
 >
   <div id="menuItems" class="absolute bottom-full left-0 mb-3 flex flex-col items-center gap-3 transition-all duration-300 ease-out translate-y-10 opacity-0 pointer-events-none [.is-active_&]:translate-y-0 [.is-active_&]:opacity-100 [.is-active_&]:pointer-events-auto">
-    
+
+    {showWikiSidebar && (
+      <button id="wikiSidebarToggle" title="切换左侧边栏" class="lg:hidden w-10 h-10 rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-transform duration-200 active:scale-90 shadow-none backdrop-blur bg-[var(--bg-color)]/20 hover:bg-[var(--button-hover-color)]">
+        <Icon name="fa6-solid:bars" class="text-lg text-[var(--text-color)]" />
+      </button>
+    )}
+
+    {tocHeadings.length > 0 && (
+      <button id="tocTrigger" title={t("button.toc") || "目录"} class="lg:hidden w-10 h-10 rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-transform duration-200 active:scale-90 shadow-none backdrop-blur bg-[var(--bg-color)]/20 hover:bg-[var(--button-hover-color)]">
+        <Icon name="fa6-solid:list-ul" class="text-lg text-[var(--text-color)]" />
+      </button>
+    )}
+
     {showBackTop && (
       <button id="backTop" title={t("button.backToTop")} class="relative w-10 h-10 rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-transform duration-200 active:scale-90 shadow-none backdrop-blur bg-[var(--bg-color)]/20 hover:bg-[var(--button-hover-color)]">
         <svg class="absolute -top-[1px] -left-[1px] w-[calc(100%+2px)] h-[calc(100%+2px)] -rotate-90 overflow-visible" viewBox="0 0 40 40">
@@ -48,12 +62,6 @@ const tocHeadings = headings.filter(h => h.depth > 1 && h.depth < 5);
           ></circle>
         </svg>
         <Icon name="fa6-solid:arrow-up" class="relative z-10 text-lg text-[var(--text-color)]" />
-      </button>
-    )}
-
-    {tocHeadings.length > 0 && (
-      <button id="tocTrigger" title={t("button.toc") || "目录"} class="lg:hidden w-10 h-10 rounded-full border border-[var(--text-color)]/20 cursor-pointer flex items-center justify-center transition-transform duration-200 active:scale-90 shadow-none backdrop-blur bg-[var(--bg-color)]/20 hover:bg-[var(--button-hover-color)]">
-        <Icon name="fa6-solid:list-ul" class="text-lg text-[var(--text-color)]" />
       </button>
     )}
 
@@ -277,9 +285,21 @@ tocLinks.forEach(link => {
     };
   }
 
+  // Wiki 侧边栏切换
+  const wikiSidebarToggle = document.getElementById('wikiSidebarToggle');
+  const wikiSidebarPanel = document.getElementById('wikiSidebarPanel');
+
+  if (wikiSidebarToggle && wikiSidebarPanel) {
+    wikiSidebarToggle.onclick = (e) => {
+      e.stopPropagation();
+      wikiSidebarPanel.classList.toggle('panel-open');
+    };
+  }
+
   // 点击外部关闭所有展开项
   document.addEventListener('click', (e) => {
-    if (!container.contains(e.target)) {
+    const wikiPanel = document.getElementById('wikiSidebarPanel');
+    if (!container.contains(e.target) && (!wikiPanel || !wikiPanel.contains(e.target))) {
       container.classList.remove('is-active', 'toc-active');
       isTocOpen = false;
     }

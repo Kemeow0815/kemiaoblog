@@ -1,0 +1,324 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<div class="memos-ticker-container">
+    <div class="memos-ticker" id="memosTicker">
+        <div class="memos-ticker-icon">
+            <Icon name="fa6-solid:newspaper" class="memos-ticker-logo" />
+        </div>
+        <div class="memos-ticker-content" id="memosTickerContent">
+            <div class="memos-ticker-wrapper" id="memosTickerWrapper">
+                <span class="memos-ticker-text">加载中...</span>
+            </div>
+        </div>
+        <div class="memos-ticker-arrow" onclick="window.location.href='/memos'">
+            <Icon name="fa6-solid:circle-chevron-right" class="memos-ticker-goto" />
+        </div>
+    </div>
+</div>
+
+<script is:inline>
+    // Memos API 配置
+    const MEMOS_API = 'https://m.314926.xyz/api/v1/memos';
+    const MEMOS_LIMIT = 10;
+    
+    // 获取 Memos 数据
+    async function fetchMemos() {
+        try {
+            const response = await fetch(`${MEMOS_API}?limit=${MEMOS_LIMIT}`);
+            const data = await response.json();
+            
+            if (data.memos && data.memos.length > 0) {
+                renderMemos(data.memos);
+                startTicker();
+            } else {
+                showEmptyMessage();
+            }
+        } catch (error) {
+            console.error('Failed to fetch memos:', error);
+            showErrorMessage();
+        }
+    }
+    
+    // 渲染 Memos
+    function renderMemos(memos) {
+        const wrapper = document.getElementById('memosTickerWrapper');
+        if (!wrapper) return;
+        
+        wrapper.innerHTML = memos.map(memo => {
+            // 提取纯文本内容（去除 HTML 标签）
+            const content = memo.content ? memo.content.replace(/<[^>]*>/g, '') : '';
+            
+            // 检查是否有资源（图片、视频等）
+            let icon = '';
+            if (memo.resources && memo.resources.length > 0) {
+                const resource = memo.resources[0];
+                if (resource.type && resource.type.startsWith('image/')) {
+                    icon = '<i class="memos-ticker-resource-icon fa-solid fa-image"></i>';
+                } else if (resource.type && resource.type.startsWith('video/')) {
+                    icon = '<i class="memos-ticker-resource-icon fa-solid fa-video"></i>';
+                } else if (resource.externalLink && resource.externalLink.includes('music')) {
+                    icon = '<i class="memos-ticker-resource-icon fa-solid fa-music"></i>';
+                }
+            }
+            
+            // 检查是否有链接
+            if (!icon && content.includes('http')) {
+                icon = '<i class="memos-ticker-resource-icon fa-solid fa-link"></i>';
+            }
+            
+            return `
+                <div class="memos-ticker-item" onclick="window.location.href='/memos'">
+                    <span class="memos-ticker-item-text">${escapeHtml(content)}</span>
+                    ${icon}
+                </div>
+            `;
+        }).join('');
+    }
+    
+    // HTML 转义
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // 显示空消息
+    function showEmptyMessage() {
+        const wrapper = document.getElementById('memosTickerWrapper');
+        if (wrapper) {
+            wrapper.innerHTML = '<span class="memos-ticker-text">暂无说说</span>';
+        }
+    }
+    
+    // 显示错误消息
+    function showErrorMessage() {
+        const wrapper = document.getElementById('memosTickerWrapper');
+        if (wrapper) {
+            wrapper.innerHTML = '<span class="memos-ticker-text">加载失败</span>';
+        }
+    }
+    
+    // 启动滚动动画
+    function startTicker() {
+        const wrapper = document.getElementById('memosTickerWrapper');
+        const container = document.getElementById('memosTickerContent');
+        if (!wrapper || !container) return;
+        
+        const items = wrapper.querySelectorAll('.memos-ticker-item');
+        if (items.length <= 1) return;
+        
+        let currentIndex = 0;
+        const itemHeight = 25; // 每项高度
+        const duration = 3000; // 切换间隔
+        
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % items.length;
+            wrapper.style.transform = `translateY(-${currentIndex * itemHeight}px)`;
+            wrapper.style.transition = 'transform 0.3s ease-in-out';
+        }, duration);
+    }
+    
+    // 初始化
+    document.addEventListener('DOMContentLoaded', fetchMemos);
+    document.addEventListener('astro:page-load', fetchMemos);
+</script>
+
+<style is:global>
+    /* Memos Ticker 容器 */
+    .memos-ticker-container {
+        width: 100%;
+        max-width: 900px;
+        margin: 0 auto 1rem;
+        padding: 0 1rem;
+    }
+    
+    /* Memos Ticker 主体 */
+    .memos-ticker {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: var(--card-color);
+        border: 1px solid var(--button-border-color);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        height: 50px;
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        transition: all 0.3s ease;
+        user-select: none;
+        overflow: hidden;
+        animation: slideIn 0.6s 0s backwards;
+    }
+    
+    .memos-ticker:hover {
+        border-color: var(--link-color);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* 图标 */
+    .memos-ticker-icon {
+        flex-shrink: 0;
+        margin-right: 1rem;
+    }
+    
+    .memos-ticker-logo {
+        width: 1.2rem;
+        height: 1.2rem;
+        color: var(--link-color);
+        animation: bounce 2s infinite;
+    }
+    
+    /* 内容区域 */
+    .memos-ticker-content {
+        flex: 1;
+        overflow: hidden;
+        height: 25px;
+        position: relative;
+        cursor: pointer;
+    }
+    
+    .memos-ticker-wrapper {
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.3s ease-in-out;
+    }
+    
+    /* 单个项目 */
+    .memos-ticker-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 25px;
+        line-height: 25px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--text-color);
+        transition: color 0.3s ease;
+    }
+    
+    .memos-ticker-item:hover {
+        color: var(--link-color);
+    }
+    
+    .memos-ticker-item-text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .memos-ticker-resource-icon {
+        margin-left: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--link-color);
+        flex-shrink: 0;
+    }
+    
+    .memos-ticker-text {
+        font-size: 0.9rem;
+        color: var(--text-color-70);
+    }
+    
+    /* 箭头按钮 */
+    .memos-ticker-arrow {
+        flex-shrink: 0;
+        margin-left: 1rem;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+    }
+    
+    .memos-ticker-arrow:hover {
+        opacity: 0.8;
+    }
+    
+    .memos-ticker-goto {
+        width: 1rem;
+        height: 1rem;
+        color: var(--text-color);
+        transition: color 0.3s ease;
+    }
+    
+    .memos-ticker-arrow:hover .memos-ticker-goto {
+        color: var(--link-color);
+    }
+    
+    /* 动画 */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-3px);
+        }
+    }
+    
+    /* 深色模式适配 */
+    html[data-theme="dark"] .memos-ticker {
+        background: rgba(30, 30, 30, 0.8);
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    html[data-theme="dark"] .memos-ticker:hover {
+        border-color: var(--link-color);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+        .memos-ticker-container {
+            padding: 0 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .memos-ticker {
+            height: 45px;
+            padding: 0.5rem 0.75rem;
+            border-radius: 10px;
+        }
+        
+        .memos-ticker-icon {
+            margin-right: 0.75rem;
+        }
+        
+        .memos-ticker-logo {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+        
+        .memos-ticker-item {
+            font-size: 0.85rem;
+            justify-content: flex-start;
+        }
+        
+        .memos-ticker-arrow {
+            margin-left: 0.75rem;
+        }
+    }
+    
+    /* 小屏幕适配 */
+    @media (max-width: 480px) {
+        .memos-ticker {
+            height: 40px;
+            padding: 0.5rem;
+        }
+        
+        .memos-ticker-item {
+            font-size: 0.8rem;
+        }
+    }
+</style>

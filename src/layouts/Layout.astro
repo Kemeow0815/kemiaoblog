@@ -1,6 +1,7 @@
 ---
 import { siteConfig, profileConfig } from '@/config';
 import "@styles/global.css"
+import "@styles/prose-link.css"
 import 'katex/dist/katex.min.css';
 import '@fontsource/eb-garamond';
 import '@fontsource/noto-serif-sc/400.css';
@@ -51,6 +52,8 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     <!-- <script defer src="https://umami.motues.top/script.js" data-hash is:inline></script> -->
     <title>{pageTitle}</title>
     <ClientRouter />
+    {/* AISummary 样式 */}
+    <link rel="stylesheet" href="/src/styles/aisummary.css" />
 </head>
 <body class="h-full bg-[var(--bg-color)]">
     
@@ -85,7 +88,19 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
             const overlay = document.getElementById('loading-overlay');
             if (overlay) overlay.style.display = 'none';
         });
+
+        // AISummary 初始化（支持页面切换后重新初始化）
+        document.addEventListener('astro:page-load', () => {
+            if (typeof initializeAISummary === 'function') {
+                initializeAISummary();
+            }
+        });
         </script>
+        {/* AISummary 配置与脚本 */}
+        <script src="/src/plugins/aisummary.config.js" is:inline></script>
+        <script src="/src/plugins/aisummary.js" is:inline></script>
+        {/* ProseLink 图标渲染脚本 */}
+        <script src="/src/plugins/prose-link-icons.js" is:inline></script>
 </body>
 </html>
 

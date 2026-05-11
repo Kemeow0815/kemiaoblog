@@ -32,6 +32,14 @@ export const siteConfig: SiteConfig = {
     }
 }
 
+// 友链监控配置
+export const monitorConfig = {
+    enable: true, // 是否启用友链监控页面
+    apiUrl: "https://blog-link-monitor.268682.xyz", // 监控数据 API 地址
+    pageTitle: "友链监测", // 页面标题
+    pageSubTitle: "实时监控友链可访问性" // 页面副标题
+}
+
 export const profileConfig: ProfileConfig = {
     avatar: "assets/kemiaosw.png", // 相对于 /src 目录。如果以 '/' 开头则相对于 /public 目录
     name: "克喵爱吃卤面",
@@ -135,6 +143,27 @@ export const guideConfig: GuideItem[] = [
         href: "/snippets/",
         icon: "material-symbols:code",
         order: 9
+    },
+    {
+        title: "生活小记",
+        description: "记录生活的点滴瞬间",
+        href: "/note/",
+        icon: "material-symbols:note-alt",
+        order: 10
+    },
+    {
+        title: "Wiki 文档",
+        description: "知识库与文档中心",
+        href: "/wiki/",
+        icon: "material-symbols:menu-book",
+        order: 11
+    },
+    {
+        title: "友链检测",
+        description: "查看友链状态",
+        href: "/monitor/",
+        icon: "material-symbols:monitor-heart-outline",
+        order: 12
     }
 ];
 

@@ -2,6 +2,8 @@ import { getCollection, getEntry } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import { i18n } from "astro:config/client";
 
+/// <reference types="astro/client" />
+
 /**
  * 获取排序后的博客条目
  * @param filter 过滤函数，可选，默认过滤掉生产环境中的草稿文章

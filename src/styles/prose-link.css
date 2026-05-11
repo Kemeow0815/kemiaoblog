@@ -1,0 +1,150 @@
+/**
+ * ProseLink Styles - 增强链接样式
+ * 参考 blog-v3/app/components/content/ProseA.vue
+ * 适配 Momo 博客主题
+ */
+
+/* 基础链接样式 */
+.markdown-content a.prose-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  margin: -0.1em -0.2em;
+  padding: 0.1em 0.2em;
+  background: linear-gradient(var(--link-color-soft, rgba(var(--link-color-rgb, 0, 122, 204), 0.15)), var(--link-color-soft, rgba(var(--link-color-rgb, 0, 122, 204), 0.15))) no-repeat center bottom / 100% 0.1em;
+  color: var(--link-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  border-radius: 0.2em;
+}
+
+/* 暗色模式下的链接背景 */
+[data-theme="dark"] .markdown-content a.prose-link {
+  background: linear-gradient(var(--link-color-soft, rgba(var(--link-color-rgb, 100, 180, 255), 0.2)), var(--link-color-soft, rgba(var(--link-color-rgb, 100, 180, 255), 0.2))) no-repeat center bottom / 100% 0.1em;
+}
+
+/* 链接悬停效果 */
+.markdown-content a.prose-link:hover {
+  border-radius: 0.3em;
+  background-size: 100% 100%;
+}
+
+/* 链接图标样式 */
+.markdown-content a.prose-link .prose-link-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  margin-inline-end: 0.1em;
+  flex-shrink: 0;
+}
+
+/* Iconify 图标样式 */
+.markdown-content a.prose-link .prose-link-icon iconify-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  min-width: 1em;
+  min-height: 1em;
+  vertical-align: middle;
+}
+
+/* 外部链接指示器 */
+.markdown-content a.prose-link-external .prose-link-external-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0.75em;
+  height: 0.75em;
+  margin-inline-start: 0.15em;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.markdown-content a.prose-link-external .prose-link-external-indicator::after {
+  content: "";
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/%3E%3Cpolyline points='15 3 21 3 21 9'/%3E%3Cline x1='10' y1='14' x2='21' y2='3'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* 域名提示 Tooltip */
+.markdown-content a.prose-link[data-domain]::after {
+  content: attr(data-domain);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  padding: 0.25em 0.5em;
+  background: var(--bg-color);
+  border: 1px solid var(--button-border-color);
+  border-radius: 0.25em;
+  font-size: 0.75em;
+  color: var(--text-color);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 100;
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.markdown-content a.prose-link[data-domain]:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-8px);
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .markdown-content a.prose-link {
+    margin: -0.05em -0.1em;
+    padding: 0.05em 0.1em;
+  }
+  
+  .markdown-content a.prose-link .prose-link-icon {
+    width: 0.9em;
+    height: 0.9em;
+  }
+  
+  .markdown-content a.prose-link .prose-link-icon iconify-icon {
+    width: 0.9em;
+    height: 0.9em;
+    min-width: 0.9em;
+    min-height: 0.9em;
+  }
+  
+  /* 移动端禁用 tooltip，避免遮挡 */
+  .markdown-content a.prose-link[data-domain]::after {
+    display: none;
+  }
+}
+
+/* 打印样式 */
+@media print {
+  .markdown-content a.prose-link {
+    background: none;
+    text-decoration: underline;
+  }
+  
+  .markdown-content a.prose-link .prose-link-external-indicator {
+    display: none;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .markdown-content a.prose-link {
+    transition: none;
+  }
+  
+  .markdown-content a.prose-link[data-domain]::after {
+    transition: none;
+  }
+}

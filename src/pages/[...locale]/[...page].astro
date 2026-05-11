@@ -5,6 +5,7 @@ import PostPage from '@components/PostPage.astro';
 import Navi from '@components/control/Navi.astro';
 import FabMenu from '@components/control/FabMenu.astro';
 import GitHubStats from '@components/GitHubStats.astro';
+import MemosTicker from '@components/MemosTicker.astro';
 
 import { getBlogEntrySort } from '@utils/content-utils'
 import { siteConfig } from '@/config';
@@ -69,10 +70,15 @@ const pageTitle = `${siteConfig.title} - ${siteConfig.subTitle}`;
     <Cover title={t("cover.title.home")} subTitle={t("cover.subTitle.home")} />
     
     <!-- GitHub 统计卡片 -->
-    <div class="w-full px-4 sm:px-6 lg:px-8 py-6">
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-6" data-aos="fade-up">
         <div class="max-w-4xl mx-auto">
             <GitHubStats />
         </div>
+    </div>
+    
+    <!-- Memos 说说滚动条 -->
+    <div data-aos="fade-up">
+        <MemosTicker />
     </div>
     
     <PostPage page={page} />

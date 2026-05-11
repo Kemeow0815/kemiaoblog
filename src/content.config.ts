@@ -12,6 +12,7 @@ const blogCollection = defineCollection({
         slugId: z.string(),
         category: z.string().optional(),
         pinTop: z.number().optional().default(0),
+        summary: z.string().optional().default(''),
     }),
 })
 
@@ -37,9 +38,32 @@ const snippetsCollection = defineCollection({
     }),
 })
 
+const noteCollection = defineCollection({
+    loader: glob({ pattern: '**/[^_]*.md', base: "./src/content/note" }),
+    schema: z.object({
+        title: z.string(),
+        subtitle: z.string().optional(),
+        date: z.date().optional(),
+        draft: z.boolean().optional().default(false),
+    }),
+})
+
+const wikiCollection = defineCollection({
+    loader: glob({ pattern: '**/[^_]*.md', base: "./src/content/wiki" }),
+    schema: z.object({
+        title: z.string(),
+        description: z.string().optional(),
+        category: z.string(),
+        order: z.number().default(0),
+        draft: z.boolean().default(false),
+    }),
+})
+
 export const collections = {
     blog: blogCollection,
     spec: specCollection,
     memos: memosCollection,
     snippets: snippetsCollection,
+    note: noteCollection,
+    wiki: wikiCollection,
 }

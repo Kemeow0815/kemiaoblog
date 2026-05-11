@@ -175,8 +175,18 @@ function resolveLiveState(coursesByDay: Record<number, TimetableCourseView[]>): 
 
 	// 周末
 	if (day >= 6) {
-		const allCourses = getAllCoursesThisWeek(coursesByDay);
-		const nextWeekFirstCourse = allCourses.find(c => c.day === 1);
+		const maxWeek = Math.max(1, timetableData?.settings?.maxWeek || 1);
+		const nextWeek = Math.min(currentWeekNumber + 1, maxWeek);
+		
+		// 构建下一周的课程数据
+		const nextWeekCoursesByDay = buildTimetableData(timetableData, nextWeek);
+		const nextWeekAllCourses = getAllCoursesThisWeek(nextWeekCoursesByDay);
+		
+		// 查找下周一的第一节课（按开始时间排序）
+		const mondayCourses = nextWeekAllCourses
+			.filter(c => c.day === 1)
+			.sort((a, b) => a.startMinute - b.startMinute);
+		const nextWeekFirstCourse = mondayCourses.length > 0 ? mondayCourses[0] : null;
 		
 		if (nextWeekFirstCourse) {
 			const daysUntilMonday = day === 6 ? 2 : 1;
@@ -187,6 +197,26 @@ function resolveLiveState(coursesByDay: Record<number, TimetableCourseView[]>): 
 				[
 					{ text: '下周首节：' },
 					{ text: `${nextWeekFirstCourse.courseName} - ${nextWeekFirstCourse.room || '未知'}`, bold: true, color: hexToRgb(nextWeekFirstCourse.color) }
+				],
+				[
+					{ text: '距上课还有：' },
+					{ text: formatDuration(secondsUntilCourse), bold: true }
+				]
+			];
+		}
+		
+		// 如果下周一没课，查找下周任意一天的第一节课
+		const nextWeekAnyCourse = nextWeekAllCourses.sort((a, b) => a.day - b.day || a.startMinute - b.startMinute)[0];
+		if (nextWeekAnyCourse) {
+			const dayNames = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+			const daysUntil = nextWeekAnyCourse.day - day + (nextWeekAnyCourse.day <= day ? 7 : 0);
+			const secondsUntilCourse = daysUntil * 86400 + nextWeekAnyCourse.startMinute * 60 - (currentMinute * 60 + now.getSeconds());
+			
+			return [
+				[{ text: '### 本周课毕' }],
+				[
+					{ text: `下周${dayNames[nextWeekAnyCourse.day]}首节：` },
+					{ text: `${nextWeekAnyCourse.courseName} - ${nextWeekAnyCourse.room || '未知'}`, bold: true, color: hexToRgb(nextWeekAnyCourse.color) }
 				],
 				[
 					{ text: '距上课还有：' },
@@ -373,9 +403,9 @@ function toDayColumns(data: any, currentWeek: number): any[] {
 	return columns;
 }
 
-function buildTimetableData(data: any): Record<number, TimetableCourseView[]> {
+function buildTimetableData(data: any, targetWeek?: number): Record<number, TimetableCourseView[]> {
 	const maxWeek = Math.max(1, data.settings?.maxWeek || 1);
-	const currentWeek = resolveCurrentWeek(data.settings?.startDate, maxWeek);
+	const currentWeek = targetWeek ?? resolveCurrentWeek(data.settings?.startDate, maxWeek);
 	
 	const dayColumns = toDayColumns(data, currentWeek);
 	const coursesByDay: Record<number, TimetableCourseView[]> = {};
@@ -468,11 +498,17 @@ function renderStatus(statusLines: StatusLine[][]) {
 }
 
 let coursesByDay: Record<number, TimetableCourseView[]> = {};
+let timetableData: any = null;
+let currentWeekNumber: number = 1;
 
 async function init() {
 	try {
 		const response = await fetch('/timetable/大三下.json');
 		const data = await response.json();
+		timetableData = data;
+		
+		const maxWeek = Math.max(1, data.settings?.maxWeek || 1);
+		currentWeekNumber = resolveCurrentWeek(data.settings?.startDate, maxWeek);
 		
 		coursesByDay = buildTimetableData(data);
 		

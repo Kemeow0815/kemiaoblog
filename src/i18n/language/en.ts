@@ -16,14 +16,20 @@ const translation: Translation = {
             archive: "Archive",
             about: "About",
             friends: "Friends",
-            memos: ""
+            memos: "",
+            monitor: "Link Monitor",
+            note: "Life Notes",
+            wiki: "Wiki"
         },
         subTitle: {
             home: "Life is colorful!",
             archive: "Total of {count} articles",
             about: "A minimalist blog template",
             friends: "Interesting Souls",
-            memos: ""
+            memos: "",
+            monitor: "Real-time monitoring of friend links accessibility",
+            note: "Moments worth remembering",
+            wiki: "Knowledge Base & Documentation"
         }
     },
     toc: "Contents",
@@ -132,6 +138,9 @@ const translation: Translation = {
         local: "Local",
         remote: "Memos",
         noData: "No data"
+    },
+    monitor: {
+        loading: "Loading monitoring data..."
     },
     pagination: {
         prev: "Previous",

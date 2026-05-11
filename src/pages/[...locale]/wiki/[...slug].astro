@@ -1,0 +1,871 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import FabMenu from '@components/control/FabMenu.astro'
+import Cover from '@components/Cover.astro'
+import { Icon } from "astro-icon/components";
+import { siteConfig } from '@/config'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client"
+import { getCollection, getEntry, render } from 'astro:content'
+import '@styles/wiki.css'
+
+export async function getStaticPaths() {
+    const allWikiEntries = await getCollection('wiki');
+
+    const paths: { params: { locale?: string; slug?: string } }[] = [];
+
+    // 为每个 locale 生成路径
+    for (const locale of i18n?.locales || ['zh-cn']) {
+        const localeParam = locale === i18n?.defaultLocale ? undefined : (locale as string);
+
+        // 首页路径 /wiki
+        paths.push({
+            params: { locale: localeParam, slug: undefined }
+        });
+
+        // 每个文档的路径
+        for (const entry of allWikiEntries) {
+            if (entry.id === 'index') continue; // 首页已处理
+
+            paths.push({
+                params: {
+                    locale: localeParam,
+                    slug: entry.id
+                }
+            });
+        }
+    }
+
+    return paths;
+}
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+// 获取所有 wiki 内容
+const allWikiEntries = await getCollection('wiki');
+
+// 按 category 分组
+const entriesByCategory = new Map<string, typeof allWikiEntries>();
+allWikiEntries.forEach((entry: typeof allWikiEntries[0]) => {
+    const category = entry.data.category || 'uncategorized';
+    if (!entriesByCategory.has(category)) {
+        entriesByCategory.set(category, []);
+    }
+    entriesByCategory.get(category)!.push(entry);
+});
+
+// 对每个分类内的条目按 order 排序
+entriesByCategory.forEach((entries) => {
+    entries.sort((a: typeof allWikiEntries[0], b: typeof allWikiEntries[0]) => (a.data.order || 0) - (b.data.order || 0));
+});
+
+// 获取当前 slug
+const currentSlug = Astro.params.slug || 'index';
+
+// 获取当前条目
+let currentEntry = null;
+let Content = null;
+let headings: { depth: number; slug: string; text: string }[] = [];
+
+if (currentSlug === 'index') {
+    currentEntry = await getEntry('wiki', 'index');
+} else {
+    currentEntry = allWikiEntries.find((e: typeof allWikiEntries[0]) => e.id === currentSlug) || null;
+}
+
+if (currentEntry) {
+    const rendered = await render(currentEntry);
+    Content = rendered.Content;
+    headings = rendered.headings;
+}
+
+// 构建分类数据
+interface CategoryData {
+    id: string;
+    name: string;
+    items: typeof allWikiEntries;
+}
+
+const categoryMap: Record<string, string> = {
+    'intro': '介绍',
+    'getting-started': '快速开始',
+    'guide': '使用指南',
+    'reference': '参考文档',
+    'advanced': '高级用法',
+    'uncategorized': '其他'
+};
+
+const sortedCategories: CategoryData[] = Array.from(entriesByCategory.entries())
+    .map(([id, items]) => ({
+        id,
+        name: categoryMap[id] || id,
+        items
+    }))
+    .sort((a, b) => {
+        const orderA = a.items[0]?.data.order || 0;
+        const orderB = b.items[0]?.data.order || 0;
+        return orderA - orderB;
+    });
+
+// 获取当前分类
+const currentCategory = currentEntry?.data.category || '';
+const currentCategoryName = categoryMap[currentCategory] || currentCategory;
+
+// 找到上一篇和下一篇
+let prevEntry = null;
+let nextEntry = null;
+
+if (currentEntry) {
+    const allSortedEntries = allWikiEntries.sort((a: typeof allWikiEntries[0], b: typeof allWikiEntries[0]) => (a.data.order || 0) - (b.data.order || 0));
+    const currentIndex = allSortedEntries.findIndex((e: typeof allWikiEntries[0]) => e.id === currentEntry!.id);
+
+    if (currentIndex > 0) {
+        prevEntry = allSortedEntries[currentIndex - 1];
+    }
+    if (currentIndex < allSortedEntries.length - 1) {
+        nextEntry = allSortedEntries[currentIndex + 1];
+    }
+}
+
+// 构建 TOC 数据（过滤 h1，保留 h2-h4）
+const tocItems = headings.filter(h => h.depth > 1 && h.depth < 5);
+
+const pageTitle = currentEntry 
+    ? `${currentEntry.data.title} - ${t("cover.title.wiki")} - ${siteConfig.title}`
+    : `${t("cover.title.wiki")} - ${siteConfig.title}`;
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+    <div class="wiki-page-wrapper">
+        <Cover title={t("cover.title.wiki")} subTitle={t("cover.subTitle.wiki")} />
+        
+        <div class="wiki-container">
+            <!-- 移动端左侧边栏面板 -->
+            <div 
+                id="wikiSidebarPanel" 
+                class="lg:hidden fixed bottom-36 left-4 right-4 z-[1001] max-h-[70vh] flex flex-col bg-[var(--bg-color)]/95 backdrop-blur-lg border border-[var(--text-color)]/20 rounded-2xl shadow-2xl transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom-left scale-95 opacity-0 pointer-events-none translate-y-4"
+            >
+                <div class="px-4 py-3 border-b border-[var(--text-color)]/10 font-bold text-sm text-[var(--text-color)] flex justify-between items-center bg-[var(--button-hover-color)] rounded-t-2xl">
+                    <span class="flex items-center gap-2">
+                        <Icon name="fa6-solid:book" class="text-[var(--link-color)]" />
+                        {t("cover.title.wiki")}
+                    </span>
+                    <button id="wikiSidebarClose" class="opacity-50 hover:opacity-100 transition-opacity p-1">
+                        <Icon name="fa6-solid:xmark" class="text-sm text-[var(--text-color)]" />
+                    </button>
+                </div>
+                <div class="overflow-y-auto p-3 overscroll-contain flex-1 scrollbar-thin scrollbar-thumb-[var(--text-color)]/20 scrollbar-track-transparent">
+                    <nav class="wiki-nav-mobile">
+                        {sortedCategories.map((category: typeof sortedCategories[0]) => (
+                            <div class={`wiki-nav-category-mobile ${currentCategory === category.id ? 'expanded' : ''}`} data-category={category.id}>
+                                <div class="wiki-nav-category-header-mobile">
+                                    <span>{category.name}</span>
+                                    <Icon name="fa6-solid:chevron-down" class="wiki-nav-arrow-mobile text-xs" />
+                                </div>
+                                <div class="wiki-nav-category-items-mobile">
+                                    {category.items.map((item: typeof allWikiEntries[0]) => (
+                                        <a
+                                            href={`/wiki/${item.id === 'index' ? '' : item.id}`}
+                                            class={`wiki-nav-link-mobile ${currentEntry?.id === item.id ? 'active' : ''}`}
+                                        >
+                                            {item.data.title}
+                                        </a>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
+                    </nav>
+                </div>
+            </div>
+
+
+            
+            <!-- 左侧边栏导航 - 桌面端 -->
+            <aside id="wikiSidebar" class="wiki-sidebar hidden lg:block lg:sticky lg:top-20">
+                <div class="wiki-sidebar-header flex items-center gap-2">
+                    <Icon name="fa6-solid:book" class="text-[var(--link-color)]" />
+                    <span>{t("cover.title.wiki")}</span>
+                </div>
+                
+                <nav class="wiki-nav">
+                    {sortedCategories.map((category: typeof sortedCategories[0]) => (
+                        <div class={`wiki-nav-category ${currentCategory === category.id ? 'expanded' : ''}`} data-category={category.id}>
+                            <div class="wiki-nav-category-header">
+                                <span class="wiki-nav-arrow"></span>
+                                <span>{category.name}</span>
+                            </div>
+                            <div class="wiki-nav-category-items">
+                                {category.items.map((item: typeof allWikiEntries[0]) => (
+                                    <a
+                                        href={`/wiki/${item.id === 'index' ? '' : item.id}`}
+                                        class={`wiki-nav-link ${currentEntry?.id === item.id ? 'active' : ''}`}
+                                    >
+                                        {item.data.title}
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </nav>
+            </aside>
+            
+            <!-- 主内容区域 -->
+            <main class="wiki-main">
+                {currentEntry ? (
+                    <div class="wiki-content-wrapper">
+                        <!-- 面包屑导航 -->
+                        <nav class="wiki-breadcrumb">
+                            <a href="/">首页</a>
+                            <span class="wiki-breadcrumb-separator">/</span>
+                            <a href="/wiki">{t("cover.title.wiki")}</a>
+                            {currentCategory && (
+                                <>
+                                    <span class="wiki-breadcrumb-separator">/</span>
+                                    <span class="wiki-breadcrumb-current">{currentCategoryName}</span>
+                                </>
+                            )}
+                            {currentEntry.id !== 'index' && (
+                                <>
+                                    <span class="wiki-breadcrumb-separator">/</span>
+                                    <span class="wiki-breadcrumb-current">{currentEntry.data.title}</span>
+                                </>
+                            )}
+                        </nav>
+                        
+                        <!-- 内容渲染 -->
+                        <article class="wiki-content">
+                            {Content && <Content />}
+                        </article>
+                        
+                        <!-- 上一篇/下一篇导航 -->
+                        {(prevEntry || nextEntry) && (
+                            <div class="wiki-nav-cards">
+                                {prevEntry && (
+                                    <a 
+                                        href={`/wiki/${prevEntry.id === 'index' ? '' : prevEntry.id}`}
+                                        class="wiki-nav-card prev"
+                                    >
+                                        <span class="wiki-nav-card-label">{t("blogNavi.prev")}</span>
+                                        <span class="wiki-nav-card-title">{prevEntry.data.title}</span>
+                                    </a>
+                                )}
+                                {nextEntry && (
+                                    <a 
+                                        href={`/wiki/${nextEntry.id === 'index' ? '' : nextEntry.id}`}
+                                        class="wiki-nav-card next"
+                                    >
+                                        <span class="wiki-nav-card-label">{t("blogNavi.next")}</span>
+                                        <span class="wiki-nav-card-title">{nextEntry.data.title}</span>
+                                    </a>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                ) : (
+                    <div class="wiki-empty">
+                        <Icon name="fa6-solid:circle-exclamation" class="text-6xl text-[var(--text-color-50)] mb-4" />
+                        <h2 class="text-xl font-bold text-[var(--text-color)] mb-2">文档未找到</h2>
+                        <p class="text-[var(--text-color-70)]">抱歉，您访问的文档不存在。</p>
+                        <a href="/wiki" class="mt-4 inline-block px-4 py-2 bg-[var(--link-color)] text-white rounded-lg hover:opacity-90 transition-opacity">
+                            返回文档首页
+                        </a>
+                    </div>
+                )}
+            </main>
+            
+            <!-- 右侧 TOC - 桌面端 -->
+            {tocItems.length > 0 && (
+                <aside id="wikiToc" class="wiki-toc hidden xl:block xl:sticky xl:top-20">
+                    <div class="wiki-toc-header">{t("toc")}</div>
+                    <ul class="wiki-toc-list">
+                        {tocItems.map(item => (
+                            <li class="wiki-toc-item">
+                                <a 
+                                    href={`#${item.slug}`}
+                                    class={`wiki-toc-link level-${item.depth}`}
+                                    data-slug={item.slug}
+                                >
+                                    {item.text}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </aside>
+            )}
+        </div>
+    </div>
+    
+    <FabMenu showBackBottom={true} headings={headings} showWikiSidebar={true} />
+</MainPageLayout>
+
+<script is:inline>
+    // 事件委托绑定侧边栏交互 - 只执行一次，避免 Astro view transitions 后重复绑定
+    if (!window._wikiEventsBound) {
+        window._wikiEventsBound = true;
+
+        // 桌面端侧边栏展开/折叠
+        document.addEventListener('click', (e) => {
+            const header = e.target.closest('.wiki-nav-category-header');
+            if (header) {
+                const category = header.closest('.wiki-nav-category');
+                if (category) {
+                    category.classList.toggle('expanded');
+                }
+            }
+        });
+
+        // 移动端侧边栏展开/折叠
+        document.addEventListener('click', (e) => {
+            const header = e.target.closest('.wiki-nav-category-header-mobile');
+            if (header) {
+                const category = header.closest('.wiki-nav-category-mobile');
+                if (category) {
+                    category.classList.toggle('expanded');
+                }
+            }
+        });
+
+        // 移动端面板控制
+        document.addEventListener('click', (e) => {
+            const closeBtn = e.target.closest('#wikiSidebarClose');
+            const sidebarPanel = document.getElementById('wikiSidebarPanel');
+
+            if (closeBtn) {
+                e.stopPropagation();
+                sidebarPanel?.classList.remove('panel-open');
+                return;
+            }
+
+            // 点击外部关闭面板
+            if (sidebarPanel?.classList.contains('panel-open') && !sidebarPanel?.contains(e.target)) {
+                sidebarPanel?.classList.remove('panel-open');
+            }
+        });
+    }
+
+    // 初始化 Wiki 页面功能
+    function initWikiPage() {
+        // 默认展开包含当前文档的分类（桌面端）
+        const activeLink = document.querySelector('.wiki-nav-link.active');
+        if (activeLink) {
+            const category = activeLink.closest('.wiki-nav-category');
+            if (category) {
+                category.classList.add('expanded');
+            }
+        } else {
+            const firstCategory = document.querySelector('.wiki-nav-category');
+            if (firstCategory) {
+                firstCategory.classList.add('expanded');
+            }
+        }
+
+        // 默认展开移动端当前分类
+        const mobileActiveLink = document.querySelector('.wiki-nav-link-mobile.active');
+        if (mobileActiveLink) {
+            const category = mobileActiveLink.closest('.wiki-nav-category-mobile');
+            if (category) {
+                category.classList.add('expanded');
+            }
+        } else {
+            const firstMobileCategory = document.querySelector('.wiki-nav-category-mobile');
+            if (firstMobileCategory) {
+                firstMobileCategory.classList.add('expanded');
+            }
+        }
+        
+        // 移动端 TOC 点击
+        const mobileTocLinks = document.querySelectorAll('.wiki-toc-link-mobile');
+        
+        mobileTocLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const slug = link.getAttribute('href')?.substring(1);
+                const target = document.getElementById(slug || '');
+                
+                if (target) {
+                    const offset = 100;
+                    const elementPosition = target.getBoundingClientRect().top + window.scrollY;
+                    const offsetPosition = elementPosition - offset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+                
+                document.getElementById('wikiSidebarPanel')?.classList.remove('panel-open');
+            });
+        });
+
+        // 桌面端 TOC 高亮和点击平滑滚动
+        const tocLinks = document.querySelectorAll('.wiki-toc-link');
+        
+        tocLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const slug = link.getAttribute('href')?.substring(1);
+                const target = document.getElementById(slug || '');
+                
+                if (target) {
+                    const offset = 100;
+                    const elementPosition = target.getBoundingClientRect().top + window.scrollY;
+                    const offsetPosition = elementPosition - offset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // TOC 滚动高亮
+        const headingElements = Array.from(tocLinks)
+            .map(link => document.getElementById(link.getAttribute('href')?.substring(1) || ''))
+            .filter(Boolean);
+        
+        if (headingElements.length > 0) {
+            const observerOptions = {
+                root: null,
+                rootMargin: '-10% 0px -80% 0px',
+                threshold: 0
+            };
+            
+            const tocObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        tocLinks.forEach(l => l.classList.remove('active'));
+                        const activeId = entry.target.id;
+                        const activeLink = document.querySelector(`.wiki-toc-link[href="#${activeId}"]`);
+                        if (activeLink) {
+                            activeLink.classList.add('active');
+                        }
+                    }
+                });
+            }, observerOptions);
+            
+            headingElements.forEach(el => tocObserver.observe(el));
+        }
+        
+        // Lightbox 支持
+        const content = document.querySelector('.wiki-content');
+        if (content) {
+            const images = content.querySelectorAll('img');
+            
+            images.forEach(img => {
+                if (img.closest('a')) return;
+                if (img._wikiLightboxBound) return;
+                img._wikiLightboxBound = true;
+
+                img.style.cursor = 'zoom-in';
+                img.addEventListener('click', () => {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'lightbox-overlay';
+                    overlay.innerHTML = `
+                        <div class="lightbox-backdrop"></div>
+                        <img src="${img.src}" alt="${img.alt || ''}" class="lightbox-image" />
+                        <button class="lightbox-close" aria-label="关闭">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            </svg>
+                        </button>
+                    `;
+                    
+                    document.body.appendChild(overlay);
+                    document.body.style.overflow = 'hidden';
+                    
+                    requestAnimationFrame(() => {
+                        overlay.classList.add('active');
+                    });
+                    
+                    const closeLightbox = () => {
+                        overlay.classList.remove('active');
+                        setTimeout(() => {
+                            overlay.remove();
+                            document.body.style.overflow = '';
+                        }, 300);
+                    };
+                    
+                    overlay.querySelector('.lightbox-close')?.addEventListener('click', closeLightbox);
+                    overlay.querySelector('.lightbox-backdrop')?.addEventListener('click', closeLightbox);
+                    
+                    const handleEsc = (e) => {
+                        if (e.key === 'Escape') {
+                            closeLightbox();
+                            document.removeEventListener('keydown', handleEsc);
+                        }
+                    };
+                    document.addEventListener('keydown', handleEsc);
+                });
+            });
+        }
+    }
+    
+    // 初始化
+    if (!window._wikiPageLoadBound) {
+        window._wikiPageLoadBound = true;
+        document.addEventListener('astro:page-load', initWikiPage);
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initWikiPage);
+    } else {
+        initWikiPage();
+    }
+    
+    // 代码块复制按钮功能
+    const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>`;
+    const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+    function createCopyButtons() {
+        const blocks = document.querySelectorAll('.wiki-content pre');
+
+        blocks.forEach((block) => {
+            const existingWrapper = block.closest('.code-block-wrapper');
+            if (existingWrapper && existingWrapper.querySelector('.copy-btn')) return;
+
+            let wrapper;
+            
+            if (existingWrapper) {
+                wrapper = existingWrapper;
+            } else {
+                wrapper = document.createElement('div');
+                wrapper.className = 'code-block-wrapper';
+                if (block.parentNode) {
+                    block.parentNode.insertBefore(wrapper, block);
+                    wrapper.appendChild(block);
+                }
+            }
+
+            const button = document.createElement('button');
+            button.className = 'copy-btn';
+            button.innerHTML = `<span class="icon-copy">${copyIcon}</span><span class="icon-check">${checkIcon}</span>`;
+            
+            wrapper.appendChild(button);
+
+            button.addEventListener('click', async () => {
+                const code = block.querySelector('code');
+                const text = code ? code.innerText : block.innerText;
+                await navigator.clipboard.writeText(text);
+
+                button.classList.add('copied');
+                setTimeout(() => button.classList.remove('copied'), 2000);
+            });
+        });
+    }
+
+    createCopyButtons();
+    document.addEventListener('astro:page-load', createCopyButtons);
+</script>
+
+<style is:global>
+    /* Wiki 页面布局 */
+    .wiki-page-wrapper {
+        min-height: calc(100vh - var(--header-height, 60px));
+    }
+    
+    .wiki-container {
+        display: flex;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        gap: 24px;
+    }
+    
+    /* 桌面端侧边栏样式 */
+    .wiki-sidebar {
+        width: 280px;
+        flex-shrink: 0;
+        background: var(--card-color);
+        border-radius: 12px;
+        border: 1px solid var(--button-border-color);
+        overflow-y: auto;
+        max-height: calc(100vh - 100px);
+    }
+    
+    /* 主内容区域 */
+    .wiki-main {
+        flex: 1;
+        min-width: 0;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .wiki-content-wrapper {
+        background: var(--card-color);
+        border-radius: 12px;
+        border: 1px solid var(--button-border-color);
+        padding: 40px;
+    }
+    
+    /* 桌面端 TOC 样式 */
+    .wiki-toc {
+        width: 240px;
+        flex-shrink: 0;
+        height: fit-content;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
+    
+    /* 移动端样式 */
+    @media (max-width: 1023px) {
+        .wiki-container {
+            padding: 16px;
+        }
+        
+        .wiki-content-wrapper {
+            padding: 24px;
+        }
+    }
+    
+    @media (max-width: 640px) {
+        .wiki-container {
+            padding: 12px;
+        }
+        
+        .wiki-content-wrapper {
+            padding: 20px;
+        }
+        
+        .wiki-nav-cards {
+            grid-template-columns: 1fr !important;
+        }
+        
+        .wiki-nav-card.next {
+            align-items: flex-start !important;
+            text-align: left !important;
+        }
+        
+    }
+    
+    /* 面板展开状态 */
+    #wikiSidebarPanel.panel-open {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* 小屏幕适配 */
+    @media (max-width: 640px) {
+        #wikiSidebarPanel {
+            left: 16px;
+            right: 16px;
+            bottom: 80px;
+            max-height: 65vh;
+        }
+    }
+    
+    /* 移动端导航样式 */
+    .wiki-nav-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .wiki-nav-category-mobile {
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .wiki-nav-category-header-mobile {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 12px;
+        cursor: pointer;
+        font-weight: 500;
+        color: var(--text-color);
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+    
+    .wiki-nav-category-header-mobile:hover {
+        background: var(--button-hover-color);
+    }
+    
+    .wiki-nav-arrow-mobile {
+        transition: transform 0.2s;
+        color: var(--text-color-50);
+    }
+    
+    .wiki-nav-category-mobile.expanded .wiki-nav-arrow-mobile {
+        transform: rotate(180deg);
+    }
+    
+    .wiki-nav-category-items-mobile {
+        display: none;
+        padding: 4px 0;
+    }
+    
+    .wiki-nav-category-mobile.expanded .wiki-nav-category-items-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .wiki-nav-link-mobile {
+        display: block;
+        padding: 8px 12px 8px 24px;
+        color: var(--text-color-70);
+        font-size: 0.9rem;
+        border-radius: 6px;
+        transition: all 0.2s;
+    }
+    
+    .wiki-nav-link-mobile:hover {
+        background: var(--button-hover-color);
+        color: var(--link-color);
+    }
+    
+    .wiki-nav-link-mobile.active {
+        background: var(--button-hover-color);
+        color: var(--link-color);
+        font-weight: 500;
+    }
+
+    /* 滚动条样式 */
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 4px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.5); 
+        border-radius: 20px;
+    }
+    
+    /* 空状态 */
+    .wiki-empty {
+        text-align: center;
+        padding: 60px 20px;
+        background: var(--card-color);
+        border-radius: 12px;
+        border: 1px solid var(--button-border-color);
+    }
+    
+    /* 代码块复制按钮样式 */
+    .wiki-content .code-block-wrapper {
+        position: relative !important;
+        width: 100%;
+    }
+
+    .wiki-content pre {
+        margin-top: 0 !important;
+        overflow-x: auto;
+    }
+
+    .wiki-content .copy-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 20;
+        padding: 6px;
+        background: var(--button-hover-color);
+        border: 1px solid var(--button-border-color);
+        border-radius: 6px;
+        cursor: pointer;
+        color: var(--text-color);
+        opacity: 0;
+        transition: all 0.2s ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .wiki-content .code-block-wrapper:has(.code-block-header) .copy-btn {
+        top: 56px;
+    }
+
+    .wiki-content .code-block-wrapper:hover .copy-btn {
+        opacity: 1;
+    }
+
+    @media (hover: none) {
+        .wiki-content .copy-btn {
+            opacity: 1;
+        }
+    }
+
+    .wiki-content .copy-btn .icon-check {
+        display: none;
+    }
+
+    .wiki-content .copy-btn.copied .icon-copy {
+        display: none;
+    }
+
+    .wiki-content .copy-btn.copied .icon-check {
+        display: block;
+        color: #4caf50;
+    }
+
+    .wiki-content .copy-btn:hover {
+        background: var(--button-bg-color);
+        border-color: var(--link-color);
+        color: var(--link-color);
+    }
+    
+    /* Lightbox 样式 */
+    .lightbox-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+    
+    .lightbox-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .lightbox-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(4px);
+    }
+    
+    .lightbox-image {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+        object-fit: contain;
+        border-radius: 0.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        transform: scale(0.9);
+        transition: transform 0.3s ease;
+    }
+    
+    .lightbox-overlay.active .lightbox-image {
+        transform: scale(1);
+    }
+    
+    .lightbox-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        z-index: 1;
+    }
+    
+    .lightbox-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+</style>

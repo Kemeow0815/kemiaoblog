@@ -16,14 +16,20 @@ const translation: Translation = {
             archive: "文章归档",
             about: "关于",
             friends: "友链",
-            memos: "碎碎念"
+            memos: "碎碎念",
+            monitor: "友链监测",
+            note: "生活小记",
+            wiki: "Wiki 文档"
         },
         subTitle: {
             home: "记录一些生活日常、踩坑教程和资源分享",
             archive: "共 {count} 篇文章",
             about: "我的资料卡~",
             friends: "有趣的灵魂",
-            memos: "记录生活的点点滴滴"
+            memos: "记录生活的点点滴滴",
+            monitor: "实时监控友链可访问性",
+            note: "不曾虚度的光",
+            wiki: "知识库与文档中心"
         }
     },
     toc: "目录",
@@ -132,6 +138,9 @@ const translation: Translation = {
         local: "本地",
         remote: "Memos",
         noData: "暂无数据"
+    },
+    monitor: {
+        loading: "正在加载监控数据..."
     },
     pagination: {
         prev: "上一页",

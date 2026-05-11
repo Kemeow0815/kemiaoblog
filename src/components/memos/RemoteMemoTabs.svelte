@@ -157,7 +157,87 @@
 
   onMount(() => {
     fetchRemoteMemos(1);
+    
+    // 初始化灯箱功能
+    setupLightbox();
+    
+    // 监听 Astro 页面导航后重新设置灯箱
+    document.addEventListener('astro:page-load', setupLightbox);
+    
+    return () => {
+      document.removeEventListener('astro:page-load', setupLightbox);
+    };
   });
+  
+  // 灯箱功能 - 使用事件委托，绑定在 document 上
+  function setupLightbox() {
+    // 移除已存在的事件监听器，避免重复绑定
+    document.removeEventListener('click', handleLightboxClick);
+    document.removeEventListener('keydown', handleLightboxKeydown);
+    
+    // 绑定点击事件
+    document.addEventListener('click', handleLightboxClick);
+    
+    // 绑定键盘事件
+    document.addEventListener('keydown', handleLightboxKeydown);
+  }
+  
+  function handleLightboxClick(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    
+    // 检查点击的是否是 markdown-content 中的图片
+    if (target.tagName === 'IMG' && target.closest('.markdown-content')) {
+      e.preventDefault();
+      openLightbox(target as HTMLImageElement);
+    }
+    
+    // 点击遮罩层关闭灯箱
+    if (target.classList.contains('lightbox-overlay')) {
+      closeLightbox();
+    }
+  }
+  
+  function handleLightboxKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      closeLightbox();
+    }
+  }
+  
+  function openLightbox(img: HTMLImageElement) {
+    // 移除已存在的灯箱
+    closeLightbox();
+    
+    // 创建灯箱遮罩层
+    const overlay = document.createElement('div');
+    overlay.className = 'lightbox-overlay';
+    
+    // 创建大图
+    const lightboxImg = document.createElement('img');
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt || '';
+    
+    overlay.appendChild(lightboxImg);
+    document.body.appendChild(overlay);
+    
+    // 触发重绘以启动动画
+    requestAnimationFrame(() => {
+      overlay.classList.add('active');
+    });
+    
+    // 禁止背景滚动
+    document.body.style.overflow = 'hidden';
+  }
+  
+  function closeLightbox() {
+    const overlay = document.querySelector('.lightbox-overlay');
+    if (overlay) {
+      overlay.classList.remove('active');
+      setTimeout(() => {
+        overlay.remove();
+      }, 300);
+    }
+    document.body.style.overflow = '';
+  }
 </script>
 
 <div class="remote-memos">
@@ -296,3 +376,51 @@
     </div>
   {/if}
 </div>
+
+<style>
+  /* 限制 Markdown 内容中的图片大小 */
+  :global(.markdown-content img) {
+    max-width: 300px;
+    max-height: 400px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    display: block;
+    margin: 0.5rem 0;
+    cursor: zoom-in;
+    transition: transform 0.2s ease;
+  }
+  
+  :global(.markdown-content img:hover) {
+    transform: scale(1.02);
+  }
+  
+  /* 灯箱遮罩层 */
+  :global(.lightbox-overlay) {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    cursor: zoom-out;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  :global(.lightbox-overlay.active) {
+    opacity: 1;
+  }
+  
+  :global(.lightbox-overlay img) {
+    max-width: 90vw;
+    max-height: 90vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    cursor: zoom-out;
+  }
+</style>

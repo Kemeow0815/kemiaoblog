@@ -1,0 +1,429 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import FabMenu from '@components/control/FabMenu.astro'
+import Cover from '@components/Cover.astro'
+import { siteConfig } from '@/config'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client"
+import { getEntry, render } from 'astro:content'
+import '@styles/note.css'
+
+export async function getStaticPaths() {
+	return i18n?.locales.map(locale => ({ params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) } }));
+}
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+// 加载 note 内容
+const noteEntry = await getEntry('note', 'index');
+if (!noteEntry) {
+    throw new Error('No note entry found');
+}
+
+const { Content, headings } = await render(noteEntry);
+
+// 构建 TOC 分组：H2 作为分组标题，H3 作为分组内的条目
+interface TocGroup {
+    title: string;
+    slug: string;
+    items: { text: string; slug: string }[];
+}
+
+const tocGroups: TocGroup[] = [];
+let currentGroup: TocGroup | null = null;
+
+for (const h of headings) {
+    if (h.depth === 2) {
+        currentGroup = {
+            title: h.text,
+            slug: h.slug,
+            items: []
+        };
+        tocGroups.push(currentGroup);
+    } else if (h.depth === 3 && currentGroup) {
+        currentGroup.items.push({
+            text: h.text,
+            slug: h.slug
+        });
+    }
+}
+
+const pageTitle = t("cover.title.note") + " - " + siteConfig.title;
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+    <div class="mx-auto w-full max-w-[var(--page-width)]">
+        <Cover title={t("cover.title.note")} subTitle={t("cover.subTitle.note")} />
+        
+        <!-- 引言区域 -->
+        <div class="note-intro px-4 mb-8">
+            <div class="intro-card bg-[var(--card-color)] rounded-xl p-6 border border-[var(--button-border-color)]">
+                <p class="intro-text text-center text-[var(--text-color-70)] italic">
+                    「 时光如水，岁月如歌。这里记录着生活中那些不曾虚度的光阴。 」
+                </p>
+            </div>
+        </div>
+
+        <!-- 目录区域 -->
+        {tocGroups.length > 0 && (
+            <div class="note-toc px-4 mb-8">
+                <div class="toc-card bg-[var(--card-color)] rounded-xl p-6 border border-[var(--button-border-color)]">
+                    <h2 class="toc-title text-lg font-bold text-[var(--text-color)] mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+                        </svg>
+                        {t("toc")}
+                    </h2>
+                    <div class="toc-content space-y-3">
+                        {tocGroups.map((group) => (
+                            <details class="toc-group" open>
+                                <summary class="toc-group-title cursor-pointer font-medium text-[var(--text-color)] hover:text-[var(--link-color)] transition-colors py-2 px-3 rounded-lg hover:bg-[var(--button-hover-color)] select-none flex items-center gap-2">
+                                    <svg class="toc-arrow w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                    <span>{group.title}</span>
+                                    <span class="toc-count text-xs text-[var(--text-color-50)] ml-auto">{group.items.length}</span>
+                                </summary>
+                                {group.items.length > 0 && (
+                                    <ul class="toc-items mt-2 ml-4 space-y-1 border-l-2 border-[var(--button-border-color)] pl-4">
+                                        {group.items.map((item, itemIndex) => (
+                                            <li>
+                                                <a 
+                                                    href={`#${item.slug}`} 
+                                                    class="toc-item-link flex items-center gap-2 py-1.5 px-3 text-sm text-[var(--text-color-70)] hover:text-[var(--link-color)] hover:bg-[var(--button-hover-color)] rounded-lg transition-all duration-200"
+                                                >
+                                                    <span class="toc-num flex-shrink-0 w-5 h-5 rounded-full border border-[var(--button-border-color)] bg-[var(--button-hover-color)] text-[var(--text-color-50)] text-xs flex items-center justify-center">
+                                                        {itemIndex + 1}
+                                                    </span>
+                                                    <span>{item.text}</span>
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
+                            </details>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        )}
+
+        <!-- 内容区域 -->
+        <div class="note-content-wrapper px-4 pb-12">
+            <article class="note-content bg-[var(--card-color)] rounded-xl p-6 md:p-8 border border-[var(--button-border-color)]">
+                <Content />
+            </article>
+        </div>
+    </div>
+    
+    <FabMenu showBackBottom={true} headings={headings} />
+</MainPageLayout>
+
+<script is:inline>
+    // 响应式 TOC：根据屏幕宽度自动展开/折叠
+    function initResponsiveToc() {
+        const tocGroups = document.querySelectorAll('.toc-group');
+        
+        function updateTocState() {
+            const isMobile = window.innerWidth < 768;
+            tocGroups.forEach(group => {
+                if (isMobile) {
+                    group.removeAttribute('open');
+                } else {
+                    group.setAttribute('open', '');
+                }
+            });
+        }
+        
+        // 初始化
+        updateTocState();
+        
+        // 监听窗口大小变化
+        window.addEventListener('resize', updateTocState);
+    }
+    
+    // H3 编号功能 - 使用 data-num 属性让 CSS ::before 显示编号
+    function initH3Numbering() {
+        const content = document.querySelector('.note-content');
+        if (!content) return;
+        
+        const h2Elements = content.querySelectorAll('h2');
+        
+        h2Elements.forEach(h2 => {
+            let h3Counter = 0;
+            let sibling = h2.nextElementSibling;
+            
+            while (sibling && !sibling.matches('h2')) {
+                if (sibling.matches('h3')) {
+                    h3Counter++;
+                    // 设置 data-num 属性，CSS ::before 会使用它显示编号
+                    sibling.setAttribute('data-num', h3Counter.toString());
+                }
+                sibling = sibling.nextElementSibling;
+            }
+        });
+    }
+    
+    // Lightbox 支持
+    function initLightbox() {
+        const content = document.querySelector('.note-content');
+        if (!content) return;
+        
+        const images = content.querySelectorAll('img');
+        
+        images.forEach(img => {
+            // 跳过已处理的图片
+            if (img.closest('a')) return;
+            
+            img.style.cursor = 'zoom-in';
+            img.addEventListener('click', () => {
+                // 创建 lightbox 遮罩
+                const overlay = document.createElement('div');
+                overlay.className = 'lightbox-overlay';
+                overlay.innerHTML = `
+                    <div class="lightbox-backdrop"></div>
+                    <img src="${img.src}" alt="${img.alt || ''}" class="lightbox-image" />
+                    <button class="lightbox-close" aria-label="关闭">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                    </button>
+                `;
+                
+                document.body.appendChild(overlay);
+                document.body.style.overflow = 'hidden';
+                
+                // 动画进入
+                requestAnimationFrame(() => {
+                    overlay.classList.add('active');
+                });
+                
+                // 关闭功能
+                const closeLightbox = () => {
+                    overlay.classList.remove('active');
+                    setTimeout(() => {
+                        overlay.remove();
+                        document.body.style.overflow = '';
+                    }, 300);
+                };
+                
+                overlay.querySelector('.lightbox-close')?.addEventListener('click', closeLightbox);
+                overlay.querySelector('.lightbox-backdrop')?.addEventListener('click', closeLightbox);
+                
+                // ESC 键关闭
+                const handleEsc = (e) => {
+                    if (e.key === 'Escape') {
+                        closeLightbox();
+                        document.removeEventListener('keydown', handleEsc);
+                    }
+                };
+                document.addEventListener('keydown', handleEsc);
+            });
+        });
+    }
+    
+    // TOC 点击平滑滚动
+    function initTocSmoothScroll() {
+        const tocLinks = document.querySelectorAll('.toc-item-link');
+        
+        tocLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href')?.substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if (targetElement) {
+                    const offset = 80; // 预留顶部空间
+                    const elementPosition = targetElement.getBoundingClientRect().top + window.scrollY;
+                    const offsetPosition = elementPosition - offset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    }
+    
+    // 初始化所有功能
+    document.addEventListener('astro:page-load', () => {
+        initResponsiveToc();
+        initH3Numbering();
+        initLightbox();
+        initTocSmoothScroll();
+    });
+    
+    // 初始运行（针对非 Astro 页面切换）
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            initResponsiveToc();
+            initH3Numbering();
+            initLightbox();
+            initTocSmoothScroll();
+        });
+    } else {
+        initResponsiveToc();
+        initH3Numbering();
+        initLightbox();
+        initTocSmoothScroll();
+    }
+</script>
+
+<style is:global>
+    /* TOC 样式 */
+    .toc-group > summary {
+        list-style: none;
+    }
+    
+    .toc-group > summary::-webkit-details-marker {
+        display: none;
+    }
+    
+    .toc-group[open] > summary .toc-arrow {
+        transform: rotate(90deg);
+    }
+    
+    /* H3 编号样式 */
+    .h3-number {
+        color: var(--link-color);
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+    
+    /* Note 内容样式 */
+    .note-content {
+        line-height: 1.8;
+    }
+    
+    .note-content h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid var(--button-border-color);
+        color: var(--text-color);
+    }
+    
+    .note-content h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+        color: var(--text-color);
+    }
+    
+    .note-content p {
+        margin-bottom: 1rem;
+        color: var(--text-color-70);
+    }
+    
+    .note-content blockquote {
+        border-left: 4px solid var(--link-color);
+        padding-left: 1rem;
+        margin: 1.5rem 0;
+        font-style: italic;
+        color: var(--text-color-50);
+    }
+    
+    .note-content figure {
+        margin: 1.5rem 0;
+    }
+    
+    .note-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .note-content figcaption {
+        text-align: center;
+        font-size: 0.875rem;
+        color: var(--text-color-50);
+        margin-top: 0.5rem;
+    }
+    
+    /* Lightbox 样式 */
+    .lightbox-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+    
+    .lightbox-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    .lightbox-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.9);
+        backdrop-filter: blur(4px);
+    }
+    
+    .lightbox-image {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+        object-fit: contain;
+        border-radius: 0.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        transform: scale(0.9);
+        transition: transform 0.3s ease;
+    }
+    
+    .lightbox-overlay.active .lightbox-image {
+        transform: scale(1);
+    }
+    
+    .lightbox-close {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        z-index: 1;
+    }
+    
+    .lightbox-close:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+        .note-content {
+            padding: 1.5rem;
+        }
+        
+        .note-content h2 {
+            font-size: 1.25rem;
+        }
+        
+        .note-content h3 {
+            font-size: 1rem;
+        }
+        
+        .intro-text {
+            font-size: 0.875rem;
+        }
+    }
+</style>

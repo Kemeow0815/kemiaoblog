@@ -12,8 +12,16 @@ import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { MusicCardComponent } from "./src/plugins/rehype-component-music-card.mjs";
 import { GithubCardComponent } from "./src/plugins/rehype-component-github-card.mjs";
 import { QuoteComponent } from "./src/plugins/rehype-component-quote.mjs";
+import { BadgeComponent } from "./src/plugins/rehype-component-badge.mjs";
+import { BlogHeaderComponent } from "./src/plugins/rehype-component-blog-header.mjs";
+import { ChatComponent } from "./src/plugins/rehype-component-chat.mjs";
+import { KeyComponent } from "./src/plugins/rehype-component-key.mjs";
+import { LinkBannerComponent } from "./src/plugins/rehype-component-link-banner.mjs";
+import { LinkCardComponent } from "./src/plugins/rehype-component-link-card.mjs";
+import { PicComponent } from "./src/plugins/rehype-component-pic.mjs";
 import { customFigurePlugin } from "./src/plugins/rehype-figure-plugin.mjs";
 import { codeBlockHeaderPlugin } from "./src/plugins/rehype-code-block-header.mjs";
+import { proseLinkPlugin } from "./src/plugins/rehype-prose-link.mjs";
 import { remarkCombined } from "./src/plugins/remark-combined.mjs";
 import { remarkTypst } from "./src/plugins/remark-typst.mjs";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
@@ -70,6 +78,7 @@ export default defineConfig({
     ],
     rehypePlugins: [
       rehypeKatex,
+      proseLinkPlugin,
       customFigurePlugin,
       codeBlockHeaderPlugin,
       [
@@ -79,6 +88,13 @@ export default defineConfig({
             github: GithubCardComponent,
             music: MusicCardComponent,
             quote: QuoteComponent,
+            badge: BadgeComponent,
+            "blog-header": BlogHeaderComponent,
+            chat: ChatComponent,
+            key: KeyComponent,
+            "link-banner": LinkBannerComponent,
+            "link-card": LinkCardComponent,
+            pic: PicComponent,
             note: admonition("note"),
             tip: admonition("tip"),
             important: admonition("important"),
@@ -92,7 +108,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     optimizeDeps: {
-      include: ['@iconify/svelte'],
+      include: ["@iconify/svelte"],
     },
   },
 });

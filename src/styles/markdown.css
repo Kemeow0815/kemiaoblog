@@ -825,3 +825,793 @@ rt {
 .lqip-markdown-img.lqip-loaded {
   background: transparent;
 }
+
+/* Badge 组件样式 */
+.markdown-content .badge-link {
+  text-decoration: none;
+  color: inherit;
+  display: inline-flex;
+  vertical-align: middle;
+  margin: 0 0.15em;
+}
+
+.markdown-content .badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.15em 0.5em;
+  border: 1px solid var(--button-border-color);
+  border-radius: 4px;
+  background-color: var(--button-hover-color);
+  font-size: 0.875em;
+  line-height: 1.4;
+  transition: all 0.2s ease;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.markdown-content .badge-link .badge {
+  cursor: pointer;
+}
+
+.markdown-content .badge-link:hover .badge {
+  border-color: var(--link-color);
+  background-color: var(--bg-color);
+}
+
+.markdown-content .badge.round,
+.markdown-content .badge.round .badge-icon {
+  border-radius: 0.8em;
+}
+
+.markdown-content .badge-icon {
+  width: 1.3em;
+  height: 1.3em;
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.markdown-content .badge-text {
+  display: inline;
+  line-height: 1.2;
+}
+
+/* Badge Tooltip */
+.markdown-content .badge-link[data-tip] {
+  position: relative;
+}
+
+.markdown-content .badge-link[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  padding: 0.25em 0.5em;
+  background: var(--bg-color);
+  border: 1px solid var(--button-border-color);
+  border-radius: 0.25em;
+  font-size: 0.75em;
+  color: var(--text-color);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  z-index: 100;
+  box-shadow: 0 2px 8px var(--shadow-color);
+  pointer-events: none;
+}
+
+.markdown-content .badge-link[data-tip]:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(-8px);
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .markdown-content .badge {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--button-border-color);
+}
+
+[data-theme="dark"] .markdown-content .badge-link:hover .badge {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--link-color);
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .markdown-content .badge {
+    font-size: 0.8125em;
+    padding: 0.1em 0.4em;
+  }
+
+  .markdown-content .badge-icon {
+    width: 1.1em;
+    height: 1.1em;
+  }
+
+  /* 移动端禁用 tooltip */
+  .markdown-content .badge-link[data-tip]::after {
+    display: none;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .markdown-content .badge {
+    transition: none;
+  }
+
+  .markdown-content .badge-link[data-tip]::after {
+    transition: none;
+  }
+}
+
+/* BlogHeader 组件样式 */
+.markdown-content .blog-header-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.markdown-content .blog-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  position: relative;
+  margin: 1.5rem 0;
+  padding: 0.75rem 1rem;
+  line-height: 1.4;
+  color: var(--text-color);
+  user-select: none;
+  overflow: hidden;
+  border-radius: 0.75rem;
+  transition: background-color 0.3s ease;
+}
+
+.markdown-content .blog-header:hover {
+  background-color: var(--button-hover-color);
+}
+
+/* Logo 样式 */
+.markdown-content .bh-logo {
+  height: 3em;
+  width: auto;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.markdown-content .bh-logo-circle {
+  width: 3em;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+/* 标题文字区域 */
+.markdown-content .bh-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  z-index: 1;
+}
+
+.markdown-content .bh-title {
+  font-size: 1.5em;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-color);
+}
+
+.markdown-content .bh-title-char {
+  display: inline-block;
+  animation: 3.14s infinite alternate bh-vf-weight, 2.72s infinite alternate bh-vf-bevel;
+  animation-delay: var(--delay);
+  animation-play-state: paused;
+}
+
+.markdown-content .blog-header:hover .bh-title-char,
+.markdown-content .blog-header-link:hover .bh-title-char {
+  animation-play-state: running;
+}
+
+@keyframes bh-vf-weight {
+  0% { font-weight: 600; }
+  38.2% { font-weight: 300; }
+  100% { font-weight: 900; }
+}
+
+@keyframes bh-vf-bevel {
+  from { font-variation-settings: "BEVL" 100; }
+  to { font-variation-settings: "BEVL" 1; }
+}
+
+.markdown-content .bh-subtitle {
+  opacity: 0.5;
+  font-size: 0.8em;
+  color: var(--text-color-70);
+}
+
+/* Emoji 背景动画 */
+.markdown-content .bh-emoji-tail {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  align-content: center;
+  justify-items: center;
+  position: absolute;
+  inset: 0;
+  font-size: 3rem;
+  opacity: 0.15;
+  transition: opacity 1s ease;
+  filter: blur(2px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.markdown-content .blog-header:hover .bh-emoji-tail,
+.markdown-content .blog-header-link:hover .bh-emoji-tail {
+  opacity: 0.35;
+}
+
+.markdown-content .bh-emoji-char {
+  display: inline-block;
+  animation: 5s infinite alternate bh-emoji-floating;
+  animation-delay: var(--delay);
+  animation-play-state: paused;
+}
+
+.markdown-content .blog-header:hover .bh-emoji-char,
+.markdown-content .blog-header-link:hover .bh-emoji-char {
+  animation-play-state: running;
+}
+
+@keyframes bh-emoji-floating {
+  50% {
+    transform: translate(-12px, -4px) scale(1.2);
+    filter: blur(4px);
+  }
+  100% {
+    transform: translate(-4px, -12px) scale(0.9);
+    filter: blur(1px);
+  }
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .markdown-content .blog-header:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .markdown-content .blog-header {
+    gap: 0.5em;
+    padding: 0.5rem 0.75rem;
+    margin: 1rem 0;
+  }
+
+  .markdown-content .bh-logo {
+    height: 2.5em;
+  }
+
+  .markdown-content .bh-logo-circle {
+    width: 2.5em;
+  }
+
+  .markdown-content .bh-title {
+    font-size: 1.25em;
+  }
+
+  .markdown-content .bh-subtitle {
+    font-size: 0.75em;
+  }
+
+  .markdown-content .bh-emoji-tail {
+    font-size: 2rem;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .markdown-content .bh-title-char,
+  .markdown-content .bh-emoji-char {
+    animation: none;
+  }
+
+  .markdown-content .bh-emoji-tail {
+    transition: none;
+  }
+}
+
+/* Chat 组件样式 */
+.markdown-content .chat {
+  margin: 1.5rem 2vw;
+  font-size: 0.9em;
+  line-height: 1.6;
+}
+
+.markdown-content .chat > .chat-caption {
+  opacity: 0.8;
+  font-size: 0.9em;
+  margin-bottom: 0.25em;
+}
+
+/* 日期/时间类型的 caption 居中显示 */
+.markdown-content .chat > .chat-caption:first-child,
+.markdown-content .chat > .chat-caption:has(+ .chat-caption) {
+  text-align: center;
+  opacity: 0.6;
+  font-size: 0.85em;
+}
+
+.markdown-content .chat > .chat-body {
+  overflow: hidden;
+  width: fit-content;
+  max-width: 90%;
+  margin-bottom: 1em;
+  padding: 0.5em 1em;
+  border-radius: 1em;
+  border-start-start-radius: 0.2em;
+  background-color: var(--button-hover-color);
+  border: 1px solid var(--button-border-color);
+}
+
+.markdown-content .chat > .chat-body p {
+  margin: 0;
+  text-align: left;
+}
+
+.markdown-content .chat > .chat-system {
+  margin-bottom: 1em;
+  text-align: center;
+  opacity: 0.6;
+  font-size: 0.85em;
+}
+
+.markdown-content .chat > .chat-myself {
+  text-align: end;
+}
+
+.markdown-content .chat > .chat-myself + .chat-body {
+  margin-inline-start: auto;
+  border-radius: 1em;
+  border-start-end-radius: 0.2em;
+  background-color: var(--link-color-soft, rgba(0, 122, 204, 0.15));
+  border-color: var(--link-color);
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .markdown-content .chat > .chat-body {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .markdown-content .chat > .chat-myself + .chat-body {
+  background-color: rgba(0, 122, 204, 0.2);
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .markdown-content .chat {
+    margin: 1rem 0;
+  }
+
+  .markdown-content .chat > .chat-body {
+    max-width: 85%;
+    padding: 0.4em 0.8em;
+  }
+}
+
+/* Key 组件样式 */
+.markdown-content .key-component {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15em;
+  margin: 0 0.15em;
+  padding: 0.15em 0.4em;
+  border-radius: 0.35em;
+  background-color: var(--button-hover-color);
+  border: 1px solid var(--button-border-color);
+  font-family: 'JetBrains Mono Variable', ui-monospace, 'Monaco', 'Consolas', monospace;
+  font-size: 0.85em;
+  line-height: 1.4;
+  color: var(--text-color);
+  box-shadow: inset 0 -2px 0 var(--button-border-color);
+  transition: all 0.15s ease;
+  user-select: none;
+  cursor: default;
+  vertical-align: middle;
+}
+
+.markdown-content .key-component:active,
+.markdown-content .key-component.active {
+  box-shadow: inset 0 -1px 0 var(--link-color);
+  background-color: var(--link-color-soft, rgba(0, 59, 110, 0.1));
+  color: var(--link-color);
+  transform: translateY(1px);
+}
+
+.markdown-content .key-component .key-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1em;
+}
+
+.markdown-content .key-component .key-separator {
+  opacity: 0.6;
+  margin: 0 0.05em;
+}
+
+/* macOS 图标风格 */
+.markdown-content .key-component.with-icon {
+  font-size: 0.9em;
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .markdown-content .key-component {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--button-border-color);
+  box-shadow: inset 0 -2px 0 rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .markdown-content .key-component:active,
+[data-theme="dark"] .markdown-content .key-component.active {
+  background-color: rgba(87, 172, 231, 0.15);
+  box-shadow: inset 0 -1px 0 var(--link-color);
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .markdown-content .key-component {
+    font-size: 0.8em;
+    padding: 0.1em 0.35em;
+    margin: 0 0.1em;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .markdown-content .key-component {
+    transition: none;
+  }
+}
+
+/* LinkBanner 组件样式 */
+.markdown-content .link-banner {
+  display: block;
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  margin: 1.5rem auto;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  text-decoration: none;
+  border: 1px solid var(--button-border-color);
+  transition: all 0.3s ease;
+  line-height: 1.4;
+}
+
+.markdown-content .link-banner::before {
+  content: "";
+  display: block;
+  padding-bottom: 41.67%; /* 1/2.4 = 0.4167 */
+}
+
+.markdown-content .link-banner:hover {
+  box-shadow: 0 8px 24px var(--shadow-color);
+  border-color: var(--link-color);
+  transform: translateY(-2px);
+}
+
+.markdown-content .link-banner-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100% !important;
+  height: 100% !important;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+.markdown-content .link-banner-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.markdown-content .link-banner-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2.5em 1em 1em;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.5) 50%, transparent 100%);
+  z-index: 2;
+}
+
+.markdown-content .link-banner-title {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.25em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.markdown-content .link-banner-desc {
+  font-size: 0.85em;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* 无图片时的默认样式 */
+.markdown-content .link-banner:not(:has(.link-banner-bg)) {
+  background: linear-gradient(135deg, var(--button-hover-color), var(--bg-color));
+}
+
+.markdown-content .link-banner:not(:has(.link-banner-bg))::before {
+  padding-bottom: 25%; /* 无图片时更矮一些 */
+}
+
+.markdown-content .link-banner:not(:has(.link-banner-bg)) .link-banner-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: transparent;
+  padding: 1em;
+}
+
+.markdown-content .link-banner:not(:has(.link-banner-bg)) .link-banner-title {
+  color: var(--text-color);
+  text-shadow: none;
+}
+
+.markdown-content .link-banner:not(:has(.link-banner-bg)) .link-banner-desc {
+  color: var(--text-color-70);
+  text-shadow: none;
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .markdown-content .link-banner:not(:has(.link-banner-bg)) {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .markdown-content .link-banner {
+    margin: 1rem auto;
+    border-radius: 0.5rem;
+  }
+
+  .markdown-content .link-banner::before {
+    padding-bottom: 50%; /* 移动端 2:1 比例 */
+  }
+
+  .markdown-content .link-banner-info {
+    padding: 2em 0.75em 0.75em;
+  }
+
+  .markdown-content .link-banner-title {
+    font-size: 1.1em;
+  }
+
+  .markdown-content .link-banner-desc {
+    font-size: 0.8em;
+  }
+
+  .markdown-content .link-banner:not(:has(.link-banner-bg))::before {
+    padding-bottom: 30%;
+  }
+
+  .markdown-content .link-banner:not(:has(.link-banner-bg)) .link-banner-info {
+    padding: 0.75em;
+  }
+}
+
+/* 平板适配 */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .markdown-content .link-banner {
+    max-width: 500px;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .markdown-content .link-banner {
+    transition: none;
+  }
+
+  .markdown-content .link-banner:hover {
+    transform: none;
+  }
+}
+
+/* LinkCard 组件样式 */
+.markdown-content .link-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75em 1em;
+  margin: 1rem auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--button-border-color);
+  background-color: var(--button-hover-color);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  line-height: 1.4;
+  width: fit-content;
+  max-width: 90%;
+  min-width: 320px;
+}
+
+.markdown-content .link-card:hover {
+  border-color: var(--link-color);
+  box-shadow: 0 4px 12px var(--shadow-color);
+  transform: translateY(-1px);
+}
+
+.markdown-content .link-card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  overflow: hidden;
+}
+
+.markdown-content .link-card-title {
+  font-weight: 600;
+  font-size: 1em;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.markdown-content .link-card-description {
+  font-size: 0.875em;
+  color: var(--text-color-70);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.8;
+}
+
+.markdown-content .link-card-icon {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  background-color: var(--bg-color);
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .markdown-content .link-card {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: var(--button-border-color);
+}
+
+[data-theme="dark"] .markdown-content .link-card:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .markdown-content .link-card {
+    padding: 0.625em 0.875em;
+    gap: 0.625rem;
+  }
+
+  .markdown-content .link-card-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .markdown-content .link-card-title {
+    font-size: 0.9375em;
+  }
+
+  .markdown-content .link-card-description {
+    font-size: 0.8125em;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .markdown-content .link-card {
+    transition: none;
+  }
+
+  .markdown-content .link-card:hover {
+    transform: none;
+  }
+}
+
+/* Pic 组件样式 */
+.markdown-content .pic-figure {
+  margin: 1.5rem auto;
+  text-align: center;
+  max-width: 100%;
+}
+
+.markdown-content .pic-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 0.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.markdown-content .pic-image[data-zoom="true"]:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px var(--shadow-color);
+}
+
+.markdown-content .pic-caption {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  color: var(--text-color-70);
+  text-align: center;
+  line-height: 1.5;
+}
+
+.markdown-content .pic-error {
+  padding: 1rem;
+  margin: 1rem 0;
+  background-color: rgba(255, 107, 107, 0.1);
+  border: 1px solid #ff6b6b;
+  border-radius: 0.5rem;
+  color: #ff6b6b;
+  font-size: 0.875rem;
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .markdown-content .pic-image {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .markdown-content .pic-image[data-zoom="true"]:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .markdown-content .pic-figure {
+    margin: 1rem auto;
+  }
+
+  .markdown-content .pic-image {
+    border-radius: 0.375rem;
+  }
+
+  .markdown-content .pic-caption {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .markdown-content .pic-image {
+    transition: none;
+  }
+
+  .markdown-content .pic-image[data-zoom="true"]:hover {
+    transform: none;
+  }
+}
