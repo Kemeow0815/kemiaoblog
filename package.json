@@ -7,7 +7,8 @@
     "build": "astro build && pagefind --site dist",
     "preview": "astro preview",
     "astro": "astro",
-    "newpost": "node script/newpost.js"
+    "newpost": "node script/newpost.js",
+    "test": "astro build && pagefind --site dist && astro preview"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.12",
@@ -56,6 +57,7 @@
     "@iconify-json/uim": "^1.2.3",
     "@iconify-json/vscode-icons": "^1.2.29",
     "dotenv": "^17.4.2",
+    "remark": "^15.0.1",
     "tsx": "^4.21.0"
   }
 }

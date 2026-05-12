@@ -1615,3 +1615,324 @@ rt {
     transform: none;
   }
 }
+
+/* Poetry 诗词组件样式 */
+.markdown-content .poetry {
+  width: fit-content;
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  text-align: center;
+  font-family: "LXGW Bright Medium", "Noto Serif SC", "Source Han Serif SC", serif;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+.markdown-content .poetry-title {
+  font-size: 1.3em;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+}
+
+.markdown-content .poetry-author {
+  font-size: 0.95em;
+  color: var(--text-color-70);
+  margin-bottom: 1.5rem;
+}
+
+.markdown-content .poetry-content {
+  margin: 1rem 0;
+}
+
+.markdown-content .poetry-line {
+  margin: 0.5em auto;
+  width: fit-content;
+}
+
+.markdown-content .poetry-line p {
+  margin: 0;
+  text-align: center;
+}
+
+.markdown-content .poetry-footer {
+  font-size: 0.9em;
+  color: var(--text-color-70);
+  margin-top: 1.5rem;
+  font-style: italic;
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .markdown-content .poetry-title {
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .markdown-content .poetry-author,
+[data-theme="dark"] .markdown-content .poetry-footer {
+  color: var(--text-color-70);
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .markdown-content .poetry {
+    margin: 1.5rem auto;
+    padding: 1rem 1.25rem;
+  }
+
+  .markdown-content .poetry-title {
+    font-size: 1.15em;
+  }
+
+  .markdown-content .poetry-author {
+    font-size: 0.875em;
+    margin-bottom: 1rem;
+  }
+
+  .markdown-content .poetry-line {
+    margin: 0.4em auto;
+  }
+
+  .markdown-content .poetry-footer {
+    font-size: 0.85em;
+    margin-top: 1rem;
+  }
+}
+
+/* Tab 组件样式 */
+.markdown-content .tab-container {
+  margin: 1.5rem 0;
+}
+
+.markdown-content .tab-container.center {
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
+
+.markdown-content .tab-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5em;
+  position: relative;
+  width: fit-content;
+  margin: 0 auto;
+  font-size: 0.9em;
+  line-height: 1.4;
+  border-bottom: 2px solid var(--button-border-color);
+  padding-bottom: 0.5em;
+}
+
+.markdown-content .tab-button {
+  position: relative;
+  margin-bottom: 0.5em;
+  padding: 0.3em 0.5em;
+  border-radius: 0.4em;
+  color: var(--text-color-70);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95em;
+}
+
+.markdown-content .tab-button:hover {
+  background-color: var(--button-hover-color);
+  color: var(--text-color);
+}
+
+.markdown-content .tab-button.active {
+  box-shadow: 0 2px 4px var(--shadow-color);
+  background-color: var(--button-hover-color);
+  color: var(--text-color);
+}
+
+.markdown-content .tab-button.active::after {
+  content: "";
+  position: absolute;
+  bottom: -0.5em;
+  left: 0.8em;
+  right: 0.8em;
+  height: 2px;
+  border-radius: 1em;
+  background-color: var(--link-color);
+  z-index: 1;
+}
+
+.markdown-content .tab-panels {
+  margin: 1em 0;
+}
+
+.markdown-content .tab-panel {
+  animation: tab-fade-in 0.3s ease;
+}
+
+@keyframes tab-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .markdown-content .tab-buttons {
+  border-bottom-color: var(--button-border-color);
+}
+
+[data-theme="dark"] .markdown-content .tab-button:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .markdown-content .tab-button.active {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .markdown-content .tab-container {
+    margin: 1rem 0;
+  }
+
+  .markdown-content .tab-buttons {
+    font-size: 0.85em;
+    gap: 0.35em;
+  }
+
+  .markdown-content .tab-button {
+    padding: 0.25em 0.4em;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .markdown-content .tab-panel {
+    animation: none;
+  }
+
+  .markdown-content .tab-button {
+    transition: none;
+  }
+}
+
+/* 减少动画偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .markdown-content .poetry {
+    transition: none;
+  }
+}
+
+/* Timeline 时间线组件样式 */
+.markdown-content .timeline {
+  position: relative;
+  padding-inline-start: 1.5em;
+  font-size: 0.9em;
+  margin: 1.5rem 0;
+}
+
+.markdown-content .timeline::before {
+  content: "";
+  position: absolute;
+  inset: 0.5em auto 0;
+  inset-inline-start: 0.5em;
+  width: 0.3em;
+  background-color: var(--button-hover-color);
+  border-radius: 0.15em;
+}
+
+.markdown-content .timeline-caption {
+  opacity: 0.8;
+  font-size: 0.9em;
+  color: var(--text-color);
+  margin: 0;
+  padding: 0.25em 0;
+  position: relative;
+}
+
+.markdown-content .timeline-caption::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -1.2em;
+  width: 0.8em;
+  height: 0.8em;
+  margin-top: 0.5em;
+  border-radius: 1em;
+  background-color: var(--text-color-70);
+}
+
+.markdown-content .timeline-body {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 1em 0;
+  padding: 0.75em 1em;
+  background-color: var(--card-bg-color, var(--button-hover-color));
+  border: 1px solid var(--button-border-color);
+  border-radius: 0.5rem;
+  color: var(--text-color);
+}
+
+.markdown-content .timeline-body p {
+  margin: 0.5em 0;
+}
+
+.markdown-content .timeline-body p:first-child {
+  margin-top: 0;
+}
+
+.markdown-content .timeline-body p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown-content .timeline-empty {
+  padding: 1em;
+  color: var(--text-color-70);
+  font-style: italic;
+  border: 1px dashed var(--button-border-color);
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .markdown-content .timeline::before {
+  background-color: var(--button-hover-color);
+}
+
+[data-theme="dark"] .markdown-content .timeline-caption::before {
+  background-color: var(--text-color-70);
+}
+
+[data-theme="dark"] .markdown-content .timeline-body {
+  background-color: var(--card-bg-color, rgba(255, 255, 255, 0.05));
+  border-color: var(--button-border-color);
+}
+
+/* 移动端适配 */
+@media screen and (max-width: 768px) {
+  .markdown-content .timeline {
+    padding-inline-start: 1.25em;
+    font-size: 0.875em;
+  }
+
+  .markdown-content .timeline::before {
+    inset-inline-start: 0.4em;
+    width: 0.25em;
+  }
+
+  .markdown-content .timeline-caption {
+    font-size: 0.875em;
+  }
+
+  .markdown-content .timeline-caption::before {
+    inset-inline-start: -1em;
+    width: 0.7em;
+    height: 0.7em;
+    margin-top: 0.4em;
+  }
+
+  .markdown-content .timeline-body {
+    padding: 0.625em 0.875em;
+    margin-bottom: 0.875em;
+  }
+}

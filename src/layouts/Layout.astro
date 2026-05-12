@@ -100,7 +100,67 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
         <script src="/src/plugins/aisummary.config.js" is:inline></script>
         <script src="/src/plugins/aisummary.js" is:inline></script>
         {/* ProseLink 图标渲染脚本 */}
-        <script src="/src/plugins/prose-link-icons.js" is:inline></script>
+        <script src="/js/prose-link-icons.js" is:inline></script>
+        {/* Tab 组件切换脚本 */}
+        <script is:inline>
+            // Tab 组件切换功能
+            function switchTab(componentId, tabIndex) {
+                const container = document.getElementById(componentId);
+                if (!container) return;
+
+                // 更新按钮状态
+                const buttons = container.querySelectorAll('.tab-button');
+                buttons.forEach(btn => {
+                    const btnTab = parseInt(btn.dataset.tab);
+                    if (btnTab === tabIndex) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+
+                // 更新面板显示
+                const panels = container.querySelectorAll('.tab-panel');
+                panels.forEach(panel => {
+                    const panelTab = parseInt(panel.dataset.tab);
+                    if (panelTab === tabIndex) {
+                        panel.classList.add('active');
+                        panel.style.display = '';
+                    } else {
+                        panel.classList.remove('active');
+                        panel.style.display = 'none';
+                    }
+                });
+
+                // 更新容器状态
+                container.dataset.active = tabIndex;
+            }
+
+            // 页面加载完成后初始化 Tab 组件
+            document.addEventListener('astro:page-load', () => {
+                // 确保所有 Tab 组件显示正确的初始状态
+                document.querySelectorAll('.tab-container').forEach(container => {
+                    const activeTab = parseInt(container.dataset.active) || 1;
+                    const componentId = container.id;
+                    if (componentId) {
+                        switchTab(componentId, activeTab);
+                    }
+                });
+            });
+
+            // 初始页面加载时也执行
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.querySelectorAll('.tab-container').forEach(container => {
+                        const activeTab = parseInt(container.dataset.active) || 1;
+                        const componentId = container.id;
+                        if (componentId) {
+                            switchTab(componentId, activeTab);
+                        }
+                    });
+                });
+            }
+        </script>
 </body>
 </html>
 

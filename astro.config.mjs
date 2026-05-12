@@ -19,9 +19,13 @@ import { KeyComponent } from "./src/plugins/rehype-component-key.mjs";
 import { LinkBannerComponent } from "./src/plugins/rehype-component-link-banner.mjs";
 import { LinkCardComponent } from "./src/plugins/rehype-component-link-card.mjs";
 import { PicComponent } from "./src/plugins/rehype-component-pic.mjs";
+import { PoetryComponent } from "./src/plugins/rehype-component-poetry.mjs";
+import { TabComponent } from "./src/plugins/rehype-component-tab.mjs";
+import { TimelineComponent } from "./src/plugins/rehype-component-timeline.mjs";
 import { customFigurePlugin } from "./src/plugins/rehype-figure-plugin.mjs";
 import { codeBlockHeaderPlugin } from "./src/plugins/rehype-code-block-header.mjs";
 import { proseLinkPlugin } from "./src/plugins/rehype-prose-link.mjs";
+import { remarkLinkAttributes } from "./src/plugins/remark-link-attributes.mjs";
 import { remarkCombined } from "./src/plugins/remark-combined.mjs";
 import { remarkTypst } from "./src/plugins/remark-typst.mjs";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
@@ -73,6 +77,7 @@ export default defineConfig({
       remarkDirective,
       remarkTypst,
       parseDirectiveNode,
+      remarkLinkAttributes,
       remarkCombined,
       [remarkLqip, { enable: siteConfig.theme.LQIP }],
     ],
@@ -95,6 +100,9 @@ export default defineConfig({
             "link-banner": LinkBannerComponent,
             "link-card": LinkCardComponent,
             pic: PicComponent,
+            poetry: PoetryComponent,
+            tab: TabComponent,
+            timeline: TimelineComponent,
             note: admonition("note"),
             tip: admonition("tip"),
             important: admonition("important"),

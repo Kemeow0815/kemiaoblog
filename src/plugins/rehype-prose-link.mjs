@@ -2,7 +2,7 @@ import { visit } from "unist-util-visit";
 import { getDomainIcon, isExtLink, getDomain } from "./prose-link-utils.mjs";
 
 /**
- * ProseLink 插件 - 增强 Markdown 链接
+  * ProseLink 插件 - 增强 Markdown 链接
  * 
  * 功能：
  * 1. 外部链接自动添加 target="_blank" 和 rel="noopener noreferrer"
