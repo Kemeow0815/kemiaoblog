@@ -7,10 +7,10 @@
 #### 更新记录
 
 :::tip
-**2025-07-18 规则更新：**
+**2026-05-10 规则更新：**
 
-1. 如果想直接申请友链，请尽量确保贵站的文章数量大于15篇，这样更能展现您对网站长期维护的决心。
-2. 友链友链，先友后链，如果愿意和我多交流，成为朋友（例如多次留言且多次过来玩），完全可以取消15篇文章的限制，前提是贵站满足以下条件：
+1. 如果想直接申请友链，请尽量确保贵站的文章数量大于10篇，这样更能展现您对网站长期维护的决心。
+2. 友链友链，先友后链，希望可以经常互动，熟了不说我也会加你，前提是贵站满足以下条件：
    - 站点内容积极向上，无不良广告或违规内容。
    - 页面设计美观，展现出长期用心经营的态度。
 3. 即便取消文章数量的要求，也希望贵站能保持定期更新，这样我们的交流会更有活力！
@@ -50,4 +50,128 @@
 
 如果您想在您的网站上添加我的友链，请使用下方"本站信息"区域的Tab切换查看格式化信息或文本信息。
 
-> **注意**：其中网页截图信息如果没有提供，将采用自动API进行截图，速度上可能会有延迟，还是建议上传截图，本站会将所有图片托管至自建图床以确保良好的访问体验。
+> **注意**：其中网页截图信息如果没有提供，我会择日截图，速度上可能会有延迟，还是建议自行添加截图链接。
+
+---
+
+<div class="friend-action-buttons">
+  <a href="https://github.com/Kemeow0815/friends/issues/new?template=template_friend.yaml" target="_blank" rel="noopener noreferrer" class="friend-btn friend-btn-primary">
+    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+    </svg>
+    <span>申请友链</span>
+  </a>
+  <a href="https://github.com/Kemeow0815/miaoluoge-links/issues/new?template=friend-link-request.yml" target="_blank" rel="noopener noreferrer" class="friend-btn friend-btn-secondary">
+    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+      <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+      <line x1="12" y1="22.08" x2="12" y2="12"></line>
+    </svg>
+    <span>申请友链屋</span>
+  </a>
+</div>
+
+<style>
+.friend-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background: var(--card-bg, #f9f9f9);
+  border: 1px solid var(--button-border-color, #d6d6d6);
+  border-radius: 1rem;
+}
+
+.friend-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: 0.625rem;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.friend-btn-primary {
+  background: var(--link-color, #003b6e);
+  color: #ffffff;
+  border-color: var(--link-color, #003b6e);
+}
+
+.friend-btn-primary:hover {
+  background: var(--text-color, #000000);
+  border-color: var(--text-color, #000000);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-color, rgba(0, 0, 0, 0.15));
+}
+
+.friend-btn-secondary {
+  background: transparent;
+  color: var(--link-color, #003b6e);
+  border-color: var(--link-color, #003b6e);
+}
+
+.friend-btn-secondary:hover {
+  background: var(--link-color, #003b6e);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow-color, rgba(0, 0, 0, 0.15));
+}
+
+.btn-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+/* 移动端适配 */
+@media (max-width: 480px) {
+  .friend-action-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  
+  .friend-btn {
+    justify-content: center;
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* 暗色模式适配 */
+[data-theme="dark"] .friend-action-buttons {
+  background: var(--card-bg, #1a1a1a);
+  border-color: var(--button-border-color, #3d3d3d);
+}
+
+[data-theme="dark"] .friend-btn-primary {
+  background: var(--link-color, #57ace7);
+  border-color: var(--link-color, #57ace7);
+  color: #0a0a0a;
+}
+
+[data-theme="dark"] .friend-btn-primary:hover {
+  background: var(--text-color, #ffffff);
+  border-color: var(--text-color, #ffffff);
+}
+
+[data-theme="dark"] .friend-btn-secondary {
+  color: var(--link-color, #57ace7);
+  border-color: var(--link-color, #57ace7);
+}
+
+[data-theme="dark"] .friend-btn-secondary:hover {
+  background: var(--link-color, #57ace7);
+  color: #0a0a0a;
+}
+</style>
+
+

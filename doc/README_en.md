@@ -32,11 +32,11 @@ Momo originates from Xiaohongshu📕, serving as the default nickname for every 
 
 ## 🔧 Configuration
 
-Refer to the [Configuration Guide](./config_en.md). For detailed information, visit [Momo](https://momo.motues.top/en/intro/config) and read the corresponding articles.
+Refer to the [Configuration Guide](./config_en.md). For detailed information, visit [Momo](https://blog.kemeow.top/en/intro/config) and read the corresponding articles.
 
 ## 📚 Updating
 
-Refer to the [Update Guide](./release_en.md) for instructions on updating your project. Visit [Momo](https://momo.motues.top/en/intro/release) for detailed information.
+Refer to the [Update Guide](./release_en.md) for instructions on updating your project. Visit [Momo](https://blog.kemeow.top/en/intro/release) for detailed information.
 
 ## 🍃 Branch
 

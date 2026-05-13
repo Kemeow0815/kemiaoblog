@@ -31,11 +31,11 @@ Momo 取自小红书📕，每个新用户最初的昵称，象征着初始新�
 
 ## 🔧 配置
 
-参考[配置指南](./doc/config_zh-cn.md)，详细信息可以访问 [Momo](https://momo.motues.top/intro/config)，阅读对应文章获取详细信息。
+参考[配置指南](./doc/config_zh-cn.md)，详细信息可以访问 [Momo](https://blog.kemeow.top/intro/config)，阅读对应文章获取详细信息。
 
 ## 📚 更新
 
-参考[更新指南](./doc/release_zh-cn.md)，介绍如何更新项目，详细信息可以访问 [Momo](https://momo.motues.top/intro/release)。
+参考[更新指南](./doc/release_zh-cn.md)，介绍如何更新项目，详细信息可以访问 [Momo](https://blog.kemeow.top/intro/release)。
 
 ## 🍃 分支
 

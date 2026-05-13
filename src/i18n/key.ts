@@ -138,6 +138,7 @@ export interface Translation {
         noData: string;
     },
     monitor: {
+        title: string;
         loading: string;
     },
     pagination: {

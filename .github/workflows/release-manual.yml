@@ -1,0 +1,59 @@
+name: Manual Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: '要发布的分支'
+        required: true
+        default: 'stable'
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
+      - name: Create Zip (exclude .git, dist, node_modules)
+        run: |
+          zip -r release-${{ github.event.inputs.branch }}.zip . \
+            -x "*.git*" \
+            -x "dist/*" \
+            -x "node_modules/*"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: manual-${{ github.event.inputs.branch }}-${{ github.run_id }}
+          name: "Manual Release - ${{ github.event.inputs.branch }}"
+          files: release-${{ github.event.inputs.branch }}.zip
+          draft: true
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

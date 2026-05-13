@@ -140,7 +140,8 @@ const translation: Translation = {
         noData: "暂无数据"
     },
     monitor: {
-        loading: "正在加载监控数据..."
+        loading: "正在加载监控数据...",
+        title: "友链监测"
     },
     pagination: {
         prev: "上一页",

@@ -1,6 +1,12 @@
 /// <reference types="mdast" />
 import { h } from "hastscript";
 
+// 从环境变量读取 GitHub Token
+const GITHUB_TOKEN =
+  typeof process !== "undefined" && process.env.PUBLIC_GITHUB_TOKEN
+    ? process.env.PUBLIC_GITHUB_TOKEN
+    : "";
+
 /**
  * Creates a GitHub Card component.
  *
@@ -10,52 +16,72 @@ import { h } from "hastscript";
  * @returns {import('mdast').Parent} The created GitHub Card component.
  */
 export function GithubCardComponent(properties, children) {
-    if (Array.isArray(children) && children.length !== 0)
-        return h("div", { class: "hidden" }, [
-            'Invalid directive. ("github" directive must be leaf type "::github{repo="owner/repo"}")',
-        ]);
-
-    if (!properties.repo || !properties.repo.includes("/"))
-        return h(
-            "div",
-            { class: "hidden" },
-            'Invalid repository. ("repo" attribute must be in the format "owner/repo")',
-        );
-
-    const repo = properties.repo;
-    const cardUuid = `GC${Math.random().toString(36).slice(-6)}`;
-
-    // 预定义各部分节点
-    const nAvatar = h(`div#${cardUuid}-avatar`, { class: "gc-avatar" });
-    const nLanguage = h(`span#${cardUuid}-language`, { class: "gc-language" }, "Waiting...");
-    const nDescription = h(`div#${cardUuid}-description`, { class: "gc-description" }, "Waiting for api.github.com...");
-    const nStars = h(`div#${cardUuid}-stars`, { class: "gc-stars" }, "00K");
-    const nForks = h(`div#${cardUuid}-forks`, { class: "gc-forks" }, "0K");
-    const nLicense = h(`div#${cardUuid}-license`, { class: "gc-license" }, "0K");
-
-    const nTitle = h("div", { class: "gc-titlebar" }, [
-        h("div", { class: "gc-titlebar-left" }, [
-            h("div", { class: "gc-owner" }, [
-                nAvatar,
-                h("div", { class: "gc-user" }, repo.split("/")[0]),
-            ]),
-            h("div", { class: "gc-divider" }, "/"),
-            h("div", { class: "gc-repo" }, repo.split("/")[1]),
-        ]),
-        h("div", { class: "github-logo" }),
+  if (Array.isArray(children) && children.length !== 0)
+    return h("div", { class: "hidden" }, [
+      'Invalid directive. ("github" directive must be leaf type "::github{repo="owner/repo"}")',
     ]);
 
-    const nScript = h(
-        `script#${cardUuid}-script`,
-        { type: "text/javascript" },
-        `
+  if (!properties.repo || !properties.repo.includes("/"))
+    return h(
+      "div",
+      { class: "hidden" },
+      'Invalid repository. ("repo" attribute must be in the format "owner/repo")',
+    );
+
+  const repo = properties.repo;
+  const cardUuid = `GC${Math.random().toString(36).slice(-6)}`;
+
+  // 预定义各部分节点
+  const nAvatar = h(`div#${cardUuid}-avatar`, { class: "gc-avatar" });
+  const nLanguage = h(
+    `span#${cardUuid}-language`,
+    { class: "gc-language" },
+    "Waiting...",
+  );
+  const nDescription = h(
+    `div#${cardUuid}-description`,
+    { class: "gc-description" },
+    "Waiting for api.github.com...",
+  );
+  const nStars = h(`div#${cardUuid}-stars`, { class: "gc-stars" }, "00K");
+  const nForks = h(`div#${cardUuid}-forks`, { class: "gc-forks" }, "0K");
+  const nLicense = h(`div#${cardUuid}-license`, { class: "gc-license" }, "0K");
+
+  const nTitle = h("div", { class: "gc-titlebar" }, [
+    h("div", { class: "gc-titlebar-left" }, [
+      h("div", { class: "gc-owner" }, [
+        nAvatar,
+        h("div", { class: "gc-user" }, repo.split("/")[0]),
+      ]),
+      h("div", { class: "gc-divider" }, "/"),
+      h("div", { class: "gc-repo" }, repo.split("/")[1]),
+    ]),
+    h("div", { class: "github-logo" }),
+  ]);
+
+  // 构建 headers 代码片段
+  const authHeaderCode = GITHUB_TOKEN
+    ? `headers['Authorization'] = 'token ${GITHUB_TOKEN}';`
+    : "";
+
+  const nScript = h(
+    `script#${cardUuid}-script`,
+    { type: "text/javascript" },
+    `
         (function() {
             const fetchCardData = () => {
                 const card = document.getElementById('${cardUuid}-card');
                 // 如果找不到卡片，或者卡片已经加载过数据，则跳过
                 if (!card || card.dataset.loaded === "true") return;
 
-                fetch('https://api.github.com/repos/${repo}', { referrerPolicy: "no-referrer" })
+                // GitHub API 速率限制：未认证 60次/小时，认证后 5000次/小时
+                const headers = { 'Accept': 'application/vnd.github.v3+json' };
+                ${authHeaderCode}
+                
+                fetch('https://api.github.com/repos/${repo}', {
+                    referrerPolicy: "no-referrer",
+                    headers: headers
+                })
                     .then(response => response.json())
                     .then(data => {
                         if (data.message === "Not Found") throw new Error("Repo not found");
@@ -86,22 +112,22 @@ export function GithubCardComponent(properties, children) {
             fetchCardData();
             document.addEventListener('astro:page-load', fetchCardData);
         })();
-        `
-    );
+        `,
+  );
 
-    return h(
-        `a#${cardUuid}-card`,
-        {
-            class: "card-github fetch-waiting no-styling",
-            href: `https://github.com/${repo}`,
-            target: "_blank",
-            "data-repo": repo,
-        },
-        [
-            nTitle,
-            nDescription,
-            h("div", { class: "gc-infobar" }, [nStars, nForks, nLicense, nLanguage]),
-            nScript,
-        ],
-    );
+  return h(
+    `a#${cardUuid}-card`,
+    {
+      class: "card-github fetch-waiting no-styling",
+      href: `https://github.com/${repo}`,
+      target: "_blank",
+      "data-repo": repo,
+    },
+    [
+      nTitle,
+      nDescription,
+      h("div", { class: "gc-infobar" }, [nStars, nForks, nLicense, nLanguage]),
+      nScript,
+    ],
+  );
 }

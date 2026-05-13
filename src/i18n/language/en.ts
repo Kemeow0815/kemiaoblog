@@ -140,7 +140,8 @@ const translation: Translation = {
         noData: "No data"
     },
     monitor: {
-        loading: "Loading monitoring data..."
+        loading: "Loading monitoring data...",
+        title: "Link Monitor"
     },
     pagination: {
         prev: "Previous",

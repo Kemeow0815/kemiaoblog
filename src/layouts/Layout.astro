@@ -53,7 +53,7 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
     <title>{pageTitle}</title>
     <ClientRouter />
     {/* AISummary 样式 */}
-    <link rel="stylesheet" href="/src/styles/aisummary.css" />
+    <link rel="stylesheet" href="/styles/aisummary.css" />
 </head>
 <body class="h-full bg-[var(--bg-color)]">
     
@@ -97,8 +97,8 @@ const pageLang = lang || i18n?.defaultLocale || "zh-cn";
         });
         </script>
         {/* AISummary 配置与脚本 */}
-        <script src="/src/plugins/aisummary.config.js" is:inline></script>
-        <script src="/src/plugins/aisummary.js" is:inline></script>
+        <script src="/js/aisummary.config.js" is:inline></script>
+        <script src="/js/aisummary.js" is:inline></script>
         {/* ProseLink 图标渲染脚本 */}
         <script src="/js/prose-link-icons.js" is:inline></script>
         {/* Tab 组件切换脚本 */}

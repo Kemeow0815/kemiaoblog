@@ -37,7 +37,7 @@ import { siteConfig } from "./src/config";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://momo.motues.top", // Root URL of site
+  site: "https://blog.kemeow.top", // Root URL of site
   i18n: {
     locales: ["zh-cn"],
     defaultLocale: "zh-cn",

@@ -4,7 +4,7 @@ pubDate: 2026-05-11
 description: 展示博客中可用的 Markdown 组件和增强功能
 image: ""
 draft: false
-slugId: component-show
+slugId: component-show-zh
 summary: "本文展示了博客中可用的增强链接组件，包括自动图标识别、外部链接标记和自定义图标等功能。"
 ---
 

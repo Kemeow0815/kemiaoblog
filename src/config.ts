@@ -169,94 +169,97 @@ export const guideConfig: GuideItem[] = [
 
 export const aboutConfig = {
     top_info: {
-        avatar: 'https://wsrv.nl/?url=github.com/kemeow0815.png',
+        avatar: 'https://imgbed.268682.xyz/v2/RyW4Ui8.gif',
         site_name: '克喵爱吃卤面',
         motto: '每一段旅行，都有终点',
         float_text: [
-            '🐝 勤劳小蜜蜂',
-            '🧱 踏实实在人',
-            '👷‍♀️ 努力小天使',
-            '🐔 乐观大白鹅',
-            '阳光小少年 👱‍♀️',
-            '温暖小太阳 ☀️',
-            '可爱小白兔 🐰',
-            '懒惰小胖猪 🐗'
+            '博客写作者',
+            '主题魔改者',
+            'Windows 11',
+            'Android 16',
+            '网络不说话',
+            '小说爱好者',
+            '平时爱摸鱼',
+            'RSS爱好者',
         ]
     },
     personal_info: {
-        name: '克喵爱吃卤面',
+        name: 'MCY',
         gender: '男',
-        address: '陕西西安',
-        school: '武汉理工大学',
-        grade: '二〇二一级',
-        major: '人工智能',
-        email: 'kemiaosw@gmail.com',
-        QQ: '3162475700',
-        birthday: '2003/01/01',
-        bottom_img: 'https://p.liiiu.cn/i/2024/04/14/661ab09243659.png'
+        address: '江苏苏州',
+        school: '南京工业职业技术大学',
+        grade: '二〇二三级',
+        major: '自动化技术与应用',
+        email: 'mcy@kemiaosw.top',
+        QQ: '3813596020',
+        birthday: '2005/08/17',
+        bottom_img: 'https://jsd.268682.xyz/gh/Kemeow0815/img@main/img/bg.webp'
     },
     personality: {
         type: 'INFJ-T',
-        type_name: '主人公',
+        type_name: '提倡者',
         svg: 'https://jsd.268682.xyz/gh/zsxcoder/github-img@main/img/infj.avif',
-        url: 'https://www.16personalities.com/ch/enfj-%E4%BA%BA%E6%A0%BC'
+        url: 'https://www.16personalities.com/infj-personality'
     },
     description_and_social_links: {
-        description: '大家好！这里是喵洛阁。为什么叫喵洛阁呢？因为喵是我的昵称，而洛阁代表着温暖的小窝，这与我的性格不谋而合。我是一个充满热情、富有同情心的人，喜欢与人交流，乐于分享我的想法和见解。在这里，我会分享我的生活点滴、兴趣爱好以及对世界的观察和思考。希望我的小站能给大家带来一些启发和乐趣。',
+        description: '大家好！这里是克喵爱吃卤面的小站。为什么叫克喵爱吃卤面呢？「克喵」来自小说《诡秘之主》的主角，「卤面」来自《宿命之环》主角卢米安·李。你可以称呼我克喵。目前在南京就学，博客是兴趣使然，没什么技术，只会CTRL CV。不常聊天，网上找我的，我会回，但是一般不会聊久，见谅。最后，欢迎您来到我的主页！',
         social_links: [
             {
                 platform: 'GitHub',
-                url: 'https://github.com/kemiaosw',
-                icon: 'https://p.liiiu.cn/i/2024/07/27/66a461a3098aa.webp'
+                url: 'https://github.com/Kemeow0815',
+                icon: 'https://cdn.jsdmirror.com/gh/yxksw/icons@main/socials/github.svg'
             },
             {
-                platform: 'Gitee',
-                url: 'https://gitee.com/kemiaosw',
-                icon: 'https://p.liiiu.cn/i/2024/07/27/66a461c3dea80.webp'
+                platform: 'Telegram',
+                url: 'https://t.me/Kemeow0815',
+                icon: 'https://cdn.jsdmirror.com/gh/yxksw/icons@main/socials/telegram.svg'
             },
             {
                 platform: 'QQ',
-                url: 'https://qm.qq.com/cgi-bin/qm_share/open_source_page?uin=3162475700&jump_from=webapi',
-                icon: 'https://p.liiiu.cn/i/2024/07/27/66a461b627dc2.webp'
-            }
+                url: 'https://qm.qq.com/q/FLRZlmsESI',
+                icon: 'https://cdn.jsdmirror.com/gh/yxksw/icons@main/socials/qq.svg'
+            },
+            {
+                platform: 'Mail',
+                url: 'mailto:mcy@kemiaosw.top',
+                icon: 'https://cdn.jsdmirror.com/gh/yxksw/icons@main/socials/mail.svg'
+            },
+            {
+                platform: 'BiliBili',
+                url: 'https://space.bilibili.com/3546643173477234',
+                icon: 'https://cdn.jsdmirror.com/gh/yxksw/icons@main/socials/bilibili.svg'
+            },
         ]
     },
     skills: {
         technical: [
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633005bf0fd1e.jpg',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647df7fa.png',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647e1f10.png',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/26/6330ff27e5c9b.png',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647dea51.png',
-            'https://img02.anheyu.com/adminuploads/1/2023/05/09/645a45854e093.png',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633001374747b.png'
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/astro.svg',
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/css.svg',
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/git.svg',
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/html.svg',
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/js.svg',
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/markdown.svg',
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/ts.svg',
         ],
         general: [
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633006cc55e07.png',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633006eee047b.png',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633006f9ab27d.png',
-            'https://img02.anheyu.com/adminuploads/1/2023/04/11/6434a635e9726.webp',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633007087a4dc.webp',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/633005bf0fd1e.jpg',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647df7fa.png',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/25/63300647e1f10.png',
-            'https://img02.anheyu.com/adminuploads/1/2022/09/26/6330ff27e5c9b.png'
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/nextjs.svg',
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/node.svg',
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/nuxt.svg',
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/php.svg',
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/vite.svg',
+            'https://jsd.268682.xyz/gh/yxksw/icons@main/skills/vue.svg',
         ],
         learning: '正在持续学习中'
     },
     projects: [
+        { name: 'miaoluoge-links', description: '我的友链屋', url: 'https://github.com/Kemeow0815/miaoluoge-links' },
         {
-            name: 'Friend-Circle-lite',
-            description: '轻量化友链朋友圈',
-            url: 'https://github.com/kemiaosw/Friend-Circle-Lite'
-        },
-        {
-            name: 'Momo Blog',
-            description: '基于 Astro 的极简博客主题',
-            url: 'https://github.com/kemiaosw/Momo'
+            name: 'Ke Miao Blog',
+            description: '基于 Astro 的极简博客主题自改',
+            url: 'https://github.com/kemiaosw/kemiaoblog'
         }
     ],
-    hobbies: ['阅读', '写作', '编程', '摄影'],
+    hobbies: ['阅读', '写作', '编程', '小说'],
     self_evaluation: {
         thoughts: '思想上乐观开朗，乐于助人，具有团队协作精神及创新意识。',
         work: '工作上极富责任心与信念感，对待工作认真负责，有较强的组织管理及动手能力。',
