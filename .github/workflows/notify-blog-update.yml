@@ -1,0 +1,136 @@
+name: Notify Blog Update
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/content/blog/**/*.md'
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Get changed files
+        id: changed
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1 HEAD | grep 'src/content/blog/.*\.md$' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "changed=" >> $GITHUB_OUTPUT
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=${CHANGED}" >> $GITHUB_OUTPUT
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build and post notification
+        if: steps.changed.outputs.has_changes == 'true'
+        env:
+          CHANGED_FILES: ${{ steps.changed.outputs.changed }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const changedFiles = process.env.CHANGED_FILES.trim().split(/\s+/).filter(Boolean);
+            const commitMsg = require('child_process').execSync('git log -1 --pretty=format:%s').toString().trim().split('\n')[0];
+            const commitSha = require('child_process').execSync('git log -1 --pretty=format:%h').toString().trim();
+            const commitTime = new Date().toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
+
+            function parseFrontmatter(filepath) {
+              const content = fs.readFileSync(filepath, 'utf-8');
+              const m = content.match(/^---\s*\n(.*?)\n---/s);
+              if (!m) return {};
+              const fm = {};
+              m[1].split('\n').forEach(line => {
+                const idx = line.indexOf(':');
+                if (idx !== -1) {
+                  const key = line.substring(0, idx).trim();
+                  let val = line.substring(idx + 1).trim().replace(/^['"<]+|['">]+$/g, '');
+                  fm[key] = val;
+                }
+              });
+              return fm;
+            }
+
+            const posts = [];
+            for (const file of changedFiles) {
+              if (!file.endsWith('.md')) continue;
+              const content = fs.readFileSync(file, 'utf-8');
+              const fm = parseFrontmatter(file);
+              
+              // 从文件路径提取 slug
+              // 文件路径格式: src/content/blog/{slug}/index.md 或 src/content/blog/{slug}.md
+              const relativePath = file.replace('src/content/blog/', '');
+              let slug;
+              if (relativePath.endsWith('/index.md')) {
+                slug = path.dirname(relativePath);
+              } else {
+                slug = path.basename(relativePath, '.md');
+              }
+
+              const fmEnd = content.indexOf('---', 3) + 3;
+              const body = content.substring(fmEnd).trim();
+              const plainText = body.replace(/^#+\s+/gm, '').replace(/!\[.*?\]\(.*?\)/g, '').replace(/\[.*?\]\(.*?\)/g, '$1').replace(/[*_~`#]/g, '').replace(/\n+/g, ' ').trim();
+              const preview = plainText.length > 70 ? plainText.substring(0, 70) + '...' : plainText;
+
+              posts.push({
+                title: fm['title'] || slug,
+                description: fm['description'] || '',
+                published: fm['published'] || fm['date'] || '',
+                url: `https://blog.kemeow.top/blog/${slug}/`,
+                preview: preview
+              });
+            }
+
+            let body = '## 🎉 喵洛阁博客更新啦~\n\n';
+
+            for (const p of posts) {
+              body += `📖 **${p.title}**\n\n`;
+              body += `🔗 本文链接：${p.url}\n\n`;
+              if (p.description) {
+                body += `💬 ${p.description}\n\n`;
+              }
+              if (p.preview) {
+                body += `📝 **文章概览：** ${p.preview}\n\n`;
+              }
+              if (p.published) {
+                body += `📅 ${p.published}\n\n`;
+              }
+              body += '\n\u002d\u002d\u002d\n\n';
+            }
+
+            body += '感谢您对喵洛阁的支持，祝好~ 🐱\n\n';
+            body += `**更新时间：** ${commitTime}\n`;
+            body += `**Commit：** \`${commitSha}\` - ${commitMsg}\n`;
+            body += '\n\u002d\u002d\u002d\n*此通知由 GitHub Actions 自动发布*\n';
+
+            // 创建一个新的 Issue 或评论到指定的订阅 Issue
+            // 如果没有订阅 Issue，可以创建一个新 Issue 作为订阅帖
+            const issueNumber = 1; // 请将此数字修改为你的订阅 Issue 编号
+
+            try {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: body
+              });
+              console.log('Notification posted to issue #' + issueNumber);
+            } catch (error) {
+              console.log('Error posting comment:', error.message);
+              // 如果评论失败，创建一个新 Issue
+              const newIssue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: '📢 博客文章更新通知',
+                body: body,
+                labels: ['blog-update', 'notification']
+              });
+              console.log('Created new notification issue #' + newIssue.data.number);
+            }

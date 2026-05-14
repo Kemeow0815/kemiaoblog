@@ -2,7 +2,8 @@
 title: 组件展示
 pubDate: 2026-05-11
 description: 展示博客中可用的 Markdown 组件和增强功能
-image: ""
+image: "https://jsd.268682.xyz/gh/Kemeow0815/img@main/img/component-guide.webp"
+category: "博客魔改"
 draft: false
 slugId: component-show-zh
 summary: "本文展示了博客中可用的增强链接组件，包括自动图标识别、外部链接标记和自定义图标等功能。"

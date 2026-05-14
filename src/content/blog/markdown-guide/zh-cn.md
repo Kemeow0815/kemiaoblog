@@ -2,9 +2,9 @@
 title: "博客功能完整测试"
 pubDate: 2026-05-10
 description: "喵洛阁博客所有功能的完整测试文档"
-image: "./cover.jpg"
+image: "https://jsd.268682.xyz/gh/Kemeow0815/img@main/img/markdown-guide.webp"
 draft: false
-slugId: momo/test/index
+slugId: markdown-guide
 category: "测试"
 toc: true
 summary: "本文档是关于喵洛阁博客功能测试的总结，涵盖了Markdown基础语法、Alert提示框、数学公式、特殊样式和卡片组件等，文章还提供了渲染效果的描述，包括段落之间空行分隔、使用1-6个井号表示标题、粗体、斜体、删除线、无序列表和有序列表的格式，以及任务清单的展示方式，此外，还提到了引用文本、嵌套引用和代码示例的使用。"
