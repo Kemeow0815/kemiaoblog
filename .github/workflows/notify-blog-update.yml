@@ -22,7 +22,10 @@ jobs:
             echo "changed=" >> $GITHUB_OUTPUT
             echo "has_changes=false" >> $GITHUB_OUTPUT
           else
-            echo "changed=${CHANGED}" >> $GITHUB_OUTPUT
+            # 使用 URL 编码方式处理多行输出
+            echo "changed<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGED" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
             echo "has_changes=true" >> $GITHUB_OUTPUT
           fi
 
