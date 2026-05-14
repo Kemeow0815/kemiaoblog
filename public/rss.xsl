@@ -11,9 +11,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title><xsl:value-of select="rss/channel/title"/> - RSS 订阅</title>
         <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico"/>
-        <style>
-          @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&amp;family=Noto+Sans+SC:wght@400;500;600&amp;display=swap');
-
+        <style><![CDATA[
           :root {
             --bg-primary: #faf9f7;
             --bg-secondary: #f5f3ef;
@@ -57,7 +55,7 @@
           }
 
           body {
-            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.7;
@@ -99,7 +97,7 @@
           }
 
           .header-title {
-            font-family: 'Noto Serif SC', serif;
+            font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
             font-size: 2.25rem;
             font-weight: 700;
             margin-bottom: 12px;
@@ -148,7 +146,7 @@
           }
 
           .subscribe-title {
-            font-family: 'Noto Serif SC', serif;
+            font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
             font-size: 1.1rem;
             font-weight: 600;
             margin-bottom: 10px;
@@ -196,7 +194,7 @@
           }
 
           .section-title {
-            font-family: 'Noto Serif SC', serif;
+            font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
             font-size: 1.25rem;
             font-weight: 600;
             color: var(--text-primary);
@@ -259,7 +257,7 @@
           }
 
           .article-title {
-            font-family: 'Noto Serif SC', serif;
+            font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
             font-size: 1.25rem;
             font-weight: 600;
             line-height: 1.5;
@@ -326,7 +324,7 @@
             background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--border) 100%);
             color: var(--text-muted);
             font-size: 3rem;
-            font-family: 'Noto Serif SC', serif;
+            font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
           }
 
           .cover-overlay {
@@ -341,7 +339,7 @@
           }
 
           .cover-title {
-            font-family: 'Noto Serif SC', serif;
+            font-family: Georgia, 'Times New Roman', 'Songti SC', 'SimSun', serif;
             font-size: 0.95rem;
             font-weight: 600;
             margin-bottom: 4px;
@@ -369,7 +367,7 @@
             color: var(--text-secondary);
             cursor: pointer;
             transition: all 0.2s ease;
-            font-family: 'Noto Sans SC', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
           }
 
           .load-more-btn:hover {
@@ -479,7 +477,7 @@
               gap: 10px;
             }
           }
-        </style>
+        ]]></style>
       </head>
       <body>
         <div class="container">
