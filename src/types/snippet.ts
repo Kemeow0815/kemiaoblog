@@ -1,4 +1,13 @@
-import type { RenderResult } from 'astro:content';
+export interface RenderResult {
+    html: string;
+    metadata?: {
+        headings?: Array<{
+            depth: number;
+            slug: string;
+            text: string;
+        }>;
+    };
+}
 
 export interface SnippetFrontmatter {
     title: string;

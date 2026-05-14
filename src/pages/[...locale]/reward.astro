@@ -33,8 +33,16 @@ async function fetchWithTimeout(url: string, timeout = 5000): Promise<any> {
 // 并行获取数据（带超时）
 const sponsorsData = await fetchWithTimeout('https://jsd.268682.xyz/gh/Kemeow0815/sponsors@main/data/sponsors/sponsors.json', 8000);
 
-const sponsors = sponsorsData?.sponsors || [];
-const totalAmount = sponsors.reduce((sum, s) => {
+interface Sponsor {
+	name: string;
+	amount: string;
+	date: string;
+	avatar?: string;
+	url?: string;
+}
+
+const sponsors: Sponsor[] = sponsorsData?.sponsors || [];
+const totalAmount = sponsors.reduce((sum: number, s: Sponsor) => {
 	const match = String(s.amount).match(/(\d+(?:\.\d+)?)/);
 	return sum + (match ? parseFloat(match[1]) : 0);
 }, 0);
@@ -112,7 +120,7 @@ const totalAmount = sponsors.reduce((sum, s) => {
 				
 				{sponsors.length > 0 ? (
 					<div class="space-y-3">
-						{sponsors.map((sponsor) => (
+						{sponsors.map((sponsor: Sponsor) => (
 							<div class="flex items-center gap-4 p-3 bg-[var(--button-hover-color)]/50 rounded-lg hover:bg-[var(--button-hover-color)] transition-colors">
 								<a href={sponsor.url || '#'} target="_blank" rel="noopener noreferrer" class="flex-shrink-0">
 									<img 

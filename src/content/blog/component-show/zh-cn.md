@@ -6,9 +6,8 @@ image: "https://jsd.268682.xyz/gh/Kemeow0815/img@main/img/component-guide.webp"
 category: "博客魔改"
 draft: false
 slugId: component-show-zh
-summary: "本文展示了博客中可用的增强链接组件，包括自动图标识别、外部链接标记和自定义图标等功能。"
+summary: "一些Markdown 组件和增强功能"
 ---
-
 ## 增强链接 ProseLink
 
 博客支持增强的 Markdown 链接功能，可以自动识别外部链接并添加对应的网站图标。

@@ -6,8 +6,8 @@ image: "https://jsd.268682.xyz/gh/Kemeow0815/img@main/img/markdown-guide.webp"
 draft: false
 slugId: markdown-guide
 category: "测试"
-toc: true
-summary: "本文档是关于喵洛阁博客功能测试的总结，涵盖了Markdown基础语法、Alert提示框、数学公式、特殊样式和卡片组件等，文章还提供了渲染效果的描述，包括段落之间空行分隔、使用1-6个井号表示标题、粗体、斜体、删除线、无序列表和有序列表的格式，以及任务清单的展示方式，此外，还提到了引用文本、嵌套引用和代码示例的使用。"
+toc: false
+summary: "本文档整合了喵洛阁博客的所有功能测试，包括Markdown基础语法、Alert提示框、数学公式、特殊样式、卡片组件等，---使用1-6个井号表示标题：渲染效果：---段落之间用空行分隔：在行尾添加两个空格表示换行：---粗体：使用或斜体：使用或粗斜体：使用删除线：使用：使用---无序列表：渲染效果：第一项第二项嵌套项A嵌套项B有序列表：渲染效果：第一项第二项嵌套项A嵌套项B任务清单：渲染效果：x已完成任务未完成任务另一个未完成任务---使用表示引用：渲染效果：这是一段引用文本，可以包含多行，嵌套引用：渲染效果：外层引用内层引用---使用三个反引号包裹代码，并指定语言：javascriptfunctiongreetnamereturn，console，loggreetWorld，公式公式typstWavesorthoy：-30deg，x：30deg，on-xzgrid0，-2，8，2，s。"
 ---
 # 博客功能完整测试
 

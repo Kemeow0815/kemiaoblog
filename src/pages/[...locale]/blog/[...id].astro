@@ -97,6 +97,13 @@ const { remarkPluginFrontmatter } = await render(entry);
                 <ImageModule src={image} class="w-full h-full object-cover"/>
             </div>
         )}
+        <!-- 文章统计 -->
+        <div class="flex justify-center mt-4 text-xs text-[var(--text-color-70)]">
+            <span class="busuanzi-page-stats">
+                本文总阅读量 <span id="busuanzi_page_pv">0</span> 次
+                本文总访客量 <span id="busuanzi_page_uv">0</span> 人
+            </span>
+        </div>
         {entry.data.draft && (
         <div class="my-8 flex items-start gap-3 rounded-lg border border-[var(--danger-border-color)] bg-[var(--danger-bg-color)] p-4 text-sm text-[var(--danger-text-color)] transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mt-0.5 shrink-0 opacity-80">

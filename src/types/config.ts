@@ -39,7 +39,15 @@ export type ProfileConfig = {
 }
 
 export type LicenseConfig = {
-	enable: boolean;
-	name: string;
-	url: string;
+    enable: boolean;
+    name: string;
+    url: string;
+};
+
+export type GitCommitConfig = {
+    enable: boolean;
+    repoOwner: string;
+    repoName: string;
+    branch: string;
+    pageSize: number; // 每页显示的提交数量
 };

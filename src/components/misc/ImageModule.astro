@@ -38,7 +38,7 @@ if (isLocal) {
   } else {
     imageLoad = await imageGetter();
     // 使用封装好的函数
-    if(enableLQIP) lqipGradient = await getLqipGradient(imageLoad.fsPath);
+    if(enableLQIP) lqipGradient = await getLqipGradient((imageLoad as any).fsPath);
   }
 }
 ---
@@ -72,6 +72,7 @@ if (isLocal) {
             height={height} 
             loading="lazy"
             class=""
+            onload="this.parentElement.dataset.loaded = 'true'"
         />
         )
     }

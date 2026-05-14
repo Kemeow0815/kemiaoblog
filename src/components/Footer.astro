@@ -1,6 +1,7 @@
 ---
 import { Icon } from "astro-icon/components";
-import { profileConfig } from "../config";
+import { profileConfig, gitCommitConfig } from "../config";
+import { getLatestCommit, formatDate } from "../utils/git-info";
 
 let introPage : string;
 
@@ -9,23 +10,63 @@ if (profileConfig.indexPage) {
 } else {
     introPage = import.meta.env.BASE_URL;
 }
+
+// 获取最新 commit 信息
+const commitInfo = gitCommitConfig.enable ? await getLatestCommit() : null;
 ---
 
 <!-- footer -->
-<footer class="flex flex-col md:flex-row md:justify-between items-start md:items-center py-10 text-[var(--text-color-70)] max-w-[var(--header-width)] mx-auto w-full">
-    <div class="mb-1 md:mb-0">
-        © {profileConfig.startYear} - {new Date().getFullYear()} <a class="link-line" target="_self" href={introPage}>{profileConfig.name}</a>. 
+<footer class="flex flex-col items-center py-10 text-[var(--text-color-70)] max-w-[var(--header-width)] mx-auto w-full">
+    <div class="flex flex-col md:flex-row md:justify-between items-start md:items-center w-full mb-4">
+        <div class="mb-1 md:mb-0">
+            © {profileConfig.startYear} - {new Date().getFullYear()} <a class="link-line" target="_self" href={introPage}>{profileConfig.name}</a>.
+            <span class="busuanzi-stats ml-2 text-xs">
+                本站总访问量 <span id="busuanzi_site_pv">0</span> 次
+                本站总访客数 <span id="busuanzi_site_uv">0</span> 人
+            </span>
+        </div>
+        <div class="right">
+            <p>Powered by 
+            <a target="_blank" href="https://astro.build" title="Astro" class="tooltip-wrapper"><Icon name="simple-icons:astro" class="inline-block" /></a> 
+            <a target="_blank" href="https://svelte.dev/" title="Svelte" class="tooltip-wrapper"><Icon name="simple-icons:svelte" class="inline-block"/></a> 
+            <a target="_blank" href="https://tailwindcss.com/" title="tailwindcss" class="tooltip-wrapper"><Icon name="simple-icons:tailwindcss" class="inline-block"/></a> 
+            <a target="_blank" href="https://github.com/Motues/Momo" title="Momo" class="tooltip-wrapper"><Icon name="simple-icons:github" class="inline-block"/></a> 
+             | 
+            <a href="/rss.xml" target="_self" title="RSS" class="tooltip-wrapper"><Icon name="simple-icons:rss" class="inline-block" /></a>
+            </p>
+        </div>
     </div>
-    <div class="right">
-        <p>Powered by 
-        <a target="_blank" href="https://astro.build" title="Astro" class="tooltip-wrapper"><Icon name="simple-icons:astro" class="inline-block" /></a> 
-        <a target="_blank" href="https://svelte.dev/" title="Svelte" class="tooltip-wrapper"><Icon name="simple-icons:svelte" class="inline-block"/></a> 
-        <a target="_blank" href="https://tailwindcss.com/" title="tailwindcss" class="tooltip-wrapper"><Icon name="simple-icons:tailwindcss" class="inline-block"/></a> 
-        <a target="_blank" href="https://github.com/Motues/Momo" title="Momo" class="tooltip-wrapper"><Icon name="simple-icons:github" class="inline-block"/></a> 
-         | 
-        <a href="/rss.xml" target="_self" title="RSS" class="tooltip-wrapper"><Icon name="simple-icons:rss" class="inline-block" /></a>
-        </p>
-    </div>
+    
+    <!-- Commit 信息展示 -->
+    {commitInfo && (
+        <div class="commit-info w-full flex flex-col items-center gap-1.5 text-xs px-4 py-3 mt-2 border-t border-dashed border-[var(--text-color-20)]">
+            <div class="flex flex-wrap items-center justify-center gap-2 text-[var(--text-color-70)]">
+                <Icon name="material-symbols:schedule" class="w-4 h-4 flex-shrink-0" />
+                <span class="font-medium">最新提交:</span>
+                <a 
+                    href={`https://github.com/Kemeow0815/kemiaoblog/commit/${commitInfo.sha}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[var(--primary)] hover:underline font-mono"
+                >
+                    {commitInfo.shortSha}
+                </a>
+                <span class="text-[var(--text-color-50)]">·</span>
+                <span>最后更新于</span>
+                <span>{formatDate(commitInfo.date)}</span>
+                <span class="text-[var(--text-color-50)]">·</span>
+                <a 
+                    href="/diff"
+                    class="text-[var(--primary)] hover:underline"
+                >
+                    更新日志
+                </a>
+            </div>
+            <p class="text-[var(--text-color-50)] text-xs text-center break-words w-full">
+                更新内容：{commitInfo.message}
+            </p>
+        </div>
+    )}
 </footer>
 
 
@@ -84,5 +125,10 @@ if (profileConfig.indexPage) {
         to {
             opacity: 1;
         }
+    }
+    
+    /* Commit 信息样式 */
+    .commit-info {
+        font-family: system-ui, -apple-system, sans-serif;
     }
 </style>

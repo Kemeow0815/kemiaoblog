@@ -84,8 +84,8 @@ if (profileConfig.indexPage) {
 </div>
 
     <!-- nav_bar -->
-    <div id="nav-bar" class="hidden md:flex absolute left-1/2 top-0 transform -translate-x-1/2  justify-center items-center text-lg font-bold my-5 z-100">
-        <div id="nav-bar-list" class="transition relative z-10 flex max-w-max flex-1 items-center justify-center rounded-outer p-2 backdrop-blur rounded-xl bg-[color:var(--bg-color)]/20 border border-[var(--bg-color)]">
+    <div id="nav-bar" class="hidden md:flex absolute left-1/2 top-0 transform -translate-x-1/2 justify-center items-center text-lg font-bold my-5 z-50">
+        <div id="nav-bar-list" class="transition relative z-10 flex max-w-max flex-1 items-center justify-center rounded-outer p-2 backdrop-blur rounded-xl bg-[var(--bg-color)]/20 border border-[var(--bg-color)]">
           <!-- 首页链接 -->
           <a href={ indexPage } class={`transition-colors rounded-lg px-3 py-1 mx-1 hover:text-current ${
               Astro.url.pathname === indexPage 
@@ -215,6 +215,17 @@ if (profileConfig.indexPage) {
   /* 当手指上滑时，JS 会给这个 ID 添加该类来隐藏 Header */
   .header-hidden {
     transform: translateY(-100%);
+  }
+
+  /* 导航栏样式 */
+  #nav-bar {
+    pointer-events: auto;
+  }
+  
+  @media (min-width: 768px) {
+    #nav-bar {
+      display: flex !important;
+    }
   }
 </style>
 

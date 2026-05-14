@@ -1,0 +1,312 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import Cover from '@components/Cover.astro'
+import FabMenu from '@components/control/FabMenu.astro'
+import { siteConfig, profileConfig, gitCommitConfig } from '@/config'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client";
+import { Icon } from 'astro-icon/components'
+import { getCommitHistory, formatDate } from '@/utils/git-info';
+
+export async function getStaticPaths() {
+	return i18n?.locales.map(locale => ({ params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) } }));
+}
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+// 获取所有 commit 历史（静态生成时）
+const allCommits = gitCommitConfig.enable ? await getCommitHistory(100) : [];
+
+const pageTitle = `更新日志 - ${siteConfig.title}`;
+
+const jsonLd = {
+	"@context": "https://schema.org",
+	"@type": "WebPage",
+	"@id": `${Astro.site}diff`,
+	name: "更新日志",
+	description: `${profileConfig.name} 博客的更新历史记录`,
+	url: `${Astro.site}diff`,
+	author: {
+		"@type": "Person",
+		name: profileConfig.name,
+	},
+	inLanguage: currentLang.replace("_", "-"),
+};
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang} description={`${profileConfig.name} 博客的更新历史记录`}>
+	<script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
+	
+	<div class="w-full px-4 sm:px-6 lg:px-8 py-8">
+		<Cover title="更新日志" subTitle="记录博客的每一次更新与改进"/>
+		
+		<div class="mt-8 max-w-4xl mx-auto">
+			<div id="commits-container" class="space-y-4" data-commits={JSON.stringify(allCommits)} data-page-size={gitCommitConfig.pageSize || 6}>
+				<!-- 提交记录将通过客户端 JavaScript 渲染 -->
+			</div>
+			
+			<!-- 分页组件 -->
+			<div id="pagination-container" class="mt-8">
+				<!-- 分页将通过客户端 JavaScript 渲染 -->
+			</div>
+			
+			<!-- 提示信息 -->
+			<div class="mt-6 text-center">
+				<p id="page-info" class="text-sm text-[var(--text-color-50)]">
+					<!-- 页面信息将通过客户端 JavaScript 渲染 -->
+				</p>
+			</div>
+		</div>
+	</div>
+	<FabMenu showBackBottom={true} />
+</MainPageLayout>
+
+<script>
+	// 客户端分页逻辑
+	(function() {
+		const container = document.getElementById('commits-container');
+		const paginationContainer = document.getElementById('pagination-container');
+		const pageInfo = document.getElementById('page-info');
+		
+		if (!container || !paginationContainer || !pageInfo) return;
+		
+		// 使用非空断言，因为我们已经检查过
+		const commitsContainer = container!;
+		const paginationEl = paginationContainer!;
+		const pageInfoEl = pageInfo!;
+		
+		const commits = JSON.parse(commitsContainer.dataset.commits || '[]');
+		const pageSize = parseInt(commitsContainer.dataset.pageSize || '6');
+		const totalCommits = commits.length;
+		const totalPages = Math.ceil(totalCommits / pageSize);
+		
+		// 文件变更类型
+		interface FileChange {
+			filename: string;
+			status: 'added' | 'removed' | 'modified' | 'renamed';
+			additions: number;
+			deletions: number;
+			changes: number;
+			blob_url: string;
+		}
+		
+		// 提交信息类型
+		interface CommitInfo {
+			sha: string;
+			shortSha: string;
+			message: string;
+			author: string;
+			date: string;
+			totalAdditions: number;
+			totalDeletions: number;
+			files: FileChange[];
+		}
+		
+		// 获取当前页码（从 URL 参数或 localStorage）
+		function getCurrentPage(): number {
+			const urlParams = new URLSearchParams(window.location.search);
+			const pageParam = urlParams.get('page');
+			if (pageParam) {
+				const page = parseInt(pageParam);
+				return Math.max(1, Math.min(page, totalPages));
+			}
+			// 尝试从 localStorage 获取
+			const savedPage = localStorage.getItem('diff-current-page');
+			if (savedPage) {
+				const page = parseInt(savedPage);
+				return Math.max(1, Math.min(page, totalPages));
+			}
+			return 1;
+		}
+		
+		let currentPage = getCurrentPage();
+		
+		// 渲染提交记录
+		function renderCommits(): void {
+			const startIndex = (currentPage - 1) * pageSize;
+			const endIndex = startIndex + pageSize;
+			const pageCommits: CommitInfo[] = commits.slice(startIndex, endIndex);
+			
+			if (pageCommits.length === 0) {
+				commitsContainer.innerHTML = `
+					<div class="text-center py-16 bg-[var(--card-color)] border border-[var(--button-border-color)] rounded-xl">
+						<div class="text-6xl mb-4">📭</div>
+						<p class="text-[var(--text-color-70)] mb-2">暂时无法加载更新记录</p>
+						<p class="text-xs text-[var(--text-color-50)]">可能是 GitHub API 速率限制，请稍后再试</p>
+					</div>
+				`;
+				return;
+			}
+			
+			const config = {
+				repoOwner: 'Kemeow0815',
+				repoName: 'kemiaoblog'
+			};
+			
+			commitsContainer.innerHTML = pageCommits.map((commit: CommitInfo) => {
+				const filesHtml = commit.files.slice(0, 5).map((file: FileChange) => {
+					const statusClass = file.status === 'added' 
+						? 'bg-[#dcfce7] text-[#166534] dark:bg-[#14532d]/40 dark:text-[#86efac]'
+						: file.status === 'removed'
+							? 'bg-[#fee2e2] text-[#991b1b] dark:bg-[#7f1d1d]/40 dark:text-[#fca5a5]'
+							: file.status === 'renamed'
+								? 'bg-[#fef3c7] text-[#92400e] dark:bg-[#78350f]/40 dark:text-[#fcd34d]'
+								: 'bg-[var(--button-hover-color)] text-[var(--text-color-70)] dark:bg-[var(--button-hover-color)] dark:text-[var(--text-color-50)]';
+					
+					const statusLabel = file.status === 'added' ? 'A' : file.status === 'removed' ? 'D' : file.status === 'renamed' ? 'R' : 'M';
+					
+					return `
+						<a href="${file.blob_url}" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 px-4 sm:px-6 py-2.5 hover:bg-[var(--button-hover-color)]/30 transition-colors group">
+							<span class="w-14 text-xs font-mono text-center shrink-0 px-1.5 py-0.5 rounded ${statusClass}">${statusLabel}</span>
+							<span class="text-xs font-mono text-[var(--text-color-70)] truncate flex-1 group-hover:text-[var(--link-color)] transition-colors">${file.filename}</span>
+							<div class="flex items-center gap-2 shrink-0">
+								${file.additions > 0 ? `<span class="text-xs text-green-600 dark:text-green-400 font-mono">+${file.additions}</span>` : ''}
+								${file.deletions > 0 ? `<span class="text-xs text-red-600 dark:text-red-400 font-mono">-${file.deletions}</span>` : ''}
+							</div>
+							<div class="w-20 h-1.5 bg-[var(--button-hover-color)] rounded-full overflow-hidden hidden sm:block shrink-0">
+								<div class="h-full flex rounded-full overflow-hidden">
+									${file.changes > 0 ? `
+										<div class="bg-green-500" style="width: ${(file.additions / file.changes) * 100}%"></div>
+										<div class="bg-red-500" style="width: ${(file.deletions / file.changes) * 100}%"></div>
+									` : ''}
+								</div>
+							</div>
+						</a>
+					`;
+				}).join('');
+				
+				const moreFilesHtml = commit.files.length > 5 
+					? `<div class="px-4 sm:px-6 py-2 text-xs text-[var(--text-color-50)] text-center">还有 ${commit.files.length - 5} 个文件...</div>` 
+					: '';
+				
+				// 格式化日期
+				const date = new Date(commit.date);
+				date.setHours(date.getHours() + 8);
+				const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+				
+				return `
+					<div class="commit-card bg-[var(--card-color)] border border-[var(--button-border-color)] rounded-xl overflow-hidden hover:shadow-lg transition-shadow">
+						<a href="https://github.com/${config.repoOwner}/${config.repoName}/commit/${commit.sha}" target="_blank" rel="noopener noreferrer" class="block px-4 sm:px-6 py-4 bg-[var(--button-hover-color)]/50 border-b border-[var(--button-border-color)] hover:bg-[var(--button-hover-color)] transition-colors">
+							<div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm">
+								<span class="font-mono text-[var(--link-color)] hover:underline font-semibold">${commit.shortSha}</span>
+								<span class="text-[var(--text-color)] font-medium truncate flex-1 min-w-0">${commit.message.split('\n')[0]}</span>
+								<span class="text-xs text-[var(--text-color-50)] whitespace-nowrap">${formattedDate}</span>
+							</div>
+							<div class="flex items-center gap-4 mt-2 text-xs flex-wrap">
+								<span class="text-green-600 dark:text-green-400 font-semibold flex items-center gap-1">
+									<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+									+${commit.totalAdditions}
+								</span>
+								<span class="text-red-600 dark:text-red-400 font-semibold flex items-center gap-1">
+									<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"/></svg>
+									-${commit.totalDeletions}
+								</span>
+								<span class="text-[var(--text-color-50)] flex items-center gap-1">
+									<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+									${commit.files.length} 个文件
+								</span>
+								<span class="text-[var(--text-color-30)] flex items-center gap-1">
+									<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+									${commit.author}
+								</span>
+							</div>
+						</a>
+						${commit.files.length > 0 ? `<div class="divide-y divide-[var(--button-border-color)]/50">${filesHtml}${moreFilesHtml}</div>` : ''}
+					</div>
+				`;
+			}).join('');
+		}
+		
+		// 渲染分页
+		function renderPagination(): void {
+			if (totalPages <= 1) {
+				paginationEl.innerHTML = '';
+				return;
+			}
+			
+			const prevHtml = currentPage > 1 
+				? `<a href="?page=${currentPage - 1}" data-page="${currentPage - 1}" class="pagination-link px-3 py-2 rounded-lg bg-[var(--card-color)] border border-[var(--button-border-color)] text-[var(--text-color-70)] hover:bg-[var(--button-hover-color)] hover:text-[var(--text-color)] transition-colors"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></a>`
+				: `<span class="px-3 py-2 rounded-lg bg-[var(--button-hover-color)]/50 border border-[var(--button-border-color)] text-[var(--text-color-30)] cursor-not-allowed"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg></span>`;
+			
+			const nextHtml = currentPage < totalPages
+				? `<a href="?page=${currentPage + 1}" data-page="${currentPage + 1}" class="pagination-link px-3 py-2 rounded-lg bg-[var(--card-color)] border border-[var(--button-border-color)] text-[var(--text-color-70)] hover:bg-[var(--button-hover-color)] hover:text-[var(--text-color)] transition-colors"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></a>`
+				: `<span class="px-3 py-2 rounded-lg bg-[var(--button-hover-color)]/50 border border-[var(--button-border-color)] text-[var(--text-color-30)] cursor-not-allowed"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></span>`;
+			
+			const pagesHtml = Array.from({ length: totalPages }, (_, i) => i + 1).map(page => {
+				if (page === currentPage) {
+					return `<span class="px-3 py-2 rounded-lg bg-[var(--link-color)] text-white font-medium min-w-[2.5rem] text-center">${page}</span>`;
+				}
+				return `<a href="?page=${page}" data-page="${page}" class="pagination-link px-3 py-2 rounded-lg bg-[var(--card-color)] border border-[var(--button-border-color)] text-[var(--text-color-70)] hover:bg-[var(--button-hover-color)] hover:text-[var(--text-color)] transition-colors min-w-[2.5rem] text-center">${page}</a>`;
+			}).join('');
+			
+			paginationEl.innerHTML = `
+				<div class="flex items-center justify-center gap-2">
+					${prevHtml}
+					<div class="flex items-center gap-1">${pagesHtml}</div>
+					${nextHtml}
+				</div>
+			`;
+			
+			// 绑定分页点击事件
+			paginationEl.querySelectorAll('.pagination-link').forEach(link => {
+				link.addEventListener('click', (e) => {
+					e.preventDefault();
+					const target = e.currentTarget as HTMLElement;
+					const page = parseInt(target.dataset.page || '1');
+					goToPage(page);
+				});
+			});
+		}
+		
+		// 更新页面信息
+		function updatePageInfo(): void {
+			pageInfoEl.textContent = `共 ${totalCommits} 条提交记录，当前第 ${currentPage}/${totalPages} 页`;
+		}
+		
+		// 跳转到指定页
+		function goToPage(page: number): void {
+			currentPage = Math.max(1, Math.min(page, totalPages));
+			localStorage.setItem('diff-current-page', String(currentPage));
+			
+			// 更新 URL（不刷新页面）
+			const url = new URL(window.location.href);
+			if (currentPage === 1) {
+				url.searchParams.delete('page');
+			} else {
+				url.searchParams.set('page', String(currentPage));
+			}
+			window.history.pushState({}, '', url);
+			
+			renderCommits();
+			renderPagination();
+			updatePageInfo();
+			
+			// 滚动到顶部
+			window.scrollTo({ top: 0, behavior: 'smooth' });
+		}
+		
+		// 处理浏览器前进/后退
+		window.addEventListener('popstate', () => {
+			currentPage = getCurrentPage();
+			renderCommits();
+			renderPagination();
+			updatePageInfo();
+		});
+		
+		// 初始渲染
+		renderCommits();
+		renderPagination();
+		updatePageInfo();
+	})();
+</script>
+
+<style>
+	.commit-card {
+		transition: all 0.3s ease;
+	}
+	
+	.commit-card:hover {
+		transform: translateY(-2px);
+	}
+</style>

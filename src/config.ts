@@ -1,7 +1,8 @@
 import type {
     SiteConfig,
     ProfileConfig,
-    LicenseConfig
+    LicenseConfig,
+    GitCommitConfig
 } from "./types/config"
 
 // import type { FriendLink } from "./types/friend"
@@ -52,6 +53,15 @@ export const licenseConfig: LicenseConfig = {
     enable: true,
     name: "CC BY-NC-SA 4.0",
     url: "https://creativecommons.org/licenses/by-nc-sa/4.0/",
+};
+
+// Git Commit 信息展示配置
+export const gitCommitConfig: GitCommitConfig = {
+    enable: true, // 是否启用 Git commit 信息展示
+    repoOwner: "Kemeow0815", // GitHub 仓库所有者
+    repoName: "kemiaoblog", // GitHub 仓库名称
+    branch: "main", // 分支名称
+    pageSize: 6, // 每页显示的提交数量
 };
 
 // 友链配置 - 如使用外链数据源可注释掉此配置
