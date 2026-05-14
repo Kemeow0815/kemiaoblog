@@ -70,7 +70,6 @@
             margin: 0 auto;
           }
 
-          /* Header */
           .header {
             margin-bottom: 40px;
             padding-bottom: 32px;
@@ -139,7 +138,6 @@
             color: var(--accent);
           }
 
-          /* Subscribe Section */
           .subscribe-section {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -190,7 +188,6 @@
             transform: translateY(-1px);
           }
 
-          /* Section Title */
           .section-header {
             display: flex;
             justify-content: space-between;
@@ -210,7 +207,6 @@
             color: var(--text-muted);
           }
 
-          /* Articles */
           .articles {
             display: flex;
             flex-direction: column;
@@ -303,7 +299,6 @@
             color: var(--text-muted);
           }
 
-          /* Article Cover */
           .article-cover {
             width: 240px;
             min-height: 180px;
@@ -358,7 +353,6 @@
             opacity: 0.8;
           }
 
-          /* Load More */
           .load-more {
             text-align: center;
             margin-top: 40px;
@@ -384,7 +378,6 @@
             color: var(--accent);
           }
 
-          /* Footer */
           .footer {
             text-align: center;
             margin-top: 56px;
@@ -420,7 +413,6 @@
             color: var(--accent);
           }
 
-          /* Animations */
           @keyframes fadeInUp {
             from {
               opacity: 0;
@@ -442,7 +434,6 @@
           .article-card:nth-child(4) { animation-delay: 0.16s; }
           .article-card:nth-child(5) { animation-delay: 0.20s; }
 
-          /* Responsive */
           @media (max-width: 768px) {
             body {
               padding: 24px 16px;
@@ -488,11 +479,10 @@
               gap: 10px;
             }
           }
-        </link>
+        </style>
       </head>
       <body>
         <div class="container">
-          <!-- Header -->
           <header class="header">
             <div class="feed-badge">RSS FEED</div>
             <h1 class="header-title"><xsl:value-of select="rss/channel/title"/></h1>
@@ -500,29 +490,28 @@
             <div class="header-meta">
               <span class="meta-tag">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
                 </svg>
                 <xsl:value-of select="count(rss/channel/item)"/> 篇文章
               </span>
               <span class="meta-tag">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
                 </svg>
                 最近更新
               </span>
               <span class="meta-tag">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="12" cy="7" r="4"></circle>
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
                 </svg>
                 订阅源页面
               </span>
             </div>
           </header>
 
-          <!-- Subscribe Section -->
           <div class="subscribe-section">
             <h3 class="subscribe-title">使用你喜欢的阅读器订阅</h3>
             <p class="subscribe-desc">
@@ -538,7 +527,6 @@
             </div>
           </div>
 
-          <!-- Articles Section -->
           <div class="section-header">
             <h2 class="section-title">最新文章</h2>
             <span class="section-note">文章封面取自 feed 中的 enclosure 图片</span>
@@ -584,18 +572,16 @@
             </xsl:for-each>
           </div>
 
-          <!-- Load More -->
           <div class="load-more">
             <button class="load-more-btn" onclick="alert('已显示全部文章')">显示更多文章</button>
           </div>
 
-          <!-- Footer -->
           <footer class="footer">
             <p>All rights reserved <xsl:value-of select="substring(rss/channel/lastBuildDate, 1, 4)"/>, <xsl:value-of select="rss/channel/title"/></p>
             <div class="footer-links">
               <a class="footer-link" href="{rss/channel/link}">博客主页</a>
-              <a class="footer-link" href="https://github.com/withastro/astro" target="_blank">Astro 生成</a>
-              <a class="footer-link" href="{rss/channel/link}about">关于作者</a>
+              <a class="footer-link" href="https://github.com/withastro/astro" target="_blank">Pretty Feed</a>
+              <a class="footer-link" href="{rss/channel/link}/about">关于作者</a>
             </div>
           </footer>
         </div>
