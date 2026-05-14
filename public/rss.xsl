@@ -578,8 +578,8 @@
             <p>All rights reserved <xsl:value-of select="substring(rss/channel/lastBuildDate, 1, 4)"/>, <xsl:value-of select="rss/channel/title"/></p>
             <div class="footer-links">
               <a class="footer-link" href="{rss/channel/link}">博客主页</a>
-              <a class="footer-link" href="https://github.com/withastro/astro" target="_blank">Pretty Feed</a>
-              <a class="footer-link" href="{rss/channel/link}/about">关于作者</a>
+              <a class="footer-link" href="https://github.com/withastro/astro" target="_blank">Astro 生成</a>
+              <a class="footer-link" href="{rss/channel/link}about">关于作者</a>
             </div>
           </footer>
         </div>
