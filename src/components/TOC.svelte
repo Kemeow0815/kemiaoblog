@@ -96,6 +96,7 @@
 {#if tocVisible}
 	<aside 
 		transition:fade={{ duration: 300 }}
+		id="toc-sidebar"
 		class="fixed top-20 w-[var(--toc-width)] left-[var(--toc-offset-left)] z-10 hidden lg:block text-[var(--text-color)]"
 	>
 		<div class="flex flex-col h-[50vh] bg-transparent">
@@ -142,5 +143,12 @@
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
+	}
+
+	/* 修复 hidden lg:block 在电脑端不生效的问题 */
+	@media (min-width: 1024px) {
+		#toc-sidebar {
+			display: block !important;
+		}
 	}
 </style>
