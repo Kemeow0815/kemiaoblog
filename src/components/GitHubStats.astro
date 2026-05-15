@@ -71,16 +71,16 @@ const snakeDarkSvgUrl = `https://jsd.268682.xyz/gh/${username}/kemiaoblog@output
 <script>
   // 检测图片加载失败，显示备用内容
   // 检测博客主题模式变化，切换明暗图片
-  document.addEventListener('DOMContentLoaded', () => {
+  function initGitHubStats() {
     const snakeImg = document.getElementById('github-snake-img');
     const fallback = document.getElementById('github-fallback');
-    
+
     if (!snakeImg) return;
-    
+
     // 从 data 属性获取图片 URL
     const snakeSvgUrl = snakeImg.dataset.snakeSvgUrl;
     const snakeDarkSvgUrl = snakeImg.dataset.snakeDarkSvgUrl;
-    
+
     if (fallback) {
       snakeImg.addEventListener('error', () => {
         snakeImg.closest('.github-snake-container')?.classList.add('hidden');
@@ -92,14 +92,12 @@ const snakeDarkSvgUrl = `https://jsd.268682.xyz/gh/${username}/kemiaoblog@output
     function updateSnakeImage() {
       const html = document.documentElement;
       const isDark = html.getAttribute('data-theme') === 'dark';
-      
-      // 检查当前图片是否已经是正确的主题
-      const currentSrc = (snakeImg as HTMLImageElement).src.split('?')[0];
+
       const targetSrc = isDark ? snakeDarkSvgUrl : snakeSvgUrl;
-      
-      // 只有在主题确实改变时才更新图片
-      if (currentSrc !== targetSrc) {
-        (snakeImg as HTMLImageElement).src = targetSrc || '';
+
+      // 直接设置图片源，不比较，确保每次都能正确显示
+      if (targetSrc) {
+        (snakeImg as HTMLImageElement).src = targetSrc;
       }
     }
 
@@ -120,12 +118,13 @@ const snakeDarkSvgUrl = `https://jsd.268682.xyz/gh/${username}/kemiaoblog@output
       attributes: true,
       attributeFilter: ['data-theme']
     });
+  }
 
-    // 监听 astro:after-swap 事件（SPA 导航后）
-    document.addEventListener('astro:after-swap', () => {
-      updateSnakeImage();
-    });
-  });
+  // 页面首次加载时初始化
+  document.addEventListener('DOMContentLoaded', initGitHubStats);
+
+  // 监听 astro:after-swap 事件（SPA 导航后）
+  document.addEventListener('astro:after-swap', initGitHubStats);
 </script>
 
 <style>

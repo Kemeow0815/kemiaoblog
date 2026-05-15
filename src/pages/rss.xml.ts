@@ -10,13 +10,44 @@ export async function GET(context: APIContext) {
         description: profileConfig.description,
         site: context.site ?? "https://blog.kemeow.top",
         stylesheet: '/rss.xsl',
-        items: blog.slice(0, 20).map((post) => ({
-            title: post.data.title,
-            pubDate: post.data.pubDate,
-            description: post.data.description,
-            // 从 `id` 属性计算出 RSS 链接
-            // 这个例子假设所有的文章都被渲染为 `/blog/[id]` 路由
-            link: `/blog/${post.id}/`,
-        })),
+        items: blog.slice(0, 20).map((post) => {
+            const categories: string[] = [];
+            if (post.data.category) {
+                categories.push(post.data.category);
+            }
+            if (post.data.tags && Array.isArray(post.data.tags)) {
+                categories.push(...post.data.tags);
+            }
+
+            const item: {
+                title: string;
+                pubDate: Date;
+                description: string;
+                link: string;
+                categories?: string[];
+                enclosure?: { url: string; type: string; length: number };
+            } = {
+                title: post.data.title,
+                pubDate: post.data.pubDate,
+                description: post.data.description || '',
+                link: `/blog/${post.id}/`,
+            };
+
+            // 添加分类
+            if (categories.length > 0) {
+                item.categories = categories;
+            }
+
+            // 添加封面图片作为 enclosure
+            if (post.data.image) {
+                item.enclosure = {
+                    url: post.data.image,
+                    type: 'image/webp',
+                    length: 0, // RSS 规范要求 length，但我们不知道实际大小
+                };
+            }
+
+            return item;
+        }),
     })
 }

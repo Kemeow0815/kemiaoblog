@@ -527,7 +527,7 @@
 
           <div class="section-header">
             <h2 class="section-title">最新文章</h2>
-            <span class="section-note">文章封面取自 feed 中的 enclosure 图片</span>
+            <span class="section-note">文章封面取自 feed 中的 image 图片</span>
           </div>
 
           <div class="articles">

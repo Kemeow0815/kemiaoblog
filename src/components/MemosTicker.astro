@@ -21,14 +21,14 @@ import { Icon } from "astro-icon/components";
 <script is:inline>
     // Memos API 配置
     const MEMOS_API = 'https://m.314926.xyz/api/v1/memos';
-    const MEMOS_LIMIT = 10;
-    
+    const MEMOS_LIMIT = 5; // 只展示最新5条
+
     // 获取 Memos 数据
     async function fetchMemos() {
         try {
             const response = await fetch(`${MEMOS_API}?limit=${MEMOS_LIMIT}`);
             const data = await response.json();
-            
+
             if (data.memos && data.memos.length > 0) {
                 renderMemos(data.memos);
                 startTicker();
@@ -40,16 +40,19 @@ import { Icon } from "astro-icon/components";
             showErrorMessage();
         }
     }
-    
+
     // 渲染 Memos
     function renderMemos(memos) {
         const wrapper = document.getElementById('memosTickerWrapper');
         if (!wrapper) return;
-        
-        wrapper.innerHTML = memos.map(memo => {
+
+        // 只取前5条
+        const displayMemos = memos.slice(0, 5);
+
+        wrapper.innerHTML = displayMemos.map(memo => {
             // 提取纯文本内容（去除 HTML 标签）
             const content = memo.content ? memo.content.replace(/<[^>]*>/g, '') : '';
-            
+
             // 检查是否有资源（图片、视频等）
             let icon = '';
             if (memo.resources && memo.resources.length > 0) {
@@ -62,12 +65,12 @@ import { Icon } from "astro-icon/components";
                     icon = '<i class="memos-ticker-resource-icon fa-solid fa-music"></i>';
                 }
             }
-            
+
             // 检查是否有链接
             if (!icon && content.includes('http')) {
                 icon = '<i class="memos-ticker-resource-icon fa-solid fa-link"></i>';
             }
-            
+
             return `
                 <div class="memos-ticker-item" onclick="window.location.href='/memos'">
                     <span class="memos-ticker-item-text">${escapeHtml(content)}</span>
@@ -76,14 +79,14 @@ import { Icon } from "astro-icon/components";
             `;
         }).join('');
     }
-    
+
     // HTML 转义
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    
+
     // 显示空消息
     function showEmptyMessage() {
         const wrapper = document.getElementById('memosTickerWrapper');
@@ -91,7 +94,7 @@ import { Icon } from "astro-icon/components";
             wrapper.innerHTML = '<span class="memos-ticker-text">暂无说说</span>';
         }
     }
-    
+
     // 显示错误消息
     function showErrorMessage() {
         const wrapper = document.getElementById('memosTickerWrapper');
@@ -99,27 +102,40 @@ import { Icon } from "astro-icon/components";
             wrapper.innerHTML = '<span class="memos-ticker-text">加载失败</span>';
         }
     }
-    
-    // 启动滚动动画
+
+    // 启动滚动动画 - 无缝循环滚动
     function startTicker() {
         const wrapper = document.getElementById('memosTickerWrapper');
         const container = document.getElementById('memosTickerContent');
         if (!wrapper || !container) return;
-        
+
         const items = wrapper.querySelectorAll('.memos-ticker-item');
         if (items.length <= 1) return;
-        
+
+        // 克隆第一个元素并添加到末尾，实现无缝循环
+        const firstItem = items[0].cloneNode(true);
+        wrapper.appendChild(firstItem);
+
         let currentIndex = 0;
         const itemHeight = 25; // 每项高度
         const duration = 3000; // 切换间隔
-        
+
         setInterval(() => {
-            currentIndex = (currentIndex + 1) % items.length;
+            currentIndex++;
             wrapper.style.transform = `translateY(-${currentIndex * itemHeight}px)`;
-            wrapper.style.transition = 'transform 0.3s ease-in-out';
+            wrapper.style.transition = 'transform 0.5s ease-in-out';
+
+            // 当滚动到克隆的元素时（即最后一个），瞬间回到第一个
+            if (currentIndex >= items.length) {
+                setTimeout(() => {
+                    wrapper.style.transition = 'none';
+                    wrapper.style.transform = 'translateY(0)';
+                    currentIndex = 0;
+                }, 500); // 等待过渡动画完成
+            }
         }, duration);
     }
-    
+
     // 初始化
     document.addEventListener('DOMContentLoaded', fetchMemos);
     document.addEventListener('astro:page-load', fetchMemos);

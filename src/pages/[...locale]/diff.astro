@@ -180,10 +180,35 @@ const jsonLd = {
 					? `<div class="px-4 sm:px-6 py-2 text-xs text-[var(--text-color-50)] text-center">还有 ${commit.files.length - 5} 个文件...</div>` 
 					: '';
 				
-				// 格式化日期
-				const date = new Date(commit.date);
-				date.setHours(date.getHours() + 8);
-				const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+				// 格式化日期（UTC 转北京时间 +8小时）
+				const dateMatch = commit.date.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+				let formattedDate = commit.date;
+				if (dateMatch) {
+					const year = parseInt(dateMatch[1]);
+					const month = parseInt(dateMatch[2]) - 1;
+					const day = parseInt(dateMatch[3]);
+					let hour = parseInt(dateMatch[4]) + 8; // UTC+8
+					let finalDay = day;
+					let finalMonth = month;
+					let finalYear = year;
+					
+					// 处理跨天
+					if (hour >= 24) {
+						hour -= 24;
+						finalDay++;
+						const daysInMonth = new Date(year, month + 1, 0).getDate();
+						if (finalDay > daysInMonth) {
+							finalDay = 1;
+							finalMonth++;
+							if (finalMonth > 11) {
+								finalMonth = 0;
+								finalYear++;
+							}
+						}
+					}
+					
+					formattedDate = `${finalYear}-${String(finalMonth + 1).padStart(2, '0')}-${String(finalDay).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${dateMatch[5]}`;
+				}
 				
 				return `
 					<div class="commit-card bg-[var(--card-color)] border border-[var(--button-border-color)] rounded-xl overflow-hidden hover:shadow-lg transition-shadow">

@@ -145,7 +145,7 @@ export async function getCommitHistory(limit = 100): Promise<CommitInfo[]> {
 }
 
 /**
- * 格式化相对时间
+ * 格式化相对时间（北京时间）
  */
 export function formatRelativeTime(dateString: string): string {
     const date = new Date(dateString);
@@ -181,17 +181,43 @@ export function formatRelativeTime(dateString: string): string {
 }
 
 /**
- * 格式化绝对日期
+ * 格式化绝对日期（UTC 转北京时间）
  */
 export function formatDate(dateString: string): string {
+    // 解析 UTC 时间并转换为北京时间（+8小时）
+    const match = dateString.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    if (match) {
+        const year = parseInt(match[1]);
+        const month = parseInt(match[2]) - 1;
+        const day = parseInt(match[3]);
+        let hour = parseInt(match[4]) + 8; // UTC+8
+        let finalDay = day;
+        let finalMonth = month;
+        let finalYear = year;
+
+        // 处理跨天
+        if (hour >= 24) {
+            hour -= 24;
+            finalDay++;
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            if (finalDay > daysInMonth) {
+                finalDay = 1;
+                finalMonth++;
+                if (finalMonth > 11) {
+                    finalMonth = 0;
+                    finalYear++;
+                }
+            }
+        }
+
+        return `${finalYear}-${String(finalMonth + 1).padStart(2, '0')}-${String(finalDay).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${match[5]}`;
+    }
+    // 兜底：使用本地时间
     const date = new Date(dateString);
-    // 加上 8 小时（北京时间）
-    date.setHours(date.getHours() + 8);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     const hour = String(date.getHours()).padStart(2, '0');
     const minute = String(date.getMinutes()).padStart(2, '0');
-
     return `${year}-${month}-${day} ${hour}:${minute}`;
 }
