@@ -3,9 +3,9 @@ title: 组件展示
 pubDate: 2026-05-11
 description: 展示博客中可用的 Markdown 组件和增强功能
 image: "https://jsd.268682.xyz/gh/Kemeow0815/img@main/img/component-guide.webp"
-category: "博客魔改"
+category: 博客魔改
 draft: false
-slugId: component-show-zh
+slugId: component/show
 summary: "一些Markdown 组件和增强功能"
 ---
 ## 增强链接 ProseLink

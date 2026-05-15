@@ -15,6 +15,9 @@
   let loading = false;
   let error: string | null = null;
   const pageSize = 5;
+  
+  // 存储每页的 pageToken，用于分页导航
+  let pageTokens: (string | undefined)[] = [undefined]; // 第1页的token是undefined
 
   // 标签筛选相关
   let selectedTag: string | null = null;
@@ -49,6 +52,9 @@
   function selectTag(tag: string | null) {
     selectedTag = selectedTag === tag ? null : tag;
     currentPage = 1;
+    // 重置分页 token
+    pageTokens = [undefined];
+    fetchRemoteMemos(1);
   }
 
   // 格式化日期
@@ -74,8 +80,6 @@
     error = null;
     
     try {
-      const offset = (page - 1) * pageSize;
-      
       const headers: Record<string, string> = {
         'Accept': 'application/json',
       };
@@ -84,41 +88,30 @@
         headers['Authorization'] = `Bearer ${memoApiToken}`;
       }
       
-      const apiUrls = [
-        `${memoApiUrl}/api/v1/memos?pageSize=${pageSize}&offset=${offset}`,
-        `${memoApiUrl}/api/v1/memo?pageSize=${pageSize}&offset=${offset}`,
-        `${memoApiUrl}/api/v1/memos?limit=${pageSize}&offset=${offset}`,
-        `${memoApiUrl}/api/v1/memo?limit=${pageSize}&offset=${offset}`,
-      ];
+      // 获取当前页的 pageToken
+      const pageToken = pageTokens[page - 1];
+      const tokenParam = pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : '';
       
-      let lastError: Error | null = null;
-      let response = null;
+      const apiUrl = `${memoApiUrl}/api/v1/memos?pageSize=${pageSize}${tokenParam}`;
       
-      for (const url of apiUrls) {
-        try {
-          response = await fetch(url, {
-            method: 'GET',
-            headers,
-            mode: 'cors',
-          });
-          
-          if (response.ok) break;
-        } catch (e) {
-          lastError = e as Error;
-        }
-      }
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers,
+        mode: 'cors',
+      });
       
-      if (!response || !response.ok) {
-        throw lastError || new Error(`HTTP error! status: ${response?.status || 'unknown'}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const data = await response.json();
       
+      // Memos API v1 返回格式: { memos: [...], nextPageToken: "..." }
       let memos = [];
-      if (Array.isArray(data)) {
-        memos = data;
-      } else if (data.memos && Array.isArray(data.memos)) {
+      if (data.memos && Array.isArray(data.memos)) {
         memos = data.memos;
+      } else if (Array.isArray(data)) {
+        memos = data;
       } else if (data.data && Array.isArray(data.data)) {
         memos = data.data;
       } else if (data.results && Array.isArray(data.results)) {
@@ -131,12 +124,21 @@
       }
       
       remoteMemos = memos;
-      hasMore = memos.length === pageSize;
+      
+      // 更新分页状态
+      const nextPageToken = data.nextPageToken;
+      hasMore = !!nextPageToken && memos.length === pageSize;
+      
+      // 存储下一页的 token
+      if (nextPageToken && pageTokens.length <= page) {
+        pageTokens[page] = nextPageToken;
+      }
       
     } catch (err) {
       console.error('Failed to fetch remote memos:', err);
       error = err instanceof Error ? err.message : 'Failed to fetch data';
       remoteMemos = [];
+      hasMore = false;
     } finally {
       loading = false;
     }
@@ -145,6 +147,31 @@
   // 切换页码
   function changePage(page: number) {
     if (page < 1 || page === currentPage) return;
+    
+    // 如果跳转到之前访问过的页面，直接使用缓存的 token
+    if (page < pageTokens.length) {
+      currentPage = page;
+      fetchRemoteMemos(page);
+      return;
+    }
+    
+    // 只能一页一页地前进（因为需要上一页的 nextPageToken）
+    if (page > currentPage + 1) {
+      // 逐页加载直到目标页
+      const targetPage = page;
+      const loadNext = async () => {
+        if (currentPage < targetPage && hasMore) {
+          currentPage++;
+          await fetchRemoteMemos(currentPage);
+          if (currentPage < targetPage) {
+            setTimeout(loadNext, 100);
+          }
+        }
+      };
+      loadNext();
+      return;
+    }
+    
     currentPage = page;
     fetchRemoteMemos(page);
   }
@@ -152,6 +179,10 @@
   // 重试加载
   function retry() {
     error = null;
+    // 如果是第一页，重置所有 token
+    if (currentPage === 1) {
+      pageTokens = [undefined];
+    }
     fetchRemoteMemos(currentPage);
   }
 

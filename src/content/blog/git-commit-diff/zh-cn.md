@@ -2,8 +2,8 @@
 title: 如何添加 Git Commit 更新页面和底部信息
 description: 详细介绍如何在博客中集成 Git 提交历史展示功能，包括更新日志页面和页脚 commit 信息
 pubDate: 2026-05-14
-category: "博客魔改"
-slugId: git-commit-diff
+category: 博客魔改
+slugId: git/diff
 image: "https://jsd.268682.xyz/gh/Kemeow0815/img@main/img/git-commit-diff.webp"
 draft: false
 summary: "文章介绍了如何在博客中集成Git提交历史展示功能，包括更新日志页面和页脚的提交信息，更新日志页面展示完整的提交历史，支持分页浏览；页脚的提交信息在页面底部显示最新的提交信息，GitHubAPI有速率限制，建议配置Token提升到每小时5000次请求，文章还提供了生成新的Token的方法，以及如何编辑仓库信息、添加代码统计等详细步骤，最后，文章还提到了如何自定义样式和适配主题。"

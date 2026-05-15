@@ -182,7 +182,7 @@ const pageTitle = currentEntry
 
             
             <!-- 左侧边栏导航 - 桌面端 -->
-            <aside id="wikiSidebar" class="wiki-sidebar hidden lg:block lg:sticky lg:top-20">
+            <aside id="wikiSidebar" class="wiki-sidebar wiki-sidebar-desktop lg:sticky lg:top-20">
                 <div class="wiki-sidebar-header flex items-center gap-2">
                     <Icon name="fa6-solid:book" class="text-[var(--link-color)]" />
                     <span>{t("cover.title.wiki")}</span>
@@ -276,7 +276,7 @@ const pageTitle = currentEntry
             
             <!-- 右侧 TOC - 桌面端 -->
             {tocItems.length > 0 && (
-                <aside id="wikiToc" class="wiki-toc hidden xl:block xl:sticky xl:top-20">
+                <aside id="wikiToc" class="wiki-toc wiki-toc-desktop xl:sticky xl:top-20">
                     <div class="wiki-toc-header">{t("toc")}</div>
                     <ul class="wiki-toc-list">
                         {tocItems.map(item => (
@@ -867,5 +867,24 @@ const pageTitle = currentEntry
     
     .lightbox-close:hover {
         background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* 修复 Tailwind CSS v4 响应式类问题 */
+    .wiki-sidebar-desktop {
+        display: none;
+    }
+    @media (min-width: 1024px) {
+        .wiki-sidebar-desktop {
+            display: block;
+        }
+    }
+
+    .wiki-toc-desktop {
+        display: none;
+    }
+    @media (min-width: 1280px) {
+        .wiki-toc-desktop {
+            display: block;
+        }
     }
 </style>

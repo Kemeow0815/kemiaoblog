@@ -4,6 +4,11 @@
 const ensureDate = (input: string | Date): Date => {
   if (input instanceof Date) return input;
   
+  // 处理 ISO 格式日期字符串 (如: 2026-05-14T00:00:00.000Z)
+  if (input.includes('T')) {
+    return new Date(input);
+  }
+  
   // 如果是字符串 YYYY-MM-DD
   const [year, month, day] = input.split('-').map(Number);
   return new Date(year, month - 1, day);

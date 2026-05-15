@@ -158,7 +158,7 @@
                                     {/if}
                                 </span>
 
-                                <span class="hidden md:flex items-center font-mono text-sm text-[var(--text-color-70)]">
+                                <span class="category-tag font-mono text-sm text-[var(--text-color-70)]">
                                     <Icon icon="fa6-solid:hashtag" class="mr-1" />
                                     {post.data.category || t("pagecard.uncategorized")}
                                 </span>
@@ -171,9 +171,9 @@
     </div>
 </div>
 
-    <aside 
+    <aside
         id="category-sidebar"
-        class="hidden lg:block absolute left-[var(--toc-offset-left)] top-70 bottom-0 w-[var(--category-width)]">
+        class="category-sidebar absolute left-[var(--toc-offset-left)] top-70 bottom-0 w-[var(--category-width)]">
         <div class="sticky top-24">
             <div class="flex items-center gap-2 text-[var(--text-color)] font-bold mb-4 border-b border-[var(--button-border-color)] pb-2 uppercase tracking-wider">
                 <Icon icon="fa6-solid:hashtag" class="text-xs" />
@@ -181,13 +181,13 @@
             </div>
 
             <div class="flex flex-wrap gap-2">
-                
+
                 {#each categories as cat}
-                    <button 
+                    <button
                         on:click={() => toggleCategory(cat)}
                         class="px-3 py-1 text-xs rounded-md transition-all border
-                        {selectedCategories.includes(cat) 
-                            ? 'bg-[var(--link-color)] text-white border-[var(--link-color)]' 
+                        {selectedCategories.includes(cat)
+                            ? 'bg-[var(--link-color)] text-white border-[var(--link-color)]'
                             : 'hover:border-[var(--link-color)] border-[var(--button-border-color)] text-[var(--text-color)]'}"
                     >
                         {cat === 'undefined' ? t("pagecard.uncategorized") : cat}
@@ -196,3 +196,24 @@
             </div>
         </div>
     </aside>
+
+<style>
+    .category-tag {
+        display: none;
+    }
+    @media (min-width: 768px) {
+        .category-tag {
+            display: flex;
+            align-items: center;
+        }
+    }
+
+    .category-sidebar {
+        display: none;
+    }
+    @media (min-width: 1024px) {
+        .category-sidebar {
+            display: block;
+        }
+    }
+</style>

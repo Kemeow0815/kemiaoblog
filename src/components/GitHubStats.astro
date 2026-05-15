@@ -68,63 +68,119 @@ const snakeDarkSvgUrl = `https://jsd.268682.xyz/gh/${username}/kemiaoblog@output
   </p>
 </section>
 
-<script>
+<script is:inline>
   // 检测图片加载失败，显示备用内容
   // 检测博客主题模式变化，切换明暗图片
-  function initGitHubStats() {
-    const snakeImg = document.getElementById('github-snake-img');
-    const fallback = document.getElementById('github-fallback');
+  (function() {
+    let snakeObserver = null;
+    let initAttempts = 0;
+    const MAX_ATTEMPTS = 10;
 
-    if (!snakeImg) return;
-
-    // 从 data 属性获取图片 URL
-    const snakeSvgUrl = snakeImg.dataset.snakeSvgUrl;
-    const snakeDarkSvgUrl = snakeImg.dataset.snakeDarkSvgUrl;
-
-    if (fallback) {
-      snakeImg.addEventListener('error', () => {
-        snakeImg.closest('.github-snake-container')?.classList.add('hidden');
-        fallback.style.display = 'block';
-      });
-    }
-
-    // 监听主题变化并更新图片
-    function updateSnakeImage() {
+    function getIsDarkMode() {
       const html = document.documentElement;
-      const isDark = html.getAttribute('data-theme') === 'dark';
-
-      const targetSrc = isDark ? snakeDarkSvgUrl : snakeSvgUrl;
-
-      // 直接设置图片源，不比较，确保每次都能正确显示
-      if (targetSrc) {
-        (snakeImg as HTMLImageElement).src = targetSrc;
+      const dataTheme = html.getAttribute('data-theme');
+      
+      // 优先检查 data-theme 属性
+      if (dataTheme === 'dark') return true;
+      if (dataTheme === 'light') return false;
+      
+      // 如果没有 data-theme，检查 system-theme 类和 prefers-color-scheme
+      if (html.classList.contains('system-theme')) {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
       }
+      
+      // 默认返回 false（浅色）
+      return false;
     }
 
-    // 初始化图片
-    updateSnakeImage();
+    function initGitHubStats() {
+      const snakeImg = document.getElementById('github-snake-img');
+      const fallback = document.getElementById('github-fallback');
 
-    // 监听主题变化
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.attributeName === 'data-theme') {
-          updateSnakeImage();
-          break;
+      if (!snakeImg) {
+        // 如果元素还没找到，重试几次
+        initAttempts++;
+        if (initAttempts < MAX_ATTEMPTS) {
+          setTimeout(initGitHubStats, 50);
+        }
+        return;
+      }
+
+      initAttempts = 0;
+
+      // 从 data 属性获取图片 URL
+      const snakeSvgUrl = snakeImg.dataset.snakeSvgUrl;
+      const snakeDarkSvgUrl = snakeImg.dataset.snakeDarkSvgUrl;
+
+      // 清理旧的 observer，避免重复监听
+      if (snakeObserver) {
+        snakeObserver.disconnect();
+        snakeObserver = null;
+      }
+
+      // 错误处理函数
+      function handleImageError() {
+        const container = snakeImg.closest('.github-snake-container');
+        if (container) container.classList.add('hidden');
+        if (fallback) {
+          fallback.style.display = 'block';
         }
       }
-    });
 
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme']
-    });
-  }
+      // 绑定错误事件
+      snakeImg.removeEventListener('error', handleImageError);
+      snakeImg.addEventListener('error', handleImageError);
 
-  // 页面首次加载时初始化
-  document.addEventListener('DOMContentLoaded', initGitHubStats);
+      // 监听主题变化并更新图片
+      function updateSnakeImage() {
+        const isDark = getIsDarkMode();
+        const targetSrc = isDark ? snakeDarkSvgUrl : snakeSvgUrl;
 
-  // 监听 astro:after-swap 事件（SPA 导航后）
-  document.addEventListener('astro:after-swap', initGitHubStats);
+        // 只有当 src 真正需要改变时才更新
+        if (targetSrc && snakeImg.src !== targetSrc) {
+          snakeImg.src = targetSrc;
+        }
+      }
+
+      // 立即更新图片（不延迟）
+      updateSnakeImage();
+      
+      // 额外延迟检查一次，确保主题已正确应用
+      setTimeout(updateSnakeImage, 0);
+      setTimeout(updateSnakeImage, 100);
+
+      // 监听主题变化
+      snakeObserver = new MutationObserver(function(mutations) {
+        for (let i = 0; i < mutations.length; i++) {
+          if (mutations[i].attributeName === 'data-theme') {
+            updateSnakeImage();
+            break;
+          }
+        }
+      });
+
+      snakeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['data-theme']
+      });
+
+      // 同时监听 prefers-color-scheme 变化（用于 system 主题模式）
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      mediaQuery.removeEventListener('change', updateSnakeImage);
+      mediaQuery.addEventListener('change', updateSnakeImage);
+    }
+
+    // 页面首次加载时初始化
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initGitHubStats);
+    } else {
+      // DOM 已加载，立即执行
+      initGitHubStats();
+    }
+
+    // 监听 astro:after-swap 事件（SPA 导航后）
+    document.addEventListener('astro:after-swap', initGitHubStats);
+  })();
 </script>
 
 <style>
