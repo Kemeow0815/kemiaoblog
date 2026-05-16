@@ -4,16 +4,19 @@ const translation: Translation = {
     header: {
         home: "首页",
         archive: "归档",
+        calendar: "日历",
         about: "关于",
         friends: "友链",
         memos: "碎碎念",
         timetable: "课程表",
-        guide: "导航"
+        guide: "导航",
+        musicplayer: "音乐"
     },
     cover: {
         title: {
             home: "欢迎来到克喵的博客",
             archive: "文章归档",
+            calendar: "文章日历",
             about: "关于",
             friends: "友链",
             memos: "碎碎念",
@@ -24,6 +27,7 @@ const translation: Translation = {
         subTitle: {
             home: "记录一些生活日常、踩坑教程和资源分享",
             archive: "共 {count} 篇文章",
+            calendar: "按日期浏览文章",
             about: "我的资料卡~",
             friends: "有趣的灵魂",
             memos: "记录生活的点点滴滴",
@@ -146,6 +150,27 @@ const translation: Translation = {
     pagination: {
         prev: "上一页",
         next: "下一页"
+    },
+    calendar: {
+        january: "一月",
+        february: "二月",
+        march: "三月",
+        april: "四月",
+        may: "五月",
+        june: "六月",
+        july: "七月",
+        august: "八月",
+        september: "九月",
+        october: "十月",
+        november: "十一月",
+        december: "十二月",
+        monday: "一",
+        tuesday: "二",
+        wednesday: "三",
+        thursday: "四",
+        friday: "五",
+        saturday: "六",
+        sunday: "日"
     }
 }
 

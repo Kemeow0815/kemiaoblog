@@ -15,8 +15,9 @@ export async function getStaticPaths() {
 const currentLang = Astro.currentLocale || i18n!.defaultLocale;
 const t = i18nit(currentLang);
 
-// 获取所有 commit 历史（静态生成时）
-const allCommits = gitCommitConfig.enable ? await getCommitHistory(100) : [];
+// 获取所有 commit 历史（静态生成时），限制最多 30 条
+const MAX_COMMITS = 30;
+const allCommits = gitCommitConfig.enable ? (await getCommitHistory(100)).slice(0, MAX_COMMITS) : [];
 
 const pageTitle = `更新日志 - ${siteConfig.title}`;
 

@@ -4,32 +4,36 @@ const translation: Translation = {
     header: {
         home: "Home",
         archive: "Archive",
+        calendar: "Calendar",
         about: "About",
         friends: "Friends",
-        memos: "",
-        timetable: "",
-        guide: ""
+        memos: "Memos",
+        timetable: "Timetable",
+        guide: "Guide",
+        musicplayer: "Music"
     },
     cover: {
         title: {
-            home: "Welcome to Momo's Blog",
-            archive: "Archive",
+            home: "Welcome to Kemeow's Blog",
+            archive: "Article Archive",
+            calendar: "Article Calendar",
             about: "About",
             friends: "Friends",
-            memos: "",
-            monitor: "Link Monitor",
-            note: "Life Notes",
+            memos: "Memos",
+            monitor: "Monitor",
+            note: "Notes",
             wiki: "Wiki"
         },
         subTitle: {
-            home: "Life is colorful!",
-            archive: "Total of {count} articles",
-            about: "A minimalist blog template",
-            friends: "Interesting Souls",
-            memos: "",
-            monitor: "Real-time monitoring of friend links accessibility",
-            note: "Moments worth remembering",
-            wiki: "Knowledge Base & Documentation"
+            home: "Sharing daily life, tutorials and resources",
+            archive: "{count} articles in total",
+            calendar: "Browse articles by date",
+            about: "About me",
+            friends: "Interesting souls",
+            memos: "Record the bits of life",
+            monitor: "Real-time friend link monitoring",
+            note: "Time well spent",
+            wiki: "Knowledge Base"
         }
     },
     toc: "Contents",
@@ -146,6 +150,27 @@ const translation: Translation = {
     pagination: {
         prev: "Previous",
         next: "Next"
+    },
+    calendar: {
+        january: "Jan",
+        february: "Feb",
+        march: "Mar",
+        april: "Apr",
+        may: "May",
+        june: "Jun",
+        july: "Jul",
+        august: "Aug",
+        september: "Sep",
+        october: "Oct",
+        november: "Nov",
+        december: "Dec",
+        monday: "M",
+        tuesday: "T",
+        wednesday: "W",
+        thursday: "T",
+        friday: "F",
+        saturday: "S",
+        sunday: "S"
     }
 }
 

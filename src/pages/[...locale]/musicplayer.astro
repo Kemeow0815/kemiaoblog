@@ -1,0 +1,119 @@
+---
+import MainPageLayout from "@layouts/MainPageLayout.astro";
+import MusicPlayer from "@components/music-player/MusicPlayer.svelte";
+import { siteConfig } from "@/config";
+import i18nit from "@i18n/translation";
+import { i18n } from "astro:config/client";
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+export async function getStaticPaths() {
+	return i18n?.locales.map(locale => ({ params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) } }));
+}
+
+// Page metadata
+const pageTitle = (t("header.musicplayer") || "音乐播放器") + " - " + siteConfig.title;
+const pageDescription = "在线音乐播放器，本地播放列表";
+
+// 本地歌曲播放列表
+const localPlaylist = [
+	{
+		id: 1,
+		title: "白石溪（Cover 洛天依 / 乐正绫）",
+		artist: "双笙（陈元汐） / 冥月",
+		url: "https://cdn.jsdmirror.com/gh/Kemeow0815/song@main/music/baishixi.mp3",
+		cover: "https://meting2.050815.xyz/api?server=netease&type=pic&id=109951163055852179",
+		duration: 0,
+		lrc: "https://meting2.050815.xyz/api?server=netease&type=lrc&id=516997458"
+	},
+	{
+		id: 2,
+		title: "我本将心向明月",
+		artist: "王朝1982 / 朱旭BooBoo",
+		url: "https://meting2.050815.xyz/api?server=netease&type=url&id=1964850580",
+		cover: "https://meting2.050815.xyz/api?server=netease&type=pic&id=109951172856631446",
+		duration: 0,
+		lrc: "https://meting2.050815.xyz/api?server=netease&type=lrc&id=1964850580"
+	},
+	{
+		id: 3,
+		title: "一句话形容不了终极笔记",
+		artist: "应有棠 / 叶落梦中 / 御A桑 / 灬阿楚灬 / 绯言 / 小山xl / 霄镁 / 烫不直的自然卷 / 堇墨安歌 / 天罗",
+		url: "https://meting2.050815.xyz/api?server=netease&type=url&id=1957502053",
+		cover: "https://meting2.050815.xyz/api?server=netease&type=pic&id=109951167571289227",
+		duration: 0,
+		lrc: "https://meting2.050815.xyz/api?server=netease&type=lrc&id=1957502053"
+	}
+];
+
+// Music player configuration - 本地模式
+const musicConfig = {
+	mode: "local" as const,
+	playlist: localPlaylist
+};
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+	<div class="w-full max-w-5xl mx-auto px-4 py-8">
+		<!-- Page Header -->
+		<div class="text-center mb-8">
+			<h1 class="text-3xl font-bold text-[var(--text-color)] mb-2">{t("header.musicplayer") || "音乐播放器"}</h1>
+			<p class="text-[var(--text-color-70)]">{pageDescription}</p>
+		</div>
+
+		<!-- Music Player Component -->
+		<MusicPlayer
+			client:load
+			mode={musicConfig.mode}
+			playlist={musicConfig.playlist}
+		/>
+
+		<!-- Instructions -->
+		<div class="mt-8 p-6 bg-[var(--card-bg)] border border-[var(--button-border-color)] rounded-2xl">
+			<h2 class="text-lg font-bold text-[var(--text-color)] mb-4">使用说明</h2>
+			<div class="grid md:grid-cols-2 gap-4 text-sm text-[var(--text-color-70)]">
+				<div>
+					<h3 class="font-medium text-[var(--text-color)] mb-2">播放控制</h3>
+					<ul class="space-y-1 list-disc list-inside">
+						<li>点击播放/暂停按钮控制音乐</li>
+						<li>使用上一首/下一首切换歌曲</li>
+						<li>点击进度条可跳转播放位置</li>
+					</ul>
+				</div>
+				<div>
+					<h3 class="font-medium text-[var(--text-color)] mb-2">播放模式</h3>
+					<ul class="space-y-1 list-disc list-inside">
+						<li>顺序播放：按列表顺序播放</li>
+						<li>单曲循环：重复播放当前歌曲</li>
+						<li>随机播放：随机选择下一首</li>
+					</ul>
+				</div>
+			</div>
+			<div class="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-600 text-sm">
+				<strong>当前配置：</strong>本地播放列表模式 - 共 {localPlaylist.length} 首歌曲
+			</div>
+		</div>
+	</div>
+</MainPageLayout>
+
+<style>
+	/* Custom scrollbar for playlist */
+	:global(.overflow-y-auto) {
+		scrollbar-width: thin;
+		scrollbar-color: var(--button-hover-color) transparent;
+	}
+
+	:global(.overflow-y-auto::-webkit-scrollbar) {
+		width: 6px;
+	}
+
+	:global(.overflow-y-auto::-webkit-scrollbar-track) {
+		background: transparent;
+	}
+
+	:global(.overflow-y-auto::-webkit-scrollbar-thumb) {
+		background-color: var(--button-hover-color);
+		border-radius: 3px;
+	}
+</style>

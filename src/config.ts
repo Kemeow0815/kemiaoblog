@@ -174,6 +174,20 @@ export const guideConfig: GuideItem[] = [
         href: "/monitor/",
         icon: "material-symbols:monitor-heart-outline",
         order: 12
+    },
+    {
+        title: "日历",
+        description: "一些备忘和记录",
+        href: "/calendar/",
+        icon: "solar:calendar-linear",
+        order: 13
+    },
+    {
+        title: "歌单",
+        description: "我的音乐歌单",
+        href: "/musicplayer/",
+        icon: "material-symbols:music-note",
+        order: 14
     }
 ];
 

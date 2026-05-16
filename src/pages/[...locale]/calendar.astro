@@ -1,0 +1,115 @@
+---
+import MainPageLayout from '@layouts/MainPageLayout.astro'
+import { CalendarWrapper } from '@components/calendar'
+import FabMenu from '@components/control/FabMenu.astro'
+import { siteConfig } from '@/config'
+import i18nit from '@i18n/translation'
+import { i18n } from "astro:config/client";
+
+const currentLang = Astro.currentLocale || i18n!.defaultLocale;
+const t = i18nit(currentLang);
+
+export async function getStaticPaths() {
+	return i18n?.locales.map(locale => ({ params: { locale: locale == i18n?.defaultLocale ? undefined : (locale as string) } }));
+}
+
+const pageTitle = (t("header.calendar") || "日历") + " - " + siteConfig.title;
+---
+
+<MainPageLayout title={pageTitle} lang={currentLang}>
+    <div class="calendar-page">
+        <div class="calendar-header">
+            <h1 class="calendar-title">{t("header.calendar") || "文章日历"}</h1>
+            <p class="calendar-subtitle">{t("cover.subTitle.calendar") || "按日期浏览文章"}</p>
+        </div>
+        
+        <div class="calendar-content">
+            <div class="calendar-main">
+                <CalendarWrapper currentLang={currentLang} />
+            </div>
+        </div>
+    </div>
+    <FabMenu showBackBottom={true} />
+</MainPageLayout>
+
+<style>
+    .calendar-page {
+        max-width: var(--page-width);
+        margin: 0 auto;
+        padding: 0 1rem;
+        min-height: calc(100vh - 200px);
+    }
+
+    .calendar-header {
+        text-align: center;
+        padding: 2rem 0;
+        margin-bottom: 1rem;
+    }
+
+    .calendar-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+    }
+
+    .calendar-subtitle {
+        font-size: 1rem;
+        color: var(--text-color-70);
+    }
+
+    .calendar-content {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-bottom: 3rem;
+    }
+
+    .calendar-main {
+        width: 100%;
+        max-width: 600px;
+    }
+
+    /* 响应式布局 - 参考 responsive-fix 文章 */
+    @media (max-width: 767px) {
+        .calendar-page {
+            padding: 0 0.75rem;
+        }
+
+        .calendar-header {
+            padding: 1.5rem 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-title {
+            font-size: 1.5rem;
+        }
+
+        .calendar-subtitle {
+            font-size: 0.875rem;
+        }
+
+        .calendar-main {
+            max-width: 100%;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+        .calendar-main {
+            max-width: 500px;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .calendar-main {
+            max-width: 600px;
+        }
+    }
+
+    /* 确保在电脑端显示 */
+    @media (min-width: 768px) {
+        .calendar-main {
+            display: block !important;
+        }
+    }
+</style>

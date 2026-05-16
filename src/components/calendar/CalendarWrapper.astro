@@ -1,0 +1,75 @@
+---
+import CalendarWidget from "./Calendar.svelte";
+import i18nit from "@i18n/translation";
+
+interface Props {
+	class?: string;
+	currentLang: string;
+}
+
+const { class: className, currentLang } = Astro.props;
+
+const t = i18nit(currentLang);
+
+const monthNames = [
+	t("calendar.january"),
+	t("calendar.february"),
+	t("calendar.march"),
+	t("calendar.april"),
+	t("calendar.may"),
+	t("calendar.june"),
+	t("calendar.july"),
+	t("calendar.august"),
+	t("calendar.september"),
+	t("calendar.october"),
+	t("calendar.november"),
+	t("calendar.december"),
+];
+
+const weekDays = [
+	t("calendar.monday"),
+	t("calendar.tuesday"),
+	t("calendar.wednesday"),
+	t("calendar.thursday"),
+	t("calendar.friday"),
+	t("calendar.saturday"),
+	t("calendar.sunday"),
+];
+
+const isChinese = currentLang.startsWith("zh");
+const yearSuffix = isChinese ? "年" : " ";
+---
+
+<div class={`calendar-wrapper ${className}`}>
+	<CalendarWidget
+		client:only="svelte"
+		{monthNames}
+		{weekDays}
+		{yearSuffix}
+		{currentLang}
+	/>
+</div>
+
+<style>
+	.calendar-wrapper {
+		background: var(--bg-color);
+		border: 1px solid var(--button-border-color);
+		border-radius: 0.75rem;
+		padding: 1rem;
+		margin-bottom: 2rem;
+	}
+
+	/* 响应式布局修复 - 参考 responsive-fix 文章 */
+	@media (min-width: 768px) {
+		.calendar-wrapper {
+			display: block !important;
+		}
+	}
+
+	@media (max-width: 767px) {
+		.calendar-wrapper {
+			padding: 0.75rem;
+			margin-bottom: 1.5rem;
+		}
+	}
+</style>
