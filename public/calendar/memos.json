@@ -1,0 +1,22 @@
+{
+  "id": "calendar-memos",
+  "name": "日历备忘",
+  "version": 1,
+  "lastUpdated": 1778997300748,
+  "memos": [
+    {
+      "id": "memo-1",
+      "content": "测试备忘",
+      "date": "2026-05-18",
+      "createdAt": 1705276800000,
+      "updatedAt": 1705276800000
+    },
+    {
+      "id": "memo-1778997300748-81l4e520x",
+      "content": "公休",
+      "date": "2026-05-20",
+      "createdAt": 1781913600000,
+      "updatedAt": 1781913600000
+    }
+  ]
+}

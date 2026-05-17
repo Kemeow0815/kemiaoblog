@@ -11,11 +11,9 @@
 		todayDate = now.getDate();
 	}
 
-	import { CalendarGrid, MemoEditor, MonthPicker, YearPicker } from "./components";
+	import { CalendarGrid, MonthPicker, YearPicker } from "./components";
 	import {
 		buildMemoDateMap,
-		createMemo,
-		deleteMemo,
 		formatDateKey,
 		formatMonthKey,
 		getCurrentPostId,
@@ -23,8 +21,6 @@
 		getFirstDayOfMonth,
 		loadMemosFromStorage,
 		processPostsData,
-		saveMemosToStorage,
-		updateMemo,
 	} from "./hooks/useCalendar";
 	import type {
 		CalendarGridCell,
@@ -53,7 +49,7 @@
 		maxYear: new Date().getFullYear() + 5,
 	});
 
-	// Memo state
+	// Memo state (read-only)
 	let allMemos: CalendarMemo[] = $state([]);
 	let memoDateMap: Record<string, CalendarMemo[]> = $state({});
 
@@ -61,10 +57,6 @@
 	let currentMonth = $state(new Date().getMonth());
 	let selectedDateKey: string | null = $state(null);
 	let currentView: "day" | "month" | "year" = $state("day");
-
-	// Memo editor state
-	let isMemoEditorOpen = $state(false);
-	let editingDateKey: string | null = $state(null);
 
 	// Today's date (reactive, updates at midnight)
 	let todayYear = $state(new Date().getFullYear());
@@ -129,8 +121,9 @@
 		})(),
 	);
 
+	// Displayed memos for selected date
 	const displayedMemos = $derived(
-		editingDateKey ? memoDateMap[editingDateKey] || [] : [],
+		selectedDateKey ? memoDateMap[selectedDateKey] || [] : [],
 	);
 
 	// Functions
@@ -171,6 +164,7 @@
 			currentMonth = 11;
 			currentYear--;
 		}
+		selectedDateKey = null;
 	}
 
 	function handleNextMonth() {
@@ -179,6 +173,7 @@
 			currentMonth = 0;
 			currentYear++;
 		}
+		selectedDateKey = null;
 	}
 
 	function handleBackToToday() {
@@ -201,16 +196,23 @@
 	}
 
 	function handleCellClick(dateKey: string) {
-		openMemoEditor(dateKey);
+		// Toggle selection - click same date to deselect
+		if (selectedDateKey === dateKey) {
+			selectedDateKey = null;
+		} else {
+			selectedDateKey = dateKey;
+		}
 	}
 
 	function handleMonthSelect(month: number) {
 		currentMonth = month;
+		selectedDateKey = null;
 		closeSelectionPanel();
 	}
 
 	function handleYearSelect(year: number) {
 		currentYear = year;
+		selectedDateKey = null;
 		showMonthPicker();
 	}
 
@@ -226,49 +228,17 @@
 		currentView = "day";
 	}
 
-	// Memo functions
-	function loadMemos() {
-		allMemos = loadMemosFromStorage();
+	// Memo functions (read-only)
+	async function loadMemos() {
+		allMemos = await loadMemosFromStorage();
 		memoDateMap = buildMemoDateMap(allMemos);
-	}
-
-	function handleSaveMemo(content: string) {
-		if (!editingDateKey) return;
-		const newMemo = createMemo(content, editingDateKey);
-		allMemos = [...allMemos, newMemo];
-		memoDateMap = buildMemoDateMap(allMemos);
-		saveMemosToStorage(allMemos);
-	}
-
-	function handleUpdateMemo(memoId: string, content: string) {
-		allMemos = updateMemo(allMemos, memoId, content);
-		memoDateMap = buildMemoDateMap(allMemos);
-		saveMemosToStorage(allMemos);
-	}
-
-	function handleDeleteMemo(memoId: string) {
-		allMemos = deleteMemo(allMemos, memoId);
-		memoDateMap = buildMemoDateMap(allMemos);
-		saveMemosToStorage(allMemos);
-	}
-
-	function openMemoEditor(dateKey: string) {
-		editingDateKey = dateKey;
-		isMemoEditorOpen = true;
-	}
-
-	function closeMemoEditor() {
-		isMemoEditorOpen = false;
-		editingDateKey = null;
-	}
-
-	function handleCellRightClick(dateKey: string, _event: MouseEvent) {
-		openMemoEditor(dateKey);
 	}
 
 	onMount(() => {
 		fetchCalendarData();
-		loadMemos();
+		loadMemos().catch((error) => {
+			console.error("Failed to load memos:", error);
+		});
 
 		// Check for date change every minute
 		dateCheckInterval = setInterval(() => {
@@ -360,8 +330,28 @@
 			{emptyCellsCount}
 			{cells}
 			onCellClick={handleCellClick}
-			onCellRightClick={handleCellRightClick}
 		/>
+
+		<!-- Memo Display Section -->
+		{#if displayedMemos.length > 0}
+			<div class="mt-4">
+				<div class="h-[1px] w-full bg-[var(--button-border-color)] mb-2"></div>
+				<div class="flex items-center gap-2 mb-2">
+					<Icon icon="material-symbols:event-note" class="text-amber-500 text-sm" />
+					<span class="text-sm font-medium text-[var(--text-color)]">
+						{selectedDateKey} 备忘
+					</span>
+				</div>
+				<div class="flex flex-col gap-2">
+					{#each displayedMemos as memo (memo.id)}
+						<div class="flex items-start gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
+							<Icon icon="material-symbols:check-circle" class="text-amber-500 text-sm mt-0.5 shrink-0" />
+							<span class="text-sm text-[var(--text-color)]">{memo.content}</span>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
 
 		<div class="mt-4">
 			<div
@@ -415,22 +405,11 @@
 	{:else if currentView === "year"}
 		<div class="absolute inset-0 bg-[var(--bg-color)] z-10 flex flex-col">
 			<YearPicker {currentYear} {stats} onYearSelect={handleYearSelect} />
-	</div>
-{/if}
+		</div>
+	{/if}
 </div>
 
-<!-- Memo Editor Modal -->
-<MemoEditor
-	isOpen={isMemoEditorOpen}
-	dateKey={editingDateKey || ""}
-	memos={displayedMemos}
-	onClose={closeMemoEditor}
-	onSave={handleSaveMemo}
-	onDelete={handleDeleteMemo}
-	onUpdate={handleUpdateMemo}
-/>
-
-<!-- Memo Hint -->
+<!-- Legend -->
 <div class="mt-3 flex items-center justify-center gap-4 text-xs text-[var(--text-color-70)]">
 	<div class="flex items-center gap-1">
 		<span class="w-1.5 h-1.5 rounded-full bg-[var(--link-color)]"></span>
@@ -442,7 +421,7 @@
 	</div>
 	<div class="flex items-center gap-1">
 		<Icon icon="material-symbols:touch-app" class="text-sm" />
-		<span>点击日期管理备忘</span>
+		<span>点击日期查看备忘</span>
 	</div>
 </div>
 

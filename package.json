@@ -8,7 +8,10 @@
     "preview": "astro preview",
     "astro": "astro",
     "newpost": "node script/newpost.js",
-    "test": "astro build && pagefind --site dist && astro preview"
+    "test": "astro build && pagefind --site dist && astro preview",
+    "newmemo": "node scripts/add-memo.mjs",
+    "listmemo": "node scripts/list-memos.mjs",
+    "delmemo": "node scripts/delete-memo.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",

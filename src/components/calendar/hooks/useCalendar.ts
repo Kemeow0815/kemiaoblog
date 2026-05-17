@@ -172,41 +172,28 @@ export function getCurrentPostId(
     return matchedPost ? matchedPost.id : null;
 }
 
-// Memo storage key for localStorage
-const MEMO_STORAGE_KEY = "calendar-memos";
+// Memo storage - read-only from JSON file via API
+const MEMOS_API_URL = "/api/calendar-memos.json";
 
 /**
- * Load memos from localStorage
+ * Load memos from JSON file via API (read-only)
  */
-export function loadMemosFromStorage(): import("../types").CalendarMemo[] {
+export async function loadMemosFromStorage(): Promise<
+    import("../types").CalendarMemo[]
+> {
     if (typeof window === "undefined") {
         return [];
     }
     try {
-        const stored = localStorage.getItem(MEMO_STORAGE_KEY);
-        if (stored) {
-            return JSON.parse(stored);
+        const response = await fetch(MEMOS_API_URL);
+        if (response.ok) {
+            const data = await response.json();
+            return data.memos || [];
         }
     } catch (error) {
-        console.error("Failed to load memos from storage:", error);
+        console.error("Failed to load memos from API:", error);
     }
     return [];
-}
-
-/**
- * Save memos to localStorage
- */
-export function saveMemosToStorage(
-    memos: import("../types").CalendarMemo[],
-): void {
-    if (typeof window === "undefined") {
-        return;
-    }
-    try {
-        localStorage.setItem(MEMO_STORAGE_KEY, JSON.stringify(memos));
-    } catch (error) {
-        console.error("Failed to save memos to storage:", error);
-    }
 }
 
 /**
@@ -223,53 +210,4 @@ export function buildMemoDateMap(
         memoDateMap[memo.date].push(memo);
     });
     return memoDateMap;
-}
-
-/**
- * Generate unique ID for memo
- */
-export function generateMemoId(): string {
-    return `memo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-}
-
-/**
- * Create a new memo
- */
-export function createMemo(
-    content: string,
-    date: string,
-): import("../types").CalendarMemo {
-    const now = Date.now();
-    return {
-        id: generateMemoId(),
-        content: content.trim(),
-        date,
-        createdAt: now,
-        updatedAt: now,
-    };
-}
-
-/**
- * Update an existing memo
- */
-export function updateMemo(
-    memos: import("../types").CalendarMemo[],
-    memoId: string,
-    content: string,
-): import("../types").CalendarMemo[] {
-    return memos.map((memo) =>
-        memo.id === memoId
-            ? { ...memo, content: content.trim(), updatedAt: Date.now() }
-            : memo,
-    );
-}
-
-/**
- * Delete a memo
- */
-export function deleteMemo(
-    memos: import("../types").CalendarMemo[],
-    memoId: string,
-): import("../types").CalendarMemo[] {
-    return memos.filter((memo) => memo.id !== memoId);
 }
